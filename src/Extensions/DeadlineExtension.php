@@ -49,18 +49,6 @@ use function round;
  */
 final class DeadlineExtension extends AbstractExtension
 {
-    /**
-     * Request start time for elapsed calculation.
-     */
-    private ?CarbonImmutable $requestStartTime = null;
-
-    /**
-     * Original timeout specification from request.
-     *
-     * @var null|array{value: int, unit: string}
-     */
-    private ?array $specifiedTimeout = null;
-
     #[Override()]
     public function getUrn(): string
     {
@@ -93,10 +81,11 @@ final class DeadlineExtension extends AbstractExtension
      */
     public function onExecutingFunction(ExecutingFunction $event): void
     {
-        // Record start time for elapsed calculation
-        $this->requestStartTime = CarbonImmutable::now();
+        // Record start time in request metadata for thread safety
+        $startTime = CarbonImmutable::now();
+        $event->request->meta['deadline_start'] = $startTime;
 
-        // Track specified timeout for response
+        // Track specified timeout in metadata for thread safety
         if (isset($event->extension->options['timeout']) && is_array($event->extension->options['timeout'])) {
             /** @var int $timeoutValue */
             $timeoutValue = $event->extension->options['timeout']['value'] ?? 0;
@@ -104,7 +93,7 @@ final class DeadlineExtension extends AbstractExtension
             /** @var string $timeoutUnit */
             $timeoutUnit = $event->extension->options['timeout']['unit'] ?? 'second';
 
-            $this->specifiedTimeout = [
+            $event->request->meta['deadline_specified'] = [
                 'value' => $timeoutValue,
                 'unit' => $timeoutUnit,
             ];
@@ -117,11 +106,8 @@ final class DeadlineExtension extends AbstractExtension
         }
 
         // Check if deadline has already passed
-        if (!$deadline->isPast()) {
-            return;
-        }
-
-        $event->setResponse(ResponseData::error(
+        if ($deadline->isPast()) {
+            $event->setResponse(ResponseData::error(
             new ErrorData(
                 code: ErrorCode::DeadlineExceeded,
                 message: 'Request deadline has already passed',
@@ -136,8 +122,9 @@ final class DeadlineExtension extends AbstractExtension
                     'deadline' => $deadline->toIso8601String(),
                 ]),
             ],
-        ));
-        $event->stopPropagation();
+            ));
+            $event->stopPropagation();
+        }
     }
 
     /**
@@ -162,12 +149,13 @@ final class DeadlineExtension extends AbstractExtension
         // Calculate remaining time - clamp to 0 if deadline is past
         $remainingMs = $deadline->isPast() ? 0 : (int) abs($deadline->diffInMilliseconds($now));
 
-        // Calculate elapsed time since request started
-        $startTime = $this->requestStartTime ?? $now;
+        // Retrieve start time from metadata (thread-safe)
+        $startTime = $event->request->meta['deadline_start'] ?? $now;
+        assert($startTime instanceof CarbonImmutable);
         $elapsedMs = (int) abs($startTime->diffInMilliseconds($now));
 
-        // Track specified timeout from options if not already set
-        $specifiedTimeout = $this->specifiedTimeout;
+        // Retrieve specified timeout from metadata (thread-safe)
+        $specifiedTimeout = $event->request->meta['deadline_specified'] ?? null;
 
         if ($specifiedTimeout === null && isset($event->extension->options['timeout']) && is_array($event->extension->options['timeout'])) {
             $specifiedTimeout = [
@@ -247,11 +235,14 @@ final class DeadlineExtension extends AbstractExtension
      * Resolve deadline from extension options.
      *
      * Supports both absolute deadline (ISO 8601 timestamp) and relative timeout
-     * (duration object). Returns null if neither option is provided.
+     * (duration object). Returns null if neither option is provided. Enforces
+     * maximum deadline of 1 hour to prevent abuse.
      *
      * @param null|array<string, mixed> $options Extension options from request
      *
      * @return null|CarbonImmutable Deadline timestamp or null if not specified
+     *
+     * @throws \InvalidArgumentException If deadline exceeds maximum allowed (1 hour)
      */
     private function resolveDeadline(?array $options): ?CarbonImmutable
     {
@@ -259,25 +250,36 @@ final class DeadlineExtension extends AbstractExtension
             return null;
         }
 
+        $deadline = null;
+
         // Absolute deadline
         if (isset($options['deadline'])) {
-            $deadline = $options['deadline'];
-            assert(is_string($deadline) || $deadline instanceof DateTimeInterface || is_int($deadline) || is_float($deadline));
+            $deadlineValue = $options['deadline'];
+            assert(is_string($deadlineValue) || $deadlineValue instanceof DateTimeInterface || is_int($deadlineValue) || is_float($deadlineValue));
 
-            return CarbonImmutable::parse($deadline);
+            $deadline = CarbonImmutable::parse($deadlineValue);
         }
 
         // Relative timeout
-        if (isset($options['timeout']) && is_array($options['timeout'])) {
+        if ($deadline === null && isset($options['timeout']) && is_array($options['timeout'])) {
             /** @var int $value */
             $value = $options['timeout']['value'] ?? 0;
 
             /** @var string $unit */
             $unit = $options['timeout']['unit'] ?? 'second';
 
-            return CarbonImmutable::now()->add($value, $unit);
+            $deadline = CarbonImmutable::now()->add($value, $unit);
         }
 
-        return null;
+        // Enforce maximum deadline (1 hour from now)
+        if ($deadline !== null) {
+            $maxDeadline = CarbonImmutable::now()->addHour();
+
+            if ($deadline->isAfter($maxDeadline)) {
+                throw new \InvalidArgumentException('Deadline cannot exceed 1 hour from now');
+            }
+        }
+
+        return $deadline;
     }
 }
