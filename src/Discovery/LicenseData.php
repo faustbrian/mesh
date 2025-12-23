@@ -9,6 +9,7 @@
 
 namespace Cline\Forrst\Discovery;
 
+use InvalidArgumentException;
 use Spatie\LaravelData\Data;
 
 /**
@@ -36,9 +37,38 @@ final class LicenseData extends Data
      *                          Should point to a stable, versioned document containing complete
      *                          legal terms and conditions. Enables developers to review detailed
      *                          licensing requirements before integration.
+     *
+     * @throws InvalidArgumentException If name is empty or exceeds 100 characters
+     * @throws InvalidArgumentException If URL is provided but invalid or not http/https
      */
     public function __construct(
         public readonly string $name,
         public readonly ?string $url = null,
-    ) {}
+    ) {
+        // Validate name
+        $trimmedName = trim($name);
+        if ($trimmedName === '') {
+            throw new InvalidArgumentException('License name cannot be empty');
+        }
+
+        if (mb_strlen($trimmedName) > 100) {
+            throw new InvalidArgumentException(
+                'License name too long (max 100 characters, got ' . mb_strlen($trimmedName) . ')'
+            );
+        }
+
+        // Validate URL if provided
+        if ($this->url !== null && !filter_var($this->url, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException(
+                "License URL must be valid URL. Got: '{$this->url}'"
+            );
+        }
+
+        if ($this->url !== null) {
+            $parsed = parse_url($this->url);
+            if (!isset($parsed['scheme']) || !in_array(strtolower($parsed['scheme']), ['http', 'https'], true)) {
+                throw new InvalidArgumentException('License URL must use http or https protocol');
+            }
+        }
+    }
 }
