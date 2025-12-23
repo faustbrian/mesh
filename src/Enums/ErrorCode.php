@@ -321,6 +321,24 @@ enum ErrorCode: string
     }
 
     /**
+     * Determine if this is an authentication or authorization error.
+     *
+     * Authentication errors indicate issues with client credentials or permissions.
+     * These errors require client-side action to provide valid credentials or
+     * request appropriate permissions before retrying.
+     *
+     * @return bool True if this is an auth-related error, false otherwise
+     */
+    public function isAuthError(): bool
+    {
+        return match ($this) {
+            self::Unauthorized,
+            self::Forbidden => true,
+            default => false,
+        };
+    }
+
+    /**
      * Convert the error code to an HTTP status code.
      *
      * Maps protocol error codes to their corresponding HTTP status codes for
