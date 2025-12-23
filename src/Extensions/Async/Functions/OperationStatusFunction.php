@@ -15,6 +15,8 @@ use Cline\Forrst\Data\OperationData;
 use Cline\Forrst\Exceptions\OperationNotFoundException;
 use Cline\Forrst\Extensions\Async\Descriptors\OperationStatusDescriptor;
 use Cline\Forrst\Functions\AbstractFunction;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 use function assert;
 use function is_string;
@@ -35,9 +37,11 @@ final class OperationStatusFunction extends AbstractFunction
      * Create a new operation status function instance.
      *
      * @param OperationRepositoryInterface $repository Operation repository
+     * @param LoggerInterface              $logger     Logger for recording operations
      */
     public function __construct(
         private readonly OperationRepositoryInterface $repository,
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {}
 
     /**
@@ -60,8 +64,18 @@ final class OperationStatusFunction extends AbstractFunction
         $operation = $this->repository->find($operationId);
 
         if (!$operation instanceof OperationData) {
+            $this->logger->warning('Operation not found for status check', [
+                'operation_id' => $operationId,
+            ]);
+
             throw OperationNotFoundException::create($operationId);
         }
+
+        $this->logger->debug('Operation status retrieved', [
+            'operation_id' => $operationId,
+            'status' => $operation->status->value,
+            'function' => $operation->function,
+        ]);
 
         return $operation->toArray();
     }

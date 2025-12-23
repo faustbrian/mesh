@@ -31,6 +31,7 @@ use Override;
 use function array_merge;
 use function assert;
 use function bin2hex;
+use function ctype_xdigit;
 use function filter_var;
 use function in_array;
 use function is_string;
@@ -41,8 +42,10 @@ use function now;
 use function parse_url;
 use function random_bytes;
 use function sprintf;
+use function str_starts_with;
 use function strlen;
 use function strtolower;
+use function substr;
 
 use const JSON_THROW_ON_ERROR;
 
@@ -115,6 +118,16 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * astronomically unlikely even with billions of operations.
      */
     private const int OPERATION_ID_BYTES = 12;
+
+    /**
+     * Prefix for operation IDs.
+     */
+    private const string OPERATION_ID_PREFIX = 'op_';
+
+    /**
+     * Expected length of operation ID string (prefix + hex bytes).
+     */
+    private const int OPERATION_ID_LENGTH = 27; // 'op_' (3 chars) + 24 hex chars (12 bytes)
 
     /**
      * Create a new async extension instance.
@@ -341,6 +354,43 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
     }
 
     /**
+     * Validate operation ID format.
+     *
+     * Ensures the operation ID has the correct length, prefix, and contains
+     * only valid hexadecimal characters. This prevents injection attacks and
+     * invalid lookups.
+     *
+     * @param string $operationId Operation identifier to validate
+     *
+     * @throws \InvalidArgumentException If operation ID format is invalid
+     */
+    private function validateOperationId(string $operationId): void
+    {
+        if (strlen($operationId) !== self::OPERATION_ID_LENGTH) {
+            throw new \InvalidArgumentException(sprintf(
+                'Invalid operation ID length: expected %d, got %d',
+                self::OPERATION_ID_LENGTH,
+                strlen($operationId),
+            ));
+        }
+
+        if (!str_starts_with($operationId, self::OPERATION_ID_PREFIX)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Invalid operation ID prefix: expected "%s"',
+                self::OPERATION_ID_PREFIX,
+            ));
+        }
+
+        $hex = substr($operationId, strlen(self::OPERATION_ID_PREFIX));
+
+        if (!ctype_xdigit($hex)) {
+            throw new \InvalidArgumentException(
+                'Invalid operation ID: must contain only hexadecimal characters after prefix',
+            );
+        }
+    }
+
+    /**
      * Transition operation to processing status.
      *
      * Background workers should call this when beginning execution to signal
@@ -349,11 +399,14 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param string     $operationId Unique operation identifier
      * @param null|float $progress    Optional initial progress value (0.0 to 1.0)
      *
+     * @throws \InvalidArgumentException If operation ID format is invalid
      * @throws OperationNotFoundException If operation doesn't exist
      * @throws InvalidOperationStateException If operation cannot be marked as processing
      */
     public function markProcessing(string $operationId, ?float $progress = null): void
     {
+        $this->validateOperationId($operationId);
+
         $operation = $this->operations->find($operationId);
 
         if (!$operation instanceof OperationData) {
@@ -407,11 +460,14 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param string $operationId Unique operation identifier
      * @param mixed  $result      Function execution result to return to client
      *
+     * @throws \InvalidArgumentException If operation ID format is invalid
      * @throws OperationNotFoundException If operation doesn't exist
      * @throws InvalidOperationStateException If operation cannot be completed
      */
     public function complete(string $operationId, mixed $result): void
     {
+        $this->validateOperationId($operationId);
+
         $operation = $this->operations->find($operationId);
 
         if (!$operation instanceof OperationData) {
@@ -460,11 +516,14 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param string                $operationId Unique operation identifier
      * @param array<int, ErrorData> $errors      Error details describing the failure
      *
+     * @throws \InvalidArgumentException If operation ID format is invalid
      * @throws OperationNotFoundException If operation doesn't exist
      * @throws InvalidOperationStateException If operation cannot be failed
      */
     public function fail(string $operationId, array $errors): void
     {
+        $this->validateOperationId($operationId);
+
         $operation = $this->operations->find($operationId);
 
         if (!$operation instanceof OperationData) {
@@ -522,12 +581,14 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param float       $progress    Progress value between 0.0 (started) and 1.0 (complete)
      * @param null|string $message     Optional human-readable status message
      *
+     * @throws \InvalidArgumentException If operation ID format is invalid, progress decreases, or message exceeds maximum length
      * @throws OperationNotFoundException If operation doesn't exist
      * @throws InvalidOperationStateException If operation cannot have progress updated
-     * @throws \InvalidArgumentException If progress decreases or message exceeds maximum length
      */
     public function updateProgress(string $operationId, float $progress, ?string $message = null): void
     {
+        $this->validateOperationId($operationId);
+
         $operation = $this->operations->find($operationId);
 
         if (!$operation instanceof OperationData) {
