@@ -60,5 +60,47 @@ final class ArgumentData extends Data
         public readonly mixed $default = null,
         public readonly ?DeprecatedData $deprecated = null,
         public readonly ?array $examples = null,
-    ) {}
+    ) {
+        $this->validateDefault();
+    }
+
+    /**
+     * Validate that the default value matches the schema type.
+     *
+     * @throws \InvalidArgumentException if default value doesn't match schema type
+     */
+    private function validateDefault(): void
+    {
+        if ($this->default === null || $this->required) {
+            return;
+        }
+
+        $schemaType = $this->schema['type'] ?? null;
+
+        if ($schemaType === null) {
+            return;
+        }
+
+        $actualType = get_debug_type($this->default);
+
+        $typeMap = [
+            'string' => ['string'],
+            'number' => ['int', 'integer', 'float', 'double'],
+            'integer' => ['int', 'integer'],
+            'boolean' => ['bool', 'boolean'],
+            'array' => ['array'],
+            'object' => ['object', 'array'], // Arrays can represent objects in JSON
+            'null' => ['null'],
+        ];
+
+        if (!isset($typeMap[$schemaType])) {
+            throw new \InvalidArgumentException("Unknown schema type: {$schemaType}");
+        }
+
+        if (!\in_array($actualType, $typeMap[$schemaType], true)) {
+            throw new \InvalidArgumentException(
+                "Default value type '{$actualType}' does not match schema type '{$schemaType}' for argument '{$this->name}'"
+            );
+        }
+    }
 }

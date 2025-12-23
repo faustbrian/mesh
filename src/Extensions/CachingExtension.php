@@ -84,6 +84,13 @@ final class CachingExtension extends AbstractExtension
     private const int DEFAULT_TTL_SECONDS = 300;
 
     /**
+     * Maximum allowed TTL for cached responses (1 hour).
+     *
+     * Prevents cache storage exhaustion and excessive stale data.
+     */
+    private const int MAX_TTL_SECONDS = 3_600;
+
+    /**
      * Create a new caching extension instance.
      *
      * @param null|CacheRepository $cache      Optional Laravel cache repository for server-side
@@ -336,11 +343,14 @@ final class CachingExtension extends AbstractExtension
      * Store response in server-side cache.
      *
      * Persists a response to the Laravel cache repository for future retrieval.
-     * No-op if no cache store is configured.
+     * No-op if no cache store is configured. TTL is clamped to maximum to prevent
+     * storage exhaustion and excessive stale data.
      *
      * @param string       $cacheKey Unique cache key for this request
      * @param ResponseData $response Response to cache
-     * @param null|int     $ttl      Time-to-live in seconds (uses default if null)
+     * @param null|int     $ttl      Time-to-live in seconds (uses default if null, clamped to maximum)
+     *
+     * @throws \InvalidArgumentException If TTL is negative
      */
     public function setCached(string $cacheKey, ResponseData $response, ?int $ttl = null): void
     {
@@ -348,7 +358,16 @@ final class CachingExtension extends AbstractExtension
             return;
         }
 
-        $this->cache->put($cacheKey, $response->toArray(), $ttl ?? $this->defaultTtl);
+        $effectiveTtl = $ttl ?? $this->defaultTtl;
+
+        if ($effectiveTtl < 0) {
+            throw new \InvalidArgumentException('Cache TTL cannot be negative');
+        }
+
+        // Enforce maximum TTL to prevent abuse
+        $effectiveTtl = min($effectiveTtl, self::MAX_TTL_SECONDS);
+
+        $this->cache->put($cacheKey, $response->toArray(), $effectiveTtl);
     }
 
     /**

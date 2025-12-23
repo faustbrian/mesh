@@ -87,6 +87,13 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
     private ?array $context = null;
 
     /**
+     * Authorization callback for administrative operations.
+     *
+     * @var null|callable(string): bool
+     */
+    private $authorizationCallback = null;
+
+    /**
      * Get the functions provided by this extension.
      *
      * @return array<int, class-string<FunctionInterface>>
