@@ -9,6 +9,8 @@
 
 namespace Cline\Forrst\Contracts;
 
+use Cline\Forrst\Data\HealthStatus;
+
 /**
  * Forrst health checker contract interface.
  *
@@ -48,9 +50,26 @@ interface HealthCheckerInterface
      *
      * Performs a health check on the component and returns standardized status
      * information including availability, latency metrics, and diagnostic messages.
-     * The status field should be one of: "healthy", "degraded", "unhealthy".
      *
-     * @return array{status: string, latency?: array{value: int, unit: string}, message?: string, last_check?: string} Health status data
+     * PERFORMANCE: This method should complete within 5 seconds maximum.
+     * Use timeouts when checking external dependencies:
+     * - Database queries: 2-3 second timeout
+     * - HTTP requests: 3-5 second timeout
+     * - Cache operations: 1-2 second timeout
+     *
+     * If a check times out, return 'unhealthy' with appropriate message
+     * rather than throwing an exception.
+     *
+     * SECURITY: Messages should be informative but must NOT include:
+     * - Database connection strings or credentials
+     * - Internal IP addresses or hostnames (use generic identifiers)
+     * - Stack traces or sensitive error details
+     * - Version numbers that could aid attackers
+     *
+     * Good: "Database connection failed"
+     * Bad: "Failed to connect to mysql://user:pass@10.0.1.50:3306/prod_db"
+     *
+     * @return HealthStatus Health status object
      */
-    public function check(): array;
+    public function check(): HealthStatus;
 }
