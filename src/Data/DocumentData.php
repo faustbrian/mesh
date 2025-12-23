@@ -82,4 +82,102 @@ final class DocumentData extends AbstractData
             meta: isset($data['meta']) && \is_array($data['meta']) ? $data['meta'] : null,
         );
     }
+
+    /**
+     * Create a successful response document.
+     *
+     * Factory method for creating a DocumentData instance representing a
+     * successful RPC response. This is the standard way to create success
+     * documents without error information.
+     *
+     * @param  array<string, mixed>                  $data     The successful response payload
+     * @param  null|array<int, array<string, mixed>> $included Optional related resources
+     * @param  null|array<string, mixed>             $meta     Optional metadata
+     * @return self New DocumentData instance for success response
+     */
+    public static function success(
+        array $data,
+        ?array $included = null,
+        ?array $meta = null,
+    ): self {
+        return new self(
+            data: $data,
+            included: $included,
+            errors: null,
+            meta: $meta,
+        );
+    }
+
+    /**
+     * Create an error response document.
+     *
+     * Factory method for creating a DocumentData instance representing a
+     * failed RPC response. Per JSON:API specification, error responses
+     * should not include a data field.
+     *
+     * @param  array<int, mixed>         $errors Array of error objects
+     * @param  null|array<string, mixed> $meta   Optional metadata
+     * @return self New DocumentData instance for error response
+     */
+    public static function error(
+        array $errors,
+        ?array $meta = null,
+    ): self {
+        return new self(
+            data: [],
+            included: null,
+            errors: $errors,
+            meta: $meta,
+        );
+    }
+
+    /**
+     * Check if the document represents an error response.
+     *
+     * @return bool True if the document contains errors, false otherwise
+     */
+    public function hasErrors(): bool
+    {
+        return $this->errors !== null && \count($this->errors) > 0;
+    }
+
+    /**
+     * Check if the document includes related resources.
+     *
+     * @return bool True if the document has included resources, false otherwise
+     */
+    public function hasIncluded(): bool
+    {
+        return $this->included !== null && \count($this->included) > 0;
+    }
+
+    /**
+     * Check if the document has metadata.
+     *
+     * @return bool True if the document has metadata, false otherwise
+     */
+    public function hasMeta(): bool
+    {
+        return $this->meta !== null && \count($this->meta) > 0;
+    }
+
+    /**
+     * Get the number of errors in the document.
+     *
+     * @return int The count of errors, or 0 if no errors present
+     */
+    public function getErrorCount(): int
+    {
+        return $this->errors !== null ? \count($this->errors) : 0;
+    }
+
+    /**
+     * Get the number of included resources in the document.
+     *
+     * @return int The count of included resources, or 0 if none present
+     */
+    public function getIncludedCount(): int
+    {
+        return $this->included !== null ? \count($this->included) : 0;
+    }
 }
