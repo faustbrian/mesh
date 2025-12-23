@@ -383,6 +383,73 @@ enum ErrorCode: string
     }
 
     /**
+     * Get the error category as a string for logging/metrics.
+     *
+     * Provides a consistent category label for error tracking, logging,
+     * and metrics aggregation. Categories align with error code groupings.
+     *
+     * @return string Error category name (protocol, function, auth, resource, etc.)
+     */
+    public function getCategory(): string
+    {
+        return match ($this) {
+            self::ParseError,
+            self::InvalidRequest,
+            self::InvalidProtocolVersion => 'protocol',
+
+            self::FunctionNotFound,
+            self::VersionNotFound,
+            self::FunctionDisabled,
+            self::InvalidArguments,
+            self::SchemaValidationFailed,
+            self::FunctionMaintenance => 'function',
+
+            self::ExtensionNotSupported,
+            self::ExtensionNotApplicable => 'extension',
+
+            self::Unauthorized,
+            self::Forbidden => 'authentication',
+
+            self::NotFound,
+            self::Conflict,
+            self::Gone => 'resource',
+
+            self::DeadlineExceeded,
+            self::RateLimited => 'rate_limiting',
+
+            self::InternalError,
+            self::Unavailable,
+            self::DependencyError,
+            self::ServerMaintenance => 'server',
+
+            self::IdempotencyConflict,
+            self::IdempotencyProcessing => 'idempotency',
+
+            self::AsyncOperationNotFound,
+            self::AsyncOperationFailed,
+            self::AsyncCannotCancel => 'async',
+
+            self::ReplayNotFound,
+            self::ReplayExpired,
+            self::ReplayAlreadyComplete,
+            self::ReplayCancelled => 'replay',
+
+            self::Cancelled,
+            self::CancellationTokenUnknown,
+            self::CancellationTooLate => 'cancellation',
+
+            self::LockAcquisitionFailed,
+            self::LockTimeout,
+            self::LockNotFound,
+            self::LockOwnershipMismatch,
+            self::LockAlreadyReleased => 'locking',
+
+            self::SimulationNotSupported,
+            self::SimulationScenarioNotFound => 'simulation',
+        };
+    }
+
+    /**
      * Convert the error code to an HTTP status code.
      *
      * Maps protocol error codes to their corresponding HTTP status codes for
