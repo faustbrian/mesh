@@ -9,12 +9,16 @@
 
 namespace Cline\Forrst\Extensions;
 
+use Carbon\CarbonImmutable;
 use Cline\Forrst\Data\ExtensionData;
 use Cline\Forrst\Data\ResponseData;
 use Cline\Forrst\Events\FunctionExecuted;
 use Override;
 
+use function array_filter;
 use function in_array;
+use function is_array;
+use function is_string;
 use function sprintf;
 
 /**
@@ -45,6 +49,11 @@ final class DeprecationExtension extends AbstractExtension
     public const string TYPE_ARGUMENT = 'argument';
 
     public const string TYPE_FIELD = 'field';
+
+    /**
+     * Maximum number of warnings to include in response.
+     */
+    private const int MAX_WARNINGS = 10;
 
     /**
      * Registered deprecation warnings.
@@ -82,11 +91,15 @@ final class DeprecationExtension extends AbstractExtension
      * Filters warnings to only those applicable to the executed function/version
      * and not acknowledged by the client. Enriches response with warning metadata
      * including sunset dates, replacements, and migration documentation links.
+     * Also prunes expired warnings.
      *
      * @param FunctionExecuted $event Function execution event with response
      */
     public function onFunctionExecuted(FunctionExecuted $event): void
     {
+        // Prune expired warnings before processing
+        $this->pruneExpiredWarnings();
+
         $acknowledgedUrns = $this->getAcknowledgedUrns($event->extension->options);
         $applicableWarnings = $this->getApplicableWarnings(
             $event->request->call->function,
@@ -247,7 +260,8 @@ final class DeprecationExtension extends AbstractExtension
      * Get acknowledged URNs from extension options.
      *
      * Clients can suppress specific warnings they've already handled by providing
-     * URNs in the acknowledge array. This prevents duplicate warnings.
+     * URNs in the acknowledge array. This prevents duplicate warnings. Validates
+     * that the acknowledge value is an array of strings.
      *
      * @param null|array<string, mixed> $options Extension options from request
      *
@@ -255,15 +269,23 @@ final class DeprecationExtension extends AbstractExtension
      */
     private function getAcknowledgedUrns(?array $options): array
     {
-        // @phpstan-ignore return.type
-        return $options['acknowledge'] ?? [];
+        $acknowledge = $options['acknowledge'] ?? [];
+
+        // Validate that it's an array
+        if (!is_array($acknowledge)) {
+            return [];
+        }
+
+        // Filter to only strings
+        return array_filter($acknowledge, 'is_string');
     }
 
     /**
      * Get applicable warnings for a function/version.
      *
      * Filters registered warnings to only those that match the executed function
-     * and version, excluding any warnings the client has acknowledged.
+     * and version, excluding any warnings the client has acknowledged. Limits
+     * the number of warnings to prevent response bloat.
      *
      * @param string             $function         Function name
      * @param null|string        $version          Function version
@@ -274,8 +296,14 @@ final class DeprecationExtension extends AbstractExtension
     private function getApplicableWarnings(string $function, ?string $version, array $acknowledgedUrns): array
     {
         $applicable = [];
+        $count = 0;
 
         foreach ($this->warnings as $urn => $warning) {
+            // Stop if we've reached the maximum number of warnings
+            if ($count >= self::MAX_WARNINGS) {
+                break;
+            }
+
             // Skip acknowledged warnings
             if (in_array($urn, $acknowledgedUrns, true)) {
                 continue;
@@ -287,6 +315,7 @@ final class DeprecationExtension extends AbstractExtension
             }
 
             $applicable[] = $warning;
+            $count++;
         }
 
         return $applicable;
@@ -315,5 +344,28 @@ final class DeprecationExtension extends AbstractExtension
 
         // Version deprecation
         return $warning['type'] === self::TYPE_VERSION && $target === sprintf('%s@%s', $function, $version);
+    }
+
+    /**
+     * Prune expired warnings.
+     *
+     * Removes warnings for features that have already been removed (past their
+     * sunset date). This prevents memory leaks in long-running processes and
+     * removes warnings for features that no longer exist.
+     */
+    private function pruneExpiredWarnings(): void
+    {
+        $now = CarbonImmutable::now();
+
+        foreach ($this->warnings as $urn => $warning) {
+            if (isset($warning['sunset_date'])) {
+                $sunsetDate = CarbonImmutable::parse($warning['sunset_date']);
+
+                // Remove warnings for features already removed (past sunset)
+                if ($sunsetDate->isPast()) {
+                    unset($this->warnings[$urn]);
+                }
+            }
+        }
     }
 }
