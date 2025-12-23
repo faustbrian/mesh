@@ -452,9 +452,13 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
         string $expiresAt,
         int $ttl,
     ): void {
-        Cache::put($this->metadataKey($key, 'owner'), $owner, $ttl);
-        Cache::put($this->metadataKey($key, 'acquired_at'), $acquiredAt, $ttl);
-        Cache::put($this->metadataKey($key, 'expires_at'), $expiresAt, $ttl);
+        // Add 10 seconds buffer to ensure metadata outlives the lock slightly
+        // This prevents metadata from expiring before lock, but ensures cleanup
+        $metadataTtl = $ttl + 10;
+
+        Cache::put($this->metadataKey($key, 'owner'), $owner, $metadataTtl);
+        Cache::put($this->metadataKey($key, 'acquired_at'), $acquiredAt, $metadataTtl);
+        Cache::put($this->metadataKey($key, 'expires_at'), $expiresAt, $metadataTtl);
     }
 
     /**
