@@ -38,8 +38,24 @@ final class ForbiddenException extends AbstractRequestException
      * structure containing status code, title, and detail message. Used when a user
      * is authenticated but lacks the necessary permissions for the requested operation.
      *
-     * The error details follow a structured format with status, title, and detail
-     * fields to provide clear feedback about the authorization failure.
+     * The error details follow JSON:API error object specification format, where errors
+     * are represented as an array of error objects. This differs from non-HTTP exceptions
+     * to maintain JSON:API compatibility for HTTP status code exceptions.
+     *
+     * SECURITY WARNING: The detail message is returned to clients. Do not include
+     * sensitive information such as:
+     * - Internal role/permission names or IDs
+     * - Database identifiers or internal keys
+     * - Authorization logic implementation details
+     * - User data from authorization checks
+     * - Specific security mechanism information
+     *
+     * Keep messages user-friendly and generic. Good examples:
+     * - "You do not have permission to delete this resource"
+     * - "Insufficient permissions to perform this action"
+     * - "Access to this feature requires additional permissions"
+     *
+     * @see https://jsonapi.org/format/#error-objects
      *
      * @param  null|string $detail Optional detailed error message explaining why access
      *                             was denied. Defaults to a generic authorization failure
@@ -50,6 +66,8 @@ final class ForbiddenException extends AbstractRequestException
      */
     public static function create(?string $detail = null): self
     {
+        // JSON:API error format uses array of error objects (array<int, array<string, string>>)
+        // PHPStan expects array<string, mixed> for the details parameter, hence the suppression
         // @phpstan-ignore-next-line argument.type
         return self::new(ErrorCode::Forbidden, 'Forbidden', details: [
             [
@@ -65,7 +83,7 @@ final class ForbiddenException extends AbstractRequestException
      *
      * @return int Always returns 403 (Forbidden) to indicate authorization failure
      */
-    #[Override()]
+    #[Override]
     public function getStatusCode(): int
     {
         return 403;
