@@ -61,6 +61,9 @@ final class FunctionDescriptor
 
     private ?ExternalDocsData $externalDocs = null;
 
+    /** @var null|array<string, mixed> */
+    private ?array $security = null;
+
     /** @var null|array<int, SimulationScenarioData> */
     private ?array $simulations = null;
 
@@ -398,6 +401,18 @@ final class FunctionDescriptor
         return $this;
     }
 
+    /**
+     * Set security/authorization metadata.
+     *
+     * @param array<string, mixed> $security Security configuration (authentication, authorization, scope)
+     */
+    public function security(array $security): self
+    {
+        $this->security = $security;
+
+        return $this;
+    }
+
     // -------------------------------------------------------------------------
     // Getters for building discovery documents
     // -------------------------------------------------------------------------
@@ -506,5 +521,13 @@ final class FunctionDescriptor
     public function getExtensions(): ?FunctionExtensionsData
     {
         return $this->extensions;
+    }
+
+    /**
+     * @return null|array<string, mixed>
+     */
+    public function getSecurity(): ?array
+    {
+        return $this->security;
     }
 }
