@@ -62,4 +62,35 @@ final class ConfigurationData extends AbstractData
         #[DataCollectionOf(ServerData::class)]
         public readonly DataCollection $servers,
     ) {}
+
+    /**
+     * Create configuration from array data.
+     *
+     * @param array<string, mixed> $data Configuration array
+     * @return self Configured instance
+     */
+    public static function createFromArray(array $data): self
+    {
+        return new self(
+            namespaces: $data['namespaces'] ?? [],
+            paths: $data['paths'] ?? [],
+            resources: $data['resources'] ?? [],
+            servers: DataCollection::create(
+                ServerData::class,
+                $data['servers'] ?? []
+            ),
+        );
+    }
+
+    /**
+     * Create configuration from config file.
+     *
+     * @param string $configKey The config key (e.g., 'rpc')
+     * @return self Configured instance
+     */
+    public static function createFromConfig(string $configKey = 'rpc'): self
+    {
+        $config = config($configKey, []);
+        return self::createFromArray($config);
+    }
 }

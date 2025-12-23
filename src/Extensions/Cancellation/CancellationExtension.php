@@ -206,6 +206,35 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
     }
 
     /**
+     * Validate cancellation token format.
+     *
+     * @param string $token Token to validate
+     *
+     * @throws \InvalidArgumentException If token is invalid
+     *
+     * @return string Validated token
+     */
+    private function validateToken(string $token): string
+    {
+        if ($token === '') {
+            throw new \InvalidArgumentException('Cancellation token cannot be empty');
+        }
+
+        if (\strlen($token) > 100) {
+            throw new \InvalidArgumentException('Cancellation token exceeds maximum length of 100 characters');
+        }
+
+        // Only allow alphanumeric, dash, underscore (UUID-like format recommended)
+        if (!\preg_match('/^[a-zA-Z0-9\-_]+$/', $token)) {
+            throw new \InvalidArgumentException(
+                'Cancellation token contains invalid characters. Only alphanumeric, dash, and underscore allowed.',
+            );
+        }
+
+        return $token;
+    }
+
+    /**
      * Check if a token is cancelled.
      *
      * @param string $token Cancellation token to check

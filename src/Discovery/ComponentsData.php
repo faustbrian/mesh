@@ -66,4 +66,38 @@ final class ComponentsData extends Data
         public readonly ?array $tags = null,
         public readonly ?array $resources = null,
     ) {}
+
+    /**
+     * Validate that a component reference exists.
+     *
+     * @param string $ref Component reference (e.g., "#/components/schemas/User")
+     *
+     * @return bool True if the reference exists, false otherwise
+     */
+    public function hasReference(string $ref): bool
+    {
+        if (!\str_starts_with($ref, '#/components/')) {
+            return false;
+        }
+
+        $parts = \explode('/', \substr($ref, 13)); // Remove '#/components/'
+
+        if (\count($parts) !== 2) {
+            return false;
+        }
+
+        [$componentType, $componentName] = $parts;
+
+        return match ($componentType) {
+            'schemas' => isset($this->schemas[$componentName]),
+            'contentDescriptors' => isset($this->contentDescriptors[$componentName]),
+            'errors' => isset($this->errors[$componentName]),
+            'examples' => isset($this->examples[$componentName]),
+            'examplePairings' => isset($this->examplePairings[$componentName]),
+            'links' => isset($this->links[$componentName]),
+            'tags' => isset($this->tags[$componentName]),
+            'resources' => isset($this->resources[$componentName]),
+            default => false,
+        };
+    }
 }
