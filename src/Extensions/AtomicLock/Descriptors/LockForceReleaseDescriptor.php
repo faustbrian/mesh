@@ -27,12 +27,19 @@ final class LockForceReleaseDescriptor implements DescriptorInterface
     {
         return FunctionDescriptor::make()
             ->urn(FunctionUrn::LocksForceRelease)
-            ->summary('Force release a lock without ownership check (admin)')
+            ->summary('Force release a lock without ownership check (admin only)')
+            ->description(
+                'Administratively releases a lock without verifying ownership. ' .
+                'This is a privileged operation that should be restricted to ' .
+                'administrative users or automated cleanup processes. ' .
+                'Regular applications should use forrst.locks.release instead. ' .
+                'WARNING: Improper use can cause data corruption in critical sections.'
+            )
             ->argument(
                 name: 'key',
                 schema: ['type' => 'string'],
                 required: true,
-                description: 'Lock key (with scope prefix if applicable)',
+                description: 'Full lock key including scope prefix (e.g., "forrst_lock:function_name:my_key")',
             )
             ->result(
                 schema: [
@@ -44,11 +51,11 @@ final class LockForceReleaseDescriptor implements DescriptorInterface
                         ],
                         'key' => [
                             'type' => 'string',
-                            'description' => 'The lock key',
+                            'description' => 'The lock key that was released',
                         ],
                         'forced' => [
                             'type' => 'boolean',
-                            'description' => 'Always true for force release',
+                            'description' => 'Always true for force release operations',
                         ],
                     ],
                     'required' => ['released', 'key', 'forced'],
@@ -58,7 +65,12 @@ final class LockForceReleaseDescriptor implements DescriptorInterface
             ->error(
                 code: ErrorCode::LockNotFound,
                 message: 'Lock does not exist',
-                description: 'The specified lock does not exist',
+                description: 'The specified lock does not exist or has already been released',
+            )
+            ->error(
+                code: ErrorCode::Unauthorized,
+                message: 'Unauthorized',
+                description: 'Force release requires administrative privileges',
             );
     }
 }
