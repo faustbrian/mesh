@@ -153,7 +153,8 @@ final class ServiceProvider extends PackageServiceProvider
                 );
             }
         } catch (Throwable $throwable) {
-            if (App::runningInConsole()) {
+            // Only suppress if config file doesn't exist (during installation)
+            if (App::runningInConsole() && !file_exists(config_path('rpc.php'))) {
                 return;
             }
 
