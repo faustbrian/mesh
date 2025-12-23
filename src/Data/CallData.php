@@ -45,4 +45,40 @@ final class CallData extends AbstractData
         public readonly ?string $version = null,
         public readonly ?array $arguments = null,
     ) {}
+
+    /**
+     * Create a call data instance from an array.
+     *
+     * @param array<string, mixed> $data The array data containing call information
+     * @return self Configured CallData instance
+     * @throws \InvalidArgumentException If function name is missing
+     */
+    public static function createFromArray(array $data): self
+    {
+        return new self(
+            function: $data['function'] ?? throw new \InvalidArgumentException('Function name is required'),
+            version: $data['version'] ?? null,
+            arguments: isset($data['arguments']) && is_array($data['arguments']) ? $data['arguments'] : null,
+        );
+    }
+
+    /**
+     * Create a call data instance from explicit parameters.
+     *
+     * @param string $function The function name
+     * @param null|array<string, mixed> $arguments Optional arguments
+     * @param null|string $version Optional version
+     * @return self Configured CallData instance
+     */
+    public static function createFrom(
+        string $function,
+        ?array $arguments = null,
+        ?string $version = null,
+    ): self {
+        return new self(
+            function: $function,
+            version: $version,
+            arguments: $arguments,
+        );
+    }
 }
