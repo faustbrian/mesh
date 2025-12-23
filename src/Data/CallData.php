@@ -1,0 +1,48 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Cline\Forrst\Data;
+
+/**
+ * Represents the call object within a Forrst protocol request.
+ *
+ * Contains the function to invoke, optional version for per-function versioning,
+ * and the arguments to pass to the function. This is the core payload structure
+ * that identifies what RPC method should be executed and with what parameters.
+ *
+ * The function name uses dot notation to support namespace-like organization
+ * (e.g., "users.create", "orders.list"). Version allows for per-function API
+ * versioning independent of the server version.
+ *
+ * @see https://docs.cline.sh/forrst/protocol
+ */
+final class CallData extends AbstractData
+{
+    /**
+     * Create a new call data instance.
+     *
+     * @param string                    $function  The function name to invoke using dot notation
+     *                                             for namespace organization (e.g., "orders.create",
+     *                                             "users.update"). Must match a registered function
+     *                                             name in the server's function registry.
+     * @param null|string               $version   Optional function version for per-function API
+     *                                             versioning. Allows different versions of the same
+     *                                             function to coexist (e.g., "1.0", "2.0"). If null,
+     *                                             the server's default version is used.
+     * @param null|array<string, mixed> $arguments Optional named arguments to pass to the function.
+     *                                             Structure must match the function's parameter schema.
+     *                                             Arguments are validated against the function's input
+     *                                             specification before execution.
+     */
+    public function __construct(
+        public readonly string $function,
+        public readonly ?string $version = null,
+        public readonly ?array $arguments = null,
+    ) {}
+}

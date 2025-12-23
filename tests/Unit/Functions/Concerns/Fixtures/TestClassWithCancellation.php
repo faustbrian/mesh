@@ -1,0 +1,41 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Tests\Unit\Functions\Concerns\Fixtures;
+
+use Cline\Forrst\Data\RequestObjectData;
+use Cline\Forrst\Functions\Concerns\InteractsWithCancellation;
+
+/**
+ * Test class using the InteractsWithCancellation trait.
+ * @psalm-immutable
+ */
+final readonly class TestClassWithCancellation
+{
+    use InteractsWithCancellation;
+
+    public function __construct(
+        public RequestObjectData $requestObject,
+    ) {}
+
+    public function exposeGetCancellationToken(): ?string
+    {
+        return $this->getCancellationToken();
+    }
+
+    public function exposeIsCancellationRequested(): bool
+    {
+        return $this->isCancellationRequested();
+    }
+
+    public function exposeThrowIfCancellationRequested(): void
+    {
+        $this->throwIfCancellationRequested();
+    }
+}

@@ -1,0 +1,390 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+use Cline\Forrst\Discovery\ResultDescriptorData;
+
+describe('ResultDescriptorData', function (): void {
+    describe('Happy Paths', function (): void {
+        test('creates instance with resource field only', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData(
+                resource: 'order',
+            );
+
+            // Assert
+            expect($result->resource)->toBe('order')
+                ->and($result->schema)->toBeNull()
+                ->and($result->collection)->toBeFalse()
+                ->and($result->description)->toBeNull();
+        });
+
+        test('creates instance with schema field only', function (): void {
+            // Arrange
+            $schema = [
+                'type' => 'object',
+                'properties' => [
+                    'valid' => ['type' => 'boolean'],
+                    'errors' => ['type' => 'array'],
+                ],
+            ];
+
+            // Act
+            $result = new ResultDescriptorData(
+                schema: $schema,
+            );
+
+            // Assert
+            expect($result->resource)->toBeNull()
+                ->and($result->schema)->toBe($schema)
+                ->and($result->collection)->toBeFalse()
+                ->and($result->description)->toBeNull();
+        });
+
+        test('creates instance for single resource', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData(
+                resource: 'order',
+                description: 'The requested order',
+            );
+
+            // Assert
+            expect($result->resource)->toBe('order')
+                ->and($result->collection)->toBeFalse()
+                ->and($result->description)->toBe('The requested order');
+        });
+
+        test('creates instance for resource collection', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData(
+                resource: 'order',
+                collection: true,
+                description: 'List of matching orders',
+            );
+
+            // Assert
+            expect($result->resource)->toBe('order')
+                ->and($result->collection)->toBeTrue()
+                ->and($result->description)->toBe('List of matching orders');
+        });
+
+        test('creates instance for non-resource response', function (): void {
+            // Arrange
+            $schema = [
+                'type' => 'object',
+                'properties' => [
+                    'valid' => ['type' => 'boolean'],
+                    'errors' => ['type' => 'array', 'items' => ['type' => 'string']],
+                ],
+            ];
+
+            // Act
+            $result = new ResultDescriptorData(
+                schema: $schema,
+                description: 'Validation result',
+            );
+
+            // Assert
+            expect($result->resource)->toBeNull()
+                ->and($result->schema)->toBe($schema)
+                ->and($result->collection)->toBeFalse()
+                ->and($result->description)->toBe('Validation result');
+        });
+
+        test('creates instance with all fields populated', function (): void {
+            // Arrange
+            $schema = ['type' => 'string'];
+
+            // Act
+            $result = new ResultDescriptorData(
+                resource: 'order',
+                schema: $schema,
+                collection: true,
+                description: 'Order collection with pagination',
+            );
+
+            // Assert
+            expect($result->resource)->toBe('order')
+                ->and($result->schema)->toBe($schema)
+                ->and($result->collection)->toBeTrue()
+                ->and($result->description)->toBe('Order collection with pagination');
+        });
+
+        test('toArray includes resource when set', function (): void {
+            // Arrange
+            $result = new ResultDescriptorData(
+                resource: 'order',
+            );
+
+            // Act
+            $array = $result->toArray();
+
+            // Assert
+            expect($array)->toHaveKey('resource')
+                ->and($array['resource'])->toBe('order');
+        });
+
+        test('toArray includes schema when set', function (): void {
+            // Arrange
+            $schema = ['type' => 'object'];
+            $result = new ResultDescriptorData(
+                schema: $schema,
+            );
+
+            // Act
+            $array = $result->toArray();
+
+            // Assert
+            expect($array)->toHaveKey('schema')
+                ->and($array['schema'])->toBe($schema);
+        });
+
+        test('toArray includes collection with default false', function (): void {
+            // Arrange
+            $result = new ResultDescriptorData(
+                resource: 'order',
+            );
+
+            // Act
+            $array = $result->toArray();
+
+            // Assert
+            expect($array)->toHaveKey('collection')
+                ->and($array['collection'])->toBeFalse();
+        });
+
+        test('toArray handles null fields', function (): void {
+            // Arrange
+            $result = new ResultDescriptorData();
+
+            // Act
+            $array = $result->toArray();
+
+            // Assert - Spatie Data may include null fields, verify they are null
+            if (array_key_exists('resource', $array)) {
+                expect($array['resource'])->toBeNull();
+            }
+
+            if (array_key_exists('schema', $array)) {
+                expect($array['schema'])->toBeNull();
+            }
+
+            expect($array)->toHaveKey('collection');
+        });
+
+        test('toArray includes description when set', function (): void {
+            // Arrange
+            $result = new ResultDescriptorData(
+                resource: 'order',
+                description: 'The created order',
+            );
+
+            // Act
+            $array = $result->toArray();
+
+            // Assert
+            expect($array)->toHaveKey('description')
+                ->and($array['description'])->toBe('The created order');
+        });
+    });
+
+    describe('Edge Cases', function (): void {
+        test('handles null resource', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData();
+
+            // Assert
+            expect($result->resource)->toBeNull();
+        });
+
+        test('handles null schema', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData(
+                schema: null,
+            );
+
+            // Assert
+            expect($result->schema)->toBeNull();
+        });
+
+        test('handles collection false explicitly', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData(
+                resource: 'order',
+                collection: false,
+            );
+
+            // Assert
+            expect($result->collection)->toBeFalse();
+        });
+
+        test('handles collection true', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData(
+                resource: 'order',
+                collection: true,
+            );
+
+            // Assert
+            expect($result->collection)->toBeTrue();
+        });
+
+        test('handles both resource and schema set', function (): void {
+            // Arrange
+            $schema = ['type' => 'object'];
+
+            // Act
+            $result = new ResultDescriptorData(
+                resource: 'order',
+                schema: $schema,
+            );
+
+            // Assert
+            expect($result->resource)->toBe('order')
+                ->and($result->schema)->toBe($schema);
+        });
+
+        test('handles neither resource nor schema set', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData();
+
+            // Assert
+            expect($result->resource)->toBeNull()
+                ->and($result->schema)->toBeNull();
+        });
+
+        test('handles empty schema object', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData(
+                schema: [],
+            );
+
+            // Assert
+            expect($result->schema)->toBe([])
+                ->and($result->schema)->toHaveCount(0);
+        });
+
+        test('handles complex schema structure', function (): void {
+            // Arrange
+            $schema = [
+                'type' => 'object',
+                'properties' => [
+                    'id' => ['type' => 'string'],
+                    'items' => [
+                        'type' => 'array',
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'sku' => ['type' => 'string'],
+                                'quantity' => ['type' => 'integer'],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+
+            // Act
+            $result = new ResultDescriptorData(
+                schema: $schema,
+            );
+
+            // Assert
+            expect($result->schema)->toBe($schema)
+                ->and($result->schema['properties'])->toHaveKey('id')
+                ->and($result->schema['properties'])->toHaveKey('items');
+        });
+
+        test('handles schema with $ref', function (): void {
+            // Arrange
+            $schema = ['$ref' => '#/components/schemas/Order'];
+
+            // Act
+            $result = new ResultDescriptorData(
+                schema: $schema,
+            );
+
+            // Assert
+            expect($result->schema)->toBe(['$ref' => '#/components/schemas/Order'])
+                ->and($result->schema['$ref'])->toBe('#/components/schemas/Order');
+        });
+
+        test('handles empty description', function (): void {
+            // Arrange & Act
+            $result = new ResultDescriptorData(
+                resource: 'order',
+                description: '',
+            );
+
+            // Assert
+            expect($result->description)->toBe('');
+        });
+
+        test('toArray preserves complex schema structure', function (): void {
+            // Arrange
+            $schema = [
+                'type' => 'object',
+                'properties' => [
+                    'nested' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'field' => ['type' => 'string'],
+                        ],
+                    ],
+                ],
+            ];
+            $result = new ResultDescriptorData(
+                schema: $schema,
+            );
+
+            // Act
+            $array = $result->toArray();
+
+            // Assert
+            expect($array['schema'])->toBe($schema)
+                ->and($array['schema']['properties']['nested']['properties'])->toHaveKey('field');
+        });
+    });
+
+    describe('Sad Paths', function (): void {
+        test('validates optional resource field', function (): void {
+            // Arrange
+            $result = new ResultDescriptorData();
+
+            // Act & Assert
+            expect($result->resource)->toBeNull();
+        });
+
+        test('validates optional schema field', function (): void {
+            // Arrange
+            $result = new ResultDescriptorData(
+                schema: null,
+            );
+
+            // Act & Assert
+            expect($result->schema)->toBeNull();
+        });
+
+        test('validates collection defaults to false', function (): void {
+            // Arrange
+            $result = new ResultDescriptorData();
+
+            // Act & Assert
+            expect($result->collection)->toBeFalse();
+        });
+
+        test('validates optional description field', function (): void {
+            // Arrange
+            $result = new ResultDescriptorData(
+                description: null,
+            );
+
+            // Act & Assert
+            expect($result->description)->toBeNull();
+        });
+    });
+});

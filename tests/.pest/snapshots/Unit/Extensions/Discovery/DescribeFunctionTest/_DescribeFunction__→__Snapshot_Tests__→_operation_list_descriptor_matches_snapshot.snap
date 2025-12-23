@@ -1,0 +1,157 @@
+{
+    "name": "urn:cline:forrst:ext:async:fn:list",
+    "version": "1.0.0",
+    "stability": "stable",
+    "summary": "List operations for the current caller",
+    "arguments": [
+        {
+            "name": "status",
+            "schema": {
+                "type": "string",
+                "enum": [
+                    "pending",
+                    "processing",
+                    "completed",
+                    "failed",
+                    "cancelled"
+                ]
+            },
+            "required": false,
+            "summary": null,
+            "description": "Filter by status",
+            "default": null,
+            "deprecated": null,
+            "examples": null
+        },
+        {
+            "name": "function",
+            "schema": {
+                "type": "string"
+            },
+            "required": false,
+            "summary": null,
+            "description": "Filter by function name",
+            "default": null,
+            "deprecated": null,
+            "examples": null
+        },
+        {
+            "name": "limit",
+            "schema": {
+                "type": "integer",
+                "default": 50,
+                "minimum": 1,
+                "maximum": 100
+            },
+            "required": false,
+            "summary": null,
+            "description": "Max results (default 50)",
+            "default": null,
+            "deprecated": null,
+            "examples": null
+        },
+        {
+            "name": "cursor",
+            "schema": {
+                "type": "string"
+            },
+            "required": false,
+            "summary": null,
+            "description": "Pagination cursor",
+            "default": null,
+            "deprecated": null,
+            "examples": null
+        }
+    ],
+    "result": {
+        "resource": null,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "operations": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "function": {
+                                "type": "string"
+                            },
+                            "version": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "progress": {
+                                "type": "number"
+                            },
+                            "started_at": {
+                                "type": "string",
+                                "format": "date-time"
+                            }
+                        }
+                    },
+                    "description": "List of operations"
+                },
+                "next_cursor": {
+                    "type": "string",
+                    "description": "Pagination cursor for next page"
+                }
+            },
+            "required": [
+                "operations"
+            ]
+        },
+        "collection": false,
+        "description": "Operation list response"
+    },
+    "errors": [
+        {
+            "code": "PARSE_ERROR",
+            "message": "Parse error"
+        },
+        {
+            "code": "INVALID_REQUEST",
+            "message": "Invalid request"
+        },
+        {
+            "code": "FUNCTION_NOT_FOUND",
+            "message": "Function not found"
+        },
+        {
+            "code": "INVALID_ARGUMENTS",
+            "message": "Invalid arguments"
+        },
+        {
+            "code": "SCHEMA_VALIDATION_FAILED",
+            "message": "Validation error"
+        },
+        {
+            "code": "INTERNAL_ERROR",
+            "message": "Internal error"
+        },
+        {
+            "code": "INTERNAL_ERROR",
+            "message": "Server error"
+        },
+        {
+            "code": "UNAVAILABLE",
+            "message": "Service unavailable"
+        },
+        {
+            "code": "UNAUTHORIZED",
+            "message": "Unauthorized"
+        },
+        {
+            "code": "FORBIDDEN",
+            "message": "Forbidden"
+        },
+        {
+            "code": "RATE_LIMITED",
+            "message": "Rate limited"
+        }
+    ]
+}

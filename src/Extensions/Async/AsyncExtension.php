@@ -1,0 +1,362 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Cline\Forrst\Extensions\Async;
+
+use Cline\Forrst\Contracts\FunctionInterface;
+use Cline\Forrst\Contracts\OperationRepositoryInterface;
+use Cline\Forrst\Contracts\ProvidesFunctionsInterface;
+use Cline\Forrst\Data\ErrorData;
+use Cline\Forrst\Data\ExtensionData;
+use Cline\Forrst\Data\OperationData;
+use Cline\Forrst\Data\OperationStatus;
+use Cline\Forrst\Data\RequestObjectData;
+use Cline\Forrst\Data\ResponseData;
+use Cline\Forrst\Extensions\AbstractExtension;
+use Cline\Forrst\Extensions\Async\Functions\OperationCancelFunction;
+use Cline\Forrst\Extensions\Async\Functions\OperationListFunction;
+use Cline\Forrst\Extensions\Async\Functions\OperationStatusFunction;
+use Cline\Forrst\Extensions\ExtensionUrn;
+use Cline\Forrst\Functions\FunctionUrn;
+use Override;
+
+use function array_merge;
+use function assert;
+use function bin2hex;
+use function is_string;
+use function max;
+use function min;
+use function now;
+use function random_bytes;
+
+/**
+ * Async operations extension handler.
+ *
+ * Enables long-running function execution by decoupling request initiation from
+ * result delivery. Functions return immediately with an operation ID that clients
+ * poll for completion, preventing timeout issues for expensive operations.
+ *
+ * Supports optional webhook callbacks to notify clients when operations complete,
+ * reducing polling overhead for very long operations.
+ *
+ * Request options:
+ * - preferred: boolean - client prefers async execution if supported
+ * - callback_url: string - optional URL for POST notification on completion
+ *
+ * Response data:
+ * - operation_id: unique identifier for tracking operation status
+ * - status: current state (pending, processing, completed, failed, cancelled)
+ * - poll: function call specification for status checks
+ * - retry_after: suggested wait duration before next poll
+ *
+ * @author Brian Faust <brian@cline.sh>
+ *
+ * @see https://docs.cline.sh/forrst/extensions/async
+ */
+final class AsyncExtension extends AbstractExtension implements ProvidesFunctionsInterface
+{
+    /**
+     * Default retry interval in seconds for polling.
+     */
+    private const int DEFAULT_RETRY_SECONDS = 5;
+
+    /**
+     * Create a new async extension instance.
+     *
+     * @param OperationRepositoryInterface $operations Repository for persisting and retrieving
+     *                                                 async operation state across polling requests.
+     *                                                 Implementations must support concurrent access
+     *                                                 and atomic updates for distributed deployments.
+     */
+    public function __construct(
+        private readonly OperationRepositoryInterface $operations,
+    ) {}
+
+    /**
+     * Get the functions provided by this extension.
+     *
+     * Returns the operation management functions (status, cancel, list) that are
+     * automatically registered when the async extension is enabled on a server.
+     *
+     * @return array<int, class-string<FunctionInterface>> Function class names
+     */
+    #[Override()]
+    public function functions(): array
+    {
+        return [
+            OperationStatusFunction::class,
+            OperationCancelFunction::class,
+            OperationListFunction::class,
+        ];
+    }
+
+    #[Override()]
+    public function getUrn(): string
+    {
+        return ExtensionUrn::Async->value;
+    }
+
+    #[Override()]
+    public function isErrorFatal(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Check if client prefers async execution.
+     *
+     * Function handlers should check this flag to decide between sync and async
+     * execution. The server is not obligated to honor the preference but should
+     * use it as a hint when the operation supports both modes.
+     *
+     * @param null|array<string, mixed> $options Extension options from request
+     *
+     * @return bool True if client indicated async preference
+     */
+    public function isPreferred(?array $options): bool
+    {
+        return ($options['preferred'] ?? false) === true;
+    }
+
+    /**
+     * Get callback URL for completion notification.
+     *
+     * If provided, the server should POST the operation result to this URL when
+     * execution completes, allowing clients to avoid polling for long operations.
+     *
+     * @param null|array<string, mixed> $options Extension options from request
+     *
+     * @return null|string Callback URL or null if not specified
+     */
+    public function getCallbackUrl(?array $options): ?string
+    {
+        $callbackUrl = $options['callback_url'] ?? null;
+
+        assert(is_string($callbackUrl) || $callbackUrl === null);
+
+        return $callbackUrl;
+    }
+
+    /**
+     * Create an async operation and build immediate response.
+     *
+     * Function handlers call this method when deciding to execute asynchronously.
+     * It creates a pending operation record, persists it to the repository, and
+     * returns both the immediate response to send to the client and the operation
+     * record for background processing.
+     *
+     * The response includes polling instructions and retry timing to optimize
+     * client polling behavior.
+     *
+     * @param RequestObjectData         $request      Original function call request
+     * @param ExtensionData             $extension    Async extension data from request
+     * @param null|array<string, mixed> $metadata     Optional metadata stored with operation
+     * @param int                       $retrySeconds Suggested seconds between poll attempts
+     *
+     * @return array{response: ResponseData, operation: OperationData} Tuple of response and operation
+     */
+    public function createAsyncOperation(
+        RequestObjectData $request,
+        ExtensionData $extension,
+        ?array $metadata = null,
+        int $retrySeconds = self::DEFAULT_RETRY_SECONDS,
+    ): array {
+        // Create the operation record
+        $operation = new OperationData(
+            id: $this->generateOperationId(),
+            function: $request->call->function,
+            version: $request->call->version,
+            status: OperationStatus::Pending,
+            metadata: $metadata !== null ? array_merge($metadata, [
+                'original_request_id' => $request->id,
+                'callback_url' => $this->getCallbackUrl($extension->options),
+            ]) : [
+                'original_request_id' => $request->id,
+                'callback_url' => $this->getCallbackUrl($extension->options),
+            ],
+        );
+
+        // Persist the operation
+        $this->operations->save($operation);
+
+        // Build the async response
+        $response = ResponseData::success(
+            result: null,
+            id: $request->id,
+            extensions: [
+                ExtensionData::response(ExtensionUrn::Async->value, [
+                    'operation_id' => $operation->id,
+                    'status' => $operation->status,
+                    'poll' => [
+                        'function' => FunctionUrn::OperationStatus->value,
+                        'version' => '1',
+                        'arguments' => ['operation_id' => $operation->id],
+                    ],
+                    'retry_after' => [
+                        'value' => $retrySeconds,
+                        'unit' => 'second',
+                    ],
+                ]),
+            ],
+        );
+
+        return [
+            'response' => $response,
+            'operation' => $operation,
+        ];
+    }
+
+    /**
+     * Transition operation to processing status.
+     *
+     * Background workers should call this when beginning execution to signal
+     * to polling clients that work has started.
+     *
+     * @param string     $operationId Unique operation identifier
+     * @param null|float $progress    Optional initial progress value (0.0 to 1.0)
+     */
+    public function markProcessing(string $operationId, ?float $progress = null): void
+    {
+        $operation = $this->operations->find($operationId);
+
+        if (!$operation instanceof OperationData) {
+            return;
+        }
+
+        $updated = new OperationData(
+            id: $operation->id,
+            function: $operation->function,
+            version: $operation->version,
+            status: OperationStatus::Processing,
+            progress: $progress,
+            startedAt: now()->toImmutable(),
+            metadata: $operation->metadata,
+        );
+
+        $this->operations->save($updated);
+    }
+
+    /**
+     * Complete operation with successful result.
+     *
+     * Background workers call this when execution finishes successfully.
+     * The result is stored and subsequent polling requests will receive it.
+     *
+     * @param string $operationId Unique operation identifier
+     * @param mixed  $result      Function execution result to return to client
+     */
+    public function complete(string $operationId, mixed $result): void
+    {
+        $operation = $this->operations->find($operationId);
+
+        if (!$operation instanceof OperationData) {
+            return;
+        }
+
+        $updated = new OperationData(
+            id: $operation->id,
+            function: $operation->function,
+            version: $operation->version,
+            status: OperationStatus::Completed,
+            progress: 1.0,
+            result: $result,
+            startedAt: $operation->startedAt,
+            completedAt: now()->toImmutable(),
+            metadata: $operation->metadata,
+        );
+
+        $this->operations->save($updated);
+    }
+
+    /**
+     * Fail operation with error details.
+     *
+     * Background workers call this when execution encounters unrecoverable errors.
+     * The errors are stored and subsequent polling requests will receive them.
+     *
+     * @param string                $operationId Unique operation identifier
+     * @param array<int, ErrorData> $errors      Error details describing the failure
+     */
+    public function fail(string $operationId, array $errors): void
+    {
+        $operation = $this->operations->find($operationId);
+
+        if (!$operation instanceof OperationData) {
+            return;
+        }
+
+        $updated = new OperationData(
+            id: $operation->id,
+            function: $operation->function,
+            version: $operation->version,
+            status: OperationStatus::Failed,
+            progress: $operation->progress,
+            errors: $errors,
+            startedAt: $operation->startedAt,
+            completedAt: now()->toImmutable(),
+            metadata: $operation->metadata,
+        );
+
+        $this->operations->save($updated);
+    }
+
+    /**
+     * Update operation progress for long-running tasks.
+     *
+     * Background workers can call this periodically during execution to provide
+     * progress feedback to polling clients. Progress is clamped to [0.0, 1.0].
+     *
+     * @param string      $operationId Unique operation identifier
+     * @param float       $progress    Progress value between 0.0 (started) and 1.0 (complete)
+     * @param null|string $message     Optional human-readable status message
+     */
+    public function updateProgress(string $operationId, float $progress, ?string $message = null): void
+    {
+        $operation = $this->operations->find($operationId);
+
+        if (!$operation instanceof OperationData) {
+            return;
+        }
+
+        $metadata = $operation->metadata ?? [];
+
+        if ($message !== null) {
+            $metadata['progress_message'] = $message;
+        }
+
+        $updated = new OperationData(
+            id: $operation->id,
+            function: $operation->function,
+            version: $operation->version,
+            status: $operation->status,
+            progress: max(0.0, min(1.0, $progress)),
+            result: $operation->result,
+            errors: $operation->errors,
+            startedAt: $operation->startedAt,
+            completedAt: $operation->completedAt,
+            cancelledAt: $operation->cancelledAt,
+            metadata: $metadata,
+        );
+
+        $this->operations->save($updated);
+    }
+
+    /**
+     * Generate cryptographically unique operation ID.
+     *
+     * Uses 12 random bytes (96 bits) encoded as hex, providing sufficient
+     * uniqueness for distributed operation tracking without coordination.
+     *
+     * @return string Operation identifier with 'op_' prefix
+     */
+    private function generateOperationId(): string
+    {
+        return 'op_'.bin2hex(random_bytes(12));
+    }
+}

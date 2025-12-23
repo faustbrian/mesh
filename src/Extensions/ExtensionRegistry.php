@@ -1,0 +1,136 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Cline\Forrst\Extensions;
+
+use Cline\Forrst\Contracts\ExtensionInterface;
+
+use function array_keys;
+use function array_map;
+use function array_values;
+
+/**
+ * Registry for Forrst extensions.
+ *
+ * Manages registration and retrieval of extension handlers. Extensions are
+ * indexed by URN for fast lookup during request processing. Provides capability
+ * export for server discovery responses.
+ *
+ * @author Brian Faust <brian@cline.sh>
+ *
+ * @see https://docs.cline.sh/forrst/extensions/
+ */
+final class ExtensionRegistry
+{
+    /**
+     * Registered extension handlers.
+     *
+     * @var array<string, ExtensionInterface>
+     */
+    private array $extensions = [];
+
+    /**
+     * Register an extension handler.
+     *
+     * Indexes the extension by its URN for fast lookup. If an extension with
+     * the same URN is already registered, it will be replaced.
+     *
+     * @param ExtensionInterface $extension Extension instance to register
+     */
+    public function register(ExtensionInterface $extension): void
+    {
+        $this->extensions[$extension->getUrn()] = $extension;
+    }
+
+    /**
+     * Get an extension handler by URN.
+     *
+     * Returns the registered extension instance or null if not found. Use this
+     * to access extension functionality during request processing.
+     *
+     * @param string $urn Extension URN to lookup
+     *
+     * @return null|ExtensionInterface Extension handler or null if not registered
+     */
+    public function get(string $urn): ?ExtensionInterface
+    {
+        return $this->extensions[$urn] ?? null;
+    }
+
+    /**
+     * Check if an extension is registered.
+     *
+     * Fast existence check using URN. Use before calling get() if you need to
+     * distinguish between missing extension and null return value.
+     *
+     * @param string $urn Extension URN to check
+     *
+     * @return bool True if extension is registered
+     */
+    public function has(string $urn): bool
+    {
+        return isset($this->extensions[$urn]);
+    }
+
+    /**
+     * Get all registered extensions.
+     *
+     * Returns associative array keyed by URN. Useful for iterating through
+     * all extensions to build event subscriptions or capabilities.
+     *
+     * @return array<string, ExtensionInterface> All registered extensions
+     */
+    public function all(): array
+    {
+        return $this->extensions;
+    }
+
+    /**
+     * Get all registered extension URNs.
+     *
+     * Returns list of URNs for all registered extensions. Useful for debugging
+     * or listing available extensions.
+     *
+     * @return array<int, string> List of extension URNs
+     */
+    public function getUrns(): array
+    {
+        return array_keys($this->extensions);
+    }
+
+    /**
+     * Get capabilities data for all registered extensions.
+     *
+     * Converts all registered extensions to capability format for inclusion in
+     * server discovery responses. Each extension provides its URN and optional
+     * documentation URL.
+     *
+     * @return array<int, array{urn: string, documentation?: string}> Capability structures
+     */
+    public function toCapabilities(): array
+    {
+        return array_map(
+            fn (ExtensionInterface $ext): array => $ext->toCapabilities(),
+            array_values($this->extensions),
+        );
+    }
+
+    /**
+     * Unregister an extension.
+     *
+     * Removes the extension from the registry. No-op if URN is not registered.
+     * Use when dynamically managing extension lifecycle.
+     *
+     * @param string $urn Extension URN to remove
+     */
+    public function unregister(string $urn): void
+    {
+        unset($this->extensions[$urn]);
+    }
+}

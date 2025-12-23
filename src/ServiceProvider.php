@@ -1,0 +1,163 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Cline\Forrst;
+
+use Cline\Forrst\Contracts\ProtocolInterface;
+use Cline\Forrst\Contracts\ResourceInterface;
+use Cline\Forrst\Data\Configuration\ConfigurationData;
+use Cline\Forrst\Extensions\ExtensionEventSubscriber;
+use Cline\Forrst\Mixins\RouteMixin;
+use Cline\Forrst\Repositories\ResourceRepository;
+use Cline\Forrst\Servers\ConfigurationServer;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Route;
+use InvalidArgumentException;
+use Override;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Throwable;
+
+use function assert;
+use function class_exists;
+use function config;
+use function is_a;
+use function is_string;
+
+/**
+ * Laravel service provider for the Forrst package.
+ *
+ * Handles package registration, configuration publishing, route registration,
+ * resource discovery, and extension event subscription. Automatically configures
+ * Forrst servers based on the published configuration file and registers the
+ * custom Route mixin for convenient server registration.
+ *
+ * @author Brian Faust <brian@cline.sh>
+ * @see https://docs.cline.sh/forrst/
+ */
+final class ServiceProvider extends PackageServiceProvider
+{
+    /**
+     * Configure the package's publishable assets and install commands.
+     *
+     * Defines the package name, configuration files to publish, and the installation
+     * command that publishes configuration and migration files to the Laravel application.
+     *
+     * @param Package $package Package configuration instance
+     */
+    #[Override()]
+    public function configurePackage(Package $package): void
+    {
+        $package
+            ->name('forrst')
+            ->hasConfigFile('rpc')
+            ->hasInstallCommand(function (InstallCommand $command): void {
+                $command->publishConfigFile();
+                $command->publishMigrations();
+            });
+    }
+
+    /**
+     * Register package services in the Laravel container.
+     *
+     * Binds the ProtocolInterface as a singleton based on the rpc.protocol
+     * configuration setting. Other core services are automatically registered
+     * via their #[Singleton] attributes, reducing boilerplate registration code.
+     *
+     * @throws InvalidArgumentException If the configured protocol class is invalid
+     */
+    #[Override()]
+    public function packageRegistered(): void
+    {
+        // ProtocolInterface requires runtime config resolution - cannot use attributes
+        $this->app->singleton(function (): ProtocolInterface {
+            $protocolClass = config('rpc.protocol');
+            assert(is_string($protocolClass));
+            assert(class_exists($protocolClass));
+
+            $protocol = new $protocolClass();
+            assert($protocol instanceof ProtocolInterface);
+
+            return $protocol;
+        });
+    }
+
+    /**
+     * Perform operations during package booting phase.
+     *
+     * Registers the custom Route mixin that adds the rpc() method to Laravel's
+     * route facade, enabling convenient Forrst server registration in route files.
+     * Also subscribes the ExtensionEventSubscriber to Laravel's event dispatcher
+     * for extension lifecycle management.
+     */
+    #[Override()]
+    public function bootingPackage(): void
+    {
+        Route::mixin(
+            new RouteMixin(),
+        );
+
+        // Register extension event subscriber with Laravel's event dispatcher
+        $events = $this->app->make(Dispatcher::class);
+        $subscriber = $this->app->make(ExtensionEventSubscriber::class);
+
+        $events->subscribe($subscriber);
+    }
+
+    /**
+     * Boot package services after all providers are registered.
+     *
+     * Loads and validates the RPC configuration, registers resource mappings for
+     * model-to-resource transformations, and creates ConfigurationServer instances
+     * for each server defined in the configuration. Gracefully handles missing or
+     * invalid configuration in console environments to prevent installation errors
+     * before configuration is published.
+     *
+     * @throws Throwable Configuration validation errors in non-console environments
+     */
+    #[Override()]
+    public function packageBooted(): void
+    {
+        try {
+            $configuration = ConfigurationData::validateAndCreate((array) config('rpc'));
+
+            foreach ($configuration->resources as $model => $resource) {
+                assert(is_string($resource));
+                assert(class_exists($resource));
+                assert(is_a($resource, ResourceInterface::class, true));
+
+                /** @var class-string $model */
+                /** @var class-string<ResourceInterface> $resource */
+                ResourceRepository::register($model, $resource);
+            }
+
+            foreach ($configuration->servers as $server) {
+                $functionsPath = config('rpc.paths.functions', '');
+                $functionsNamespace = config('rpc.namespaces.functions', '');
+
+                // @phpstan-ignore-next-line
+                Route::rpc(
+                    new ConfigurationServer(
+                        $server,
+                        is_string($functionsPath) ? $functionsPath : '',
+                        is_string($functionsNamespace) ? $functionsNamespace : '',
+                    ),
+                );
+            }
+        } catch (Throwable $throwable) {
+            if (App::runningInConsole()) {
+                return;
+            }
+
+            throw $throwable;
+        }
+    }
+}

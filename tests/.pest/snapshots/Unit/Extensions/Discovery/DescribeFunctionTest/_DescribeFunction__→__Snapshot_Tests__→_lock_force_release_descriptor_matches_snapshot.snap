@@ -1,0 +1,99 @@
+{
+    "name": "urn:cline:forrst:ext:atomic-lock:fn:force-release",
+    "version": "1.0.0",
+    "stability": "stable",
+    "summary": "Force release a lock without ownership check (admin)",
+    "arguments": [
+        {
+            "name": "key",
+            "schema": {
+                "type": "string"
+            },
+            "required": true,
+            "summary": null,
+            "description": "Lock key (with scope prefix if applicable)",
+            "default": null,
+            "deprecated": null,
+            "examples": null
+        }
+    ],
+    "result": {
+        "resource": null,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "released": {
+                    "type": "boolean",
+                    "description": "Whether release was successful"
+                },
+                "key": {
+                    "type": "string",
+                    "description": "The lock key"
+                },
+                "forced": {
+                    "type": "boolean",
+                    "description": "Always true for force release"
+                }
+            },
+            "required": [
+                "released",
+                "key",
+                "forced"
+            ]
+        },
+        "collection": false,
+        "description": "Lock force release result"
+    },
+    "errors": [
+        {
+            "code": "PARSE_ERROR",
+            "message": "Parse error"
+        },
+        {
+            "code": "INVALID_REQUEST",
+            "message": "Invalid request"
+        },
+        {
+            "code": "FUNCTION_NOT_FOUND",
+            "message": "Function not found"
+        },
+        {
+            "code": "INVALID_ARGUMENTS",
+            "message": "Invalid arguments"
+        },
+        {
+            "code": "SCHEMA_VALIDATION_FAILED",
+            "message": "Validation error"
+        },
+        {
+            "code": "INTERNAL_ERROR",
+            "message": "Internal error"
+        },
+        {
+            "code": "INTERNAL_ERROR",
+            "message": "Server error"
+        },
+        {
+            "code": "UNAVAILABLE",
+            "message": "Service unavailable"
+        },
+        {
+            "code": "UNAUTHORIZED",
+            "message": "Unauthorized"
+        },
+        {
+            "code": "FORBIDDEN",
+            "message": "Forbidden"
+        },
+        {
+            "code": "RATE_LIMITED",
+            "message": "Rate limited"
+        },
+        {
+            "code": "LOCK_NOT_FOUND",
+            "message": "Lock does not exist",
+            "description": "The specified lock does not exist",
+            "details": null
+        }
+    ]
+}

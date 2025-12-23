@@ -1,0 +1,91 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Cline\Forrst\Extensions\Async\Descriptors;
+
+use Cline\Forrst\Contracts\DescriptorInterface;
+use Cline\Forrst\Discovery\FunctionDescriptor;
+use Cline\Forrst\Functions\FunctionUrn;
+
+/**
+ * Descriptor for the operation list function.
+ *
+ * Defines discovery metadata for the forrst.operation.list system function.
+ *
+ * @author Brian Faust <brian@cline.sh>
+ */
+final class OperationListDescriptor implements DescriptorInterface
+{
+    public static function create(): FunctionDescriptor
+    {
+        return FunctionDescriptor::make()
+            ->urn(FunctionUrn::OperationList)
+            ->summary('List operations for the current caller')
+            ->argument(
+                name: 'status',
+                schema: [
+                    'type' => 'string',
+                    'enum' => ['pending', 'processing', 'completed', 'failed', 'cancelled'],
+                ],
+                required: false,
+                description: 'Filter by status',
+            )
+            ->argument(
+                name: 'function',
+                schema: ['type' => 'string'],
+                required: false,
+                description: 'Filter by function name',
+            )
+            ->argument(
+                name: 'limit',
+                schema: [
+                    'type' => 'integer',
+                    'default' => 50,
+                    'minimum' => 1,
+                    'maximum' => 100,
+                ],
+                required: false,
+                description: 'Max results (default 50)',
+            )
+            ->argument(
+                name: 'cursor',
+                schema: ['type' => 'string'],
+                required: false,
+                description: 'Pagination cursor',
+            )
+            ->result(
+                schema: [
+                    'type' => 'object',
+                    'properties' => [
+                        'operations' => [
+                            'type' => 'array',
+                            'items' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'id' => ['type' => 'string'],
+                                    'function' => ['type' => 'string'],
+                                    'version' => ['type' => 'string'],
+                                    'status' => ['type' => 'string'],
+                                    'progress' => ['type' => 'number'],
+                                    'started_at' => ['type' => 'string', 'format' => 'date-time'],
+                                ],
+                            ],
+                            'description' => 'List of operations',
+                        ],
+                        'next_cursor' => [
+                            'type' => 'string',
+                            'description' => 'Pagination cursor for next page',
+                        ],
+                    ],
+                    'required' => ['operations'],
+                ],
+                description: 'Operation list response',
+            );
+    }
+}
