@@ -11,6 +11,7 @@ namespace Cline\Forrst\Extensions\AtomicLock\Descriptors;
 
 use Cline\Forrst\Contracts\DescriptorInterface;
 use Cline\Forrst\Discovery\FunctionDescriptor;
+use Cline\Forrst\Enums\ErrorCode;
 use Cline\Forrst\Functions\FunctionUrn;
 
 /**
@@ -72,6 +73,11 @@ final class LockStatusDescriptor implements DescriptorInterface
                     'required' => ['key', 'locked'],
                 ],
                 description: 'Lock status information',
+            )
+            ->error(
+                code: ErrorCode::InvalidArgument,
+                message: 'Invalid or missing key',
+                description: 'The lock key is required and must be a non-empty string',
             );
     }
 }
