@@ -21,6 +21,7 @@ use Cline\Forrst\Requests\RequestHandler;
 use Cline\Forrst\Streaming\StreamChunk;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Spatie\LaravelData\Data;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -130,17 +131,29 @@ final readonly class FunctionController
 
         return new StreamedResponse(
             function () use ($function, $requestData): void {
-                // Disable output buffering for streaming
-                while (ob_get_level() > 0) {
-                    ob_end_flush();
-                }
-
-                // Send initial connected event
-                echo StreamChunk::data(['status' => 'connected'])->toSse();
-                $this->flush();
+                $finalResponseSent = false;
 
                 try {
+                    // Disable output buffering for streaming
+                    while (ob_get_level() > 0) {
+                        ob_end_flush();
+                    }
+
+                    // Send initial connected event
+                    echo StreamChunk::data(['status' => 'connected'])->toSse();
+                    $this->flush();
+
                     foreach ($function->stream() as $chunk) {
+                        // Check for client disconnect FIRST
+                        if (connection_aborted() !== 0) {
+                            // Cleanup: notify function of disconnect
+                            if (method_exists($function, 'onDisconnect')) {
+                                $function->onDisconnect();
+                            }
+
+                            break;
+                        }
+
                         if (!$chunk instanceof StreamChunk) {
                             $chunk = StreamChunk::data($chunk);
                         }
@@ -148,26 +161,29 @@ final readonly class FunctionController
                         echo $chunk->toSse();
                         $this->flush();
 
-                        // Check for client disconnect
-                        if (connection_aborted() !== 0) {
-                            break;
-                        }
-
                         if ($chunk->final) {
                             break;
                         }
                     }
                 } catch (Throwable $throwable) {
+                    // Log error before sending to client
+                    Log::error('Streaming error', [
+                        'exception' => $throwable,
+                        'function' => get_class($function),
+                    ]);
+
                     // Send error chunk
                     echo StreamChunk::error(
                         ErrorCode::InternalError,
                         $throwable->getMessage(),
                     )->toSse();
                     $this->flush();
+                } finally {
+                    // Always send final response if not already sent
+                    if (!$finalResponseSent) {
+                        $this->sendFinalResponse($requestData);
+                    }
                 }
-
-                // Send final completion response
-                $this->sendFinalResponse($requestData);
             },
             \Symfony\Component\HttpFoundation\Response::HTTP_OK,
             [
