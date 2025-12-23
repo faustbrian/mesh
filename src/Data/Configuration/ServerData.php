@@ -60,6 +60,7 @@ final class ServerData extends AbstractData
     ) {
         self::validatePath($this->path);
         self::validateRoute($this->route);
+        self::validateMiddleware($this->middleware);
     }
 
     /**
@@ -128,6 +129,36 @@ final class ServerData extends AbstractData
             throw new \InvalidArgumentException(
                 sprintf('Invalid route format: "%s"', $route),
             );
+        }
+    }
+
+    /**
+     * Validate middleware array contains only valid class strings.
+     *
+     * Ensures all middleware entries are strings and optionally verifies
+     * the classes exist in non-production environments.
+     *
+     * @param array<int, string> $middleware The middleware array to validate
+     *
+     * @throws \InvalidArgumentException If middleware contains invalid entries or non-existent classes
+     */
+    private static function validateMiddleware(array $middleware): void
+    {
+        foreach ($middleware as $index => $middlewareClass) {
+            if (!is_string($middlewareClass)) {
+                throw new \InvalidArgumentException(
+                    sprintf('Middleware at index %d must be a string, got %s', $index, get_debug_type($middlewareClass)),
+                );
+            }
+
+            // Validate class exists (in local/testing environments)
+            if (app()->environment(['local', 'testing'])) {
+                if (!class_exists($middlewareClass)) {
+                    throw new \InvalidArgumentException(
+                        sprintf('Middleware class "%s" does not exist', $middlewareClass),
+                    );
+                }
+            }
         }
     }
 }
