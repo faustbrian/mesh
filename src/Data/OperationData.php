@@ -18,6 +18,7 @@ use function is_array;
 use function is_int;
 use function is_numeric;
 use function is_string;
+use function sprintf;
 
 /**
  * Represents an async operation.
@@ -74,14 +75,26 @@ final class OperationData extends AbstractData
         public readonly string $function,
         public readonly ?string $version = null,
         public readonly OperationStatus $status = OperationStatus::Pending,
-        public readonly ?float $progress = null,
+        ?float $progress = null,
         public readonly mixed $result = null,
         public readonly ?array $errors = null,
         public readonly ?CarbonImmutable $startedAt = null,
         public readonly ?CarbonImmutable $completedAt = null,
         public readonly ?CarbonImmutable $cancelledAt = null,
         public readonly ?array $metadata = null,
-    ) {}
+    ) {
+        // Validate progress bounds
+        if ($progress !== null && ($progress < 0.0 || $progress > 1.0)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Operation progress must be between 0.0 and 1.0, got: %.2f',
+                    $progress,
+                ),
+            );
+        }
+
+        $this->progress = $progress;
+    }
 
     /**
      * Create from array representation.
