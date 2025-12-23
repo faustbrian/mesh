@@ -46,9 +46,14 @@ interface FunctionInterface
      * The URN uniquely identifies this function across the Forrst ecosystem.
      * URNs follow the format: urn:<vendor>:forrst:fn:<function-name>
      *
+     * MUST use Urn::function() helper to ensure proper format validation.
+     * This method may be called multiple times during function registration
+     * and request processing. Implementations SHOULD cache the result in a
+     * private constant or property.
+     *
      * Example: urn:acme:forrst:fn:orders:create
      *
-     * @return string Function URN identifier
+     * @return string Function URN identifier in valid format
      */
     public function getUrn(): string;
 
@@ -81,6 +86,14 @@ interface FunctionInterface
      * input structure, types, and validation rules for function invocation.
      * Used for request validation and API documentation generation.
      *
+     * PERFORMANCE: This method may be called multiple times during function
+     * registration and request processing. Implementations SHOULD cache the
+     * result in a private constant or property.
+     *
+     * TYPE SAFETY: MUST return an array of ArgumentData objects. Plain arrays
+     * are supported for backward compatibility but are deprecated and will be
+     * removed in version 2.0.
+     *
      * @return array<int, ArgumentData|array<string, mixed>> Array of argument descriptors
      */
     public function getArguments(): array;
@@ -100,6 +113,14 @@ interface FunctionInterface
      *
      * Returns an array of error objects describing the possible error
      * conditions, including error codes and descriptive messages.
+     *
+     * PERFORMANCE: This method may be called multiple times during function
+     * registration and request processing. Implementations SHOULD cache the
+     * result in a private constant or property.
+     *
+     * TYPE SAFETY: MUST return an array of ErrorDefinitionData objects. Plain
+     * arrays are supported for backward compatibility but are deprecated and
+     * will be removed in version 2.0.
      *
      * @return array<int, array<string, mixed>|ErrorDefinitionData> Array of error definitions
      */
@@ -142,6 +163,10 @@ interface FunctionInterface
      *
      * Valid values: 'create', 'update', 'delete'.
      * Empty array or null indicates read-only.
+     *
+     * IMPORTANT: This method is used for security auditing and idempotency
+     * checks. Accurately declaring side effects is critical for proper
+     * function categorization and safe retries.
      *
      * @return null|array<int, string> Side effects or null
      */
@@ -201,7 +226,11 @@ interface FunctionInterface
      * Called by the dispatcher before function execution to provide access
      * to the full request context, including arguments, ID, and metadata.
      *
-     * @param RequestObjectData $requestObject The incoming Forrst request
+     * SECURITY: The request object is assumed to be validated before injection.
+     * Implementations should NOT re-validate the request structure but MAY
+     * perform business logic validation on arguments.
+     *
+     * @param RequestObjectData $requestObject The validated incoming Forrst request
      */
     public function setRequest(RequestObjectData $requestObject): void;
 }
