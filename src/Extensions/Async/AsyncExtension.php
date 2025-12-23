@@ -370,13 +370,34 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      *
      * @param string $operationId Unique operation identifier
      * @param mixed  $result      Function execution result to return to client
+     *
+     * @throws OperationNotFoundException If operation doesn't exist
+     * @throws InvalidOperationStateException If operation cannot be completed
      */
     public function complete(string $operationId, mixed $result): void
     {
         $operation = $this->operations->find($operationId);
 
         if (!$operation instanceof OperationData) {
-            return;
+            throw new OperationNotFoundException(sprintf(
+                'Cannot complete operation %s: operation not found',
+                $operationId,
+            ));
+        }
+
+        // Validate state transitions
+        if ($operation->status === OperationStatus::Completed) {
+            throw new InvalidOperationStateException(sprintf(
+                'Cannot complete operation %s: already completed',
+                $operationId,
+            ));
+        }
+
+        if ($operation->status === OperationStatus::Cancelled) {
+            throw new InvalidOperationStateException(sprintf(
+                'Cannot complete operation %s: operation was cancelled',
+                $operationId,
+            ));
         }
 
         $updated = new OperationData(
@@ -402,13 +423,41 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      *
      * @param string                $operationId Unique operation identifier
      * @param array<int, ErrorData> $errors      Error details describing the failure
+     *
+     * @throws OperationNotFoundException If operation doesn't exist
+     * @throws InvalidOperationStateException If operation cannot be failed
      */
     public function fail(string $operationId, array $errors): void
     {
         $operation = $this->operations->find($operationId);
 
         if (!$operation instanceof OperationData) {
-            return;
+            throw new OperationNotFoundException(sprintf(
+                'Cannot fail operation %s: operation not found',
+                $operationId,
+            ));
+        }
+
+        // Validate state transitions
+        if ($operation->status === OperationStatus::Completed) {
+            throw new InvalidOperationStateException(sprintf(
+                'Cannot fail operation %s: already completed',
+                $operationId,
+            ));
+        }
+
+        if ($operation->status === OperationStatus::Failed) {
+            throw new InvalidOperationStateException(sprintf(
+                'Cannot fail operation %s: already failed',
+                $operationId,
+            ));
+        }
+
+        if ($operation->status === OperationStatus::Cancelled) {
+            throw new InvalidOperationStateException(sprintf(
+                'Cannot fail operation %s: operation was cancelled',
+                $operationId,
+            ));
         }
 
         $updated = new OperationData(

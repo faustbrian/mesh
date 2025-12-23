@@ -321,11 +321,15 @@ final class CachingExtension extends AbstractExtension
      * Retrieve cached response from server-side cache.
      *
      * Attempts to fetch a previously cached response from the Laravel cache
-     * repository. Returns null if no cache store is configured or entry not found.
+     * repository. Returns null if no cache store is configured, entry not found,
+     * or cached data fails validation.
+     *
+     * Validates cached data structure before deserialization to prevent cache
+     * poisoning attacks.
      *
      * @param string $cacheKey Unique cache key for this request
      *
-     * @return null|ResponseData Cached response or null if not found
+     * @return null|ResponseData Cached response or null if not found/invalid
      */
     public function getCached(string $cacheKey): ?ResponseData
     {
@@ -342,7 +346,22 @@ final class CachingExtension extends AbstractExtension
         /** @var array<string, mixed> $cachedData */
         $cachedData = $cached;
 
-        return ResponseData::from($cachedData);
+        // Validate required structure before deserializing
+        if (!isset($cachedData['protocol'], $cachedData['id'])) {
+            // Delete corrupted entry
+            $this->cache->forget($cacheKey);
+
+            return null;
+        }
+
+        try {
+            return ResponseData::from($cachedData);
+        } catch (\Throwable) {
+            // Delete corrupted entry on deserialization failure
+            $this->cache->forget($cacheKey);
+
+            return null;
+        }
     }
 
     /**

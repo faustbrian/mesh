@@ -159,68 +159,85 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
      */
     public function onExecutingFunction(ExecutingFunction $event): void
     {
-        $options = $event->extension->options ?? [];
+        try {
+            $options = $event->extension->options ?? [];
 
-        // Validate required options
-        $key = $options['key'] ?? null;
+            // Validate required options
+            $key = $options['key'] ?? null;
 
-        if (!is_string($key) || $key === '') {
-            throw LockKeyRequiredException::create();
-        }
-
-        $ttlOption = $options['ttl'] ?? null;
-
-        if ($ttlOption === null) {
-            throw LockTtlRequiredException::create();
-        }
-
-        /** @var array<string, mixed> $ttlArray */
-        $ttlArray = is_array($ttlOption) ? $ttlOption : [];
-        $ttl = $this->parseDuration($ttlArray);
-        $scope = is_string($options['scope'] ?? null) ? $options['scope'] : self::SCOPE_FUNCTION;
-        $owner = is_string($options['owner'] ?? null) ? $options['owner'] : Str::uuid()->toString();
-        $autoRelease = is_bool($options['auto_release'] ?? null) ? $options['auto_release'] : true;
-        $blockOption = $options['block'] ?? null;
-
-        // Build full lock key
-        $fullKey = $this->buildLockKey($key, $scope, $event->request->call->function);
-
-        // Create lock instance
-        $lock = Cache::lock($fullKey, $ttl, $owner);
-
-        // Attempt acquisition
-        if ($blockOption !== null) {
-            /** @var array<string, mixed> $blockArray */
-            $blockArray = is_array($blockOption) ? $blockOption : [];
-            $blockTimeout = $this->parseDuration($blockArray);
-
-            try {
-                $lock->block($blockTimeout);
-            } catch (LaravelLockTimeoutException) {
-                throw LockTimeoutException::forKey($key, $scope, $fullKey, $blockArray);
+            if (!is_string($key) || $key === '') {
+                throw LockKeyRequiredException::create();
             }
-        } elseif (!$lock->get()) {
-            throw LockAcquisitionFailedException::forKey($key, $scope, $fullKey);
+
+            $ttlOption = $options['ttl'] ?? null;
+
+            if ($ttlOption === null) {
+                throw LockTtlRequiredException::create();
+            }
+
+            /** @var array<string, mixed> $ttlArray */
+            $ttlArray = is_array($ttlOption) ? $ttlOption : [];
+            $ttl = $this->parseDuration($ttlArray);
+            $scope = is_string($options['scope'] ?? null) ? $options['scope'] : self::SCOPE_FUNCTION;
+            $owner = is_string($options['owner'] ?? null) ? $options['owner'] : Str::uuid()->toString();
+            $autoRelease = is_bool($options['auto_release'] ?? null) ? $options['auto_release'] : true;
+            $blockOption = $options['block'] ?? null;
+
+            // Build full lock key
+            $fullKey = $this->buildLockKey($key, $scope, $event->request->call->function);
+
+            // Create lock instance
+            $lock = Cache::lock($fullKey, $ttl, $owner);
+
+            // Attempt acquisition
+            if ($blockOption !== null) {
+                /** @var array<string, mixed> $blockArray */
+                $blockArray = is_array($blockOption) ? $blockOption : [];
+                $blockTimeout = $this->parseDuration($blockArray);
+
+                try {
+                    $lock->block($blockTimeout);
+                } catch (LaravelLockTimeoutException) {
+                    throw LockTimeoutException::forKey($key, $scope, $fullKey, $blockArray);
+                }
+            } elseif (!$lock->get()) {
+                throw LockAcquisitionFailedException::forKey($key, $scope, $fullKey);
+            }
+
+            // IMMEDIATELY calculate and store metadata BEFORE setting context
+            // This prevents race condition where lock exists but metadata doesn't
+            $acquiredAt = now()->toIso8601String();
+            $expiresAt = now()->addSeconds($ttl)->toIso8601String();
+            $this->storeLockMetadata($fullKey, $owner, $acquiredAt, $expiresAt, $ttl);
+
+            // THEN set context for onFunctionExecuted
+            $this->context = [
+                'key' => $key,
+                'full_key' => $fullKey,
+                'scope' => $scope,
+                'lock' => $lock,
+                'owner' => $owner,
+                'ttl' => $ttl,
+                'auto_release' => $autoRelease,
+                'acquired_at' => $acquiredAt,
+                'expires_at' => $expiresAt,
+            ];
+        } catch (\Throwable $e) {
+            // Ensure context is null on any failure
+            $this->context = null;
+
+            // If we acquired a lock but failed afterward, release it
+            if (isset($lock) && isset($fullKey)) {
+                try {
+                    $lock->release();
+                    $this->clearLockMetadata($fullKey);
+                } catch (\Throwable) {
+                    // Ignore release failures during exception handling
+                }
+            }
+
+            throw $e;
         }
-
-        // IMMEDIATELY calculate and store metadata BEFORE setting context
-        // This prevents race condition where lock exists but metadata doesn't
-        $acquiredAt = now()->toIso8601String();
-        $expiresAt = now()->addSeconds($ttl)->toIso8601String();
-        $this->storeLockMetadata($fullKey, $owner, $acquiredAt, $expiresAt, $ttl);
-
-        // THEN set context for onFunctionExecuted
-        $this->context = [
-            'key' => $key,
-            'full_key' => $fullKey,
-            'scope' => $scope,
-            'lock' => $lock,
-            'owner' => $owner,
-            'ttl' => $ttl,
-            'auto_release' => $autoRelease,
-            'acquired_at' => $acquiredAt,
-            'expires_at' => $expiresAt,
-        ];
     }
 
     /**
