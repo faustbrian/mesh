@@ -81,4 +81,57 @@ final class CallData extends AbstractData
             arguments: $arguments,
         );
     }
+
+    /**
+     * Check if the call has any arguments.
+     *
+     * @return bool True if arguments are present
+     */
+    public function hasArguments(): bool
+    {
+        return $this->arguments !== null && $this->arguments !== [];
+    }
+
+    /**
+     * Get the number of arguments.
+     *
+     * @return int The argument count
+     */
+    public function getArgumentCount(): int
+    {
+        return $this->arguments !== null ? count($this->arguments) : 0;
+    }
+
+    /**
+     * Check if a specific argument exists.
+     *
+     * @param string $key The argument key
+     * @return bool True if the argument exists
+     */
+    public function hasArgument(string $key): bool
+    {
+        return isset($this->arguments[$key]);
+    }
+
+    /**
+     * Get a specific argument value with optional default.
+     *
+     * @param string $key The argument key
+     * @param mixed $default The default value if not found
+     * @return mixed The argument value or default
+     */
+    public function getArgument(string $key, mixed $default = null): mixed
+    {
+        return $this->arguments[$key] ?? $default;
+    }
+
+    /**
+     * Check if a version was specified.
+     *
+     * @return bool True if version is set
+     */
+    public function hasVersion(): bool
+    {
+        return $this->version !== null;
+    }
 }
