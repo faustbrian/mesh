@@ -14,8 +14,12 @@ use Override;
 
 use function array_any;
 use function array_map;
+use function count;
 use function is_array;
 use function is_string;
+use function sprintf;
+
+use InvalidArgumentException;
 
 /**
  * Forrst protocol compliant response object.
@@ -31,6 +35,21 @@ use function is_string;
  */
 final class ResponseData extends AbstractData
 {
+    /**
+     * Maximum allowed size for errors array to prevent memory exhaustion.
+     */
+    private const MAX_ERRORS_COUNT = 100;
+
+    /**
+     * Maximum allowed size for extensions array to prevent memory exhaustion.
+     */
+    private const MAX_EXTENSIONS_COUNT = 50;
+
+    /**
+     * Maximum allowed depth for nested meta data to prevent stack overflow.
+     */
+    private const MAX_META_DEPTH = 10;
+
     /**
      * Create a new response data instance.
      *
@@ -59,7 +78,56 @@ final class ResponseData extends AbstractData
         public readonly ?array $errors = null,
         public readonly ?array $extensions = null,
         public readonly ?array $meta = null,
-    ) {}
+    ) {
+        // Validate ID is not empty
+        if ($id === '') {
+            throw new InvalidArgumentException('Response ID cannot be empty');
+        }
+
+        // Validate that result and errors are mutually exclusive
+        if ($result !== null && $errors !== null && $errors !== []) {
+            throw new InvalidArgumentException('Response cannot have both result and errors');
+        }
+
+        // Validate errors array size and content
+        if ($errors !== null) {
+            if (count($errors) > self::MAX_ERRORS_COUNT) {
+                throw new InvalidArgumentException(
+                    sprintf('Errors array cannot exceed %d items', self::MAX_ERRORS_COUNT)
+                );
+            }
+
+            if ($errors !== [] && count($errors) === 0) {
+                throw new InvalidArgumentException('Errors array cannot be empty when set');
+            }
+
+            foreach ($errors as $error) {
+                if (!$error instanceof ErrorData) {
+                    throw new InvalidArgumentException('All errors must be instances of ErrorData');
+                }
+            }
+        }
+
+        // Validate extensions array size and content
+        if ($extensions !== null) {
+            if (count($extensions) > self::MAX_EXTENSIONS_COUNT) {
+                throw new InvalidArgumentException(
+                    sprintf('Extensions array cannot exceed %d items', self::MAX_EXTENSIONS_COUNT)
+                );
+            }
+
+            foreach ($extensions as $extension) {
+                if (!$extension instanceof ExtensionData) {
+                    throw new InvalidArgumentException('All extensions must be instances of ExtensionData');
+                }
+            }
+        }
+
+        // Validate meta depth
+        if ($meta !== null) {
+            $this->validateArrayDepth($meta, self::MAX_META_DEPTH, 'meta');
+        }
+    }
 
     /**
      * Create a response from an array.
