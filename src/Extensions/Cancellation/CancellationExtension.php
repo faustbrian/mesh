@@ -214,6 +214,29 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
     }
 
     /**
+     * Clean up token after successful function execution.
+     *
+     * Removes the token from cache after the request completes successfully.
+     * Prevents memory leaks by ensuring tokens don't accumulate in cache.
+     *
+     * @param FunctionExecuted $event Event containing completed request
+     */
+    public function onFunctionExecuted(FunctionExecuted $event): void
+    {
+        $extension = $event->request->getExtension(ExtensionUrn::Cancellation->value);
+
+        if (!$extension instanceof ExtensionData) {
+            return;
+        }
+
+        $token = $extension->options['token'] ?? null;
+
+        if (is_string($token) && $token !== '') {
+            $this->cleanup($token);
+        }
+    }
+
+    /**
      * Cancel a request by its token.
      *
      * Marks the token as cancelled in cache, signaling to the executing request
