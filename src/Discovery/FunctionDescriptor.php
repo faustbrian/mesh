@@ -448,6 +448,12 @@ final class FunctionDescriptor
 
     public function getUrn(): string
     {
+        if (!isset($this->urn)) {
+            throw new \RuntimeException(
+                'URN not set. Call urn() before building function descriptor.'
+            );
+        }
+
         return $this->urn;
     }
 
@@ -458,6 +464,12 @@ final class FunctionDescriptor
 
     public function getSummary(): string
     {
+        if (!isset($this->summary)) {
+            throw new \RuntimeException(
+                'Summary not set. Call summary() before building function descriptor.'
+            );
+        }
+
         return $this->summary;
     }
 
