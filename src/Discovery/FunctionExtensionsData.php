@@ -136,4 +136,48 @@ final class FunctionExtensionsData extends Data
             );
         }
     }
+
+    /**
+     * Create allowlist configuration (only specified extensions supported).
+     *
+     * @param array<int, string> $extensions Extension names to allow
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function allow(array $extensions): self
+    {
+        if (empty($extensions)) {
+            throw new InvalidArgumentException(
+                'Allow list must contain at least one extension'
+            );
+        }
+
+        return new self(supported: $extensions, excluded: null);
+    }
+
+    /**
+     * Create blocklist configuration (all except specified extensions supported).
+     *
+     * @param array<int, string> $extensions Extension names to block
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function deny(array $extensions): self
+    {
+        if (empty($extensions)) {
+            throw new InvalidArgumentException(
+                'Deny list must contain at least one extension'
+            );
+        }
+
+        return new self(supported: null, excluded: $extensions);
+    }
+
+    /**
+     * Inherit all server-wide extension settings (no overrides).
+     */
+    public static function inherit(): self
+    {
+        return new self(supported: null, excluded: null);
+    }
 }
