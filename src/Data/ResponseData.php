@@ -130,6 +130,104 @@ final class ResponseData extends AbstractData
     }
 
     /**
+     * Create a response from an array following codebase convention.
+     *
+     * This method follows the codebase standard naming convention for array-based
+     * factory methods. It provides validation and proper error handling for malformed data.
+     *
+     * @param array<string, mixed> $data Response data array to hydrate from
+     *
+     * @return self Response instance with validated and hydrated nested objects
+     *
+     * @throws InvalidArgumentException If required fields are missing or invalid
+     */
+    public static function createFromArray(array $data): self
+    {
+        // Validate required fields
+        if (!isset($data['id']) || !is_string($data['id']) || $data['id'] === '') {
+            throw new InvalidArgumentException('Response ID is required and must be a non-empty string');
+        }
+
+        if (!isset($data['protocol'])) {
+            throw new InvalidArgumentException('Protocol data is required');
+        }
+
+        // Build protocol data
+        $protocolData = $data['protocol'];
+        if (!is_array($protocolData)) {
+            throw new InvalidArgumentException('Protocol must be an array');
+        }
+
+        $protocol = ProtocolData::from($protocolData);
+
+        // Validate mutual exclusivity of result and errors
+        $hasResult = isset($data['result']);
+        $hasErrors = isset($data['errors']) && is_array($data['errors']) && $data['errors'] !== [];
+
+        if ($hasResult && $hasErrors) {
+            throw new InvalidArgumentException('Response cannot have both result and errors');
+        }
+
+        // Build errors array
+        $errors = null;
+        if (isset($data['errors']) && is_array($data['errors'])) {
+            if (count($data['errors']) > self::MAX_ERRORS_COUNT) {
+                throw new InvalidArgumentException(
+                    sprintf('Errors array cannot exceed %d items', self::MAX_ERRORS_COUNT)
+                );
+            }
+
+            $errors = array_map(
+                function (mixed $errorData): ErrorData {
+                    if (!is_array($errorData)) {
+                        throw new InvalidArgumentException('Each error must be an array');
+                    }
+
+                    return ErrorData::from($errorData);
+                },
+                $data['errors'],
+            );
+        }
+
+        // Build extensions array
+        $extensions = null;
+        if (isset($data['extensions']) && is_array($data['extensions'])) {
+            if (count($data['extensions']) > self::MAX_EXTENSIONS_COUNT) {
+                throw new InvalidArgumentException(
+                    sprintf('Extensions array cannot exceed %d items', self::MAX_EXTENSIONS_COUNT)
+                );
+            }
+
+            $extensions = array_map(
+                function (mixed $extensionData): ExtensionData {
+                    if (!is_array($extensionData)) {
+                        throw new InvalidArgumentException('Each extension must be an array');
+                    }
+
+                    return ExtensionData::from($extensionData);
+                },
+                $data['extensions'],
+            );
+        }
+
+        // Build meta array with depth validation
+        $meta = null;
+        if (isset($data['meta']) && is_array($data['meta'])) {
+            self::validateArrayDepthStatic($data['meta'], self::MAX_META_DEPTH, 'meta');
+            $meta = $data['meta'];
+        }
+
+        return new self(
+            protocol: $protocol,
+            id: $data['id'],
+            result: $data['result'] ?? null,
+            errors: $errors,
+            extensions: $extensions,
+            meta: $meta,
+        );
+    }
+
+    /**
      * Create a response from an array.
      *
      * Hydrates a response object from an associative array, typically from JSON-decoded
@@ -319,6 +417,41 @@ final class ResponseData extends AbstractData
     }
 
     /**
+     * Create a response with explicit parameters.
+     *
+     * Factory method for creating a response with all parameters explicitly provided.
+     * This method enforces validation rules and ensures protocol compliance.
+     *
+     * @param string                    $id         The request identifier
+     * @param mixed                     $result     The result data (null if errors present)
+     * @param null|array<ErrorData>     $errors     Array of errors (null if successful)
+     * @param null|ProtocolData         $protocol   Protocol data (defaults to Forrst protocol)
+     * @param null|array<ExtensionData> $extensions Optional extension response data
+     * @param null|array<string, mixed> $meta       Optional metadata
+     *
+     * @return self Response instance with validated parameters
+     *
+     * @throws InvalidArgumentException If parameters are invalid or violate constraints
+     */
+    public static function createFrom(
+        string $id,
+        mixed $result = null,
+        ?array $errors = null,
+        ?ProtocolData $protocol = null,
+        ?array $extensions = null,
+        ?array $meta = null,
+    ): self {
+        return new self(
+            protocol: $protocol ?? ProtocolData::forrst(),
+            id: $id,
+            result: $result,
+            errors: $errors,
+            extensions: $extensions,
+            meta: $meta,
+        );
+    }
+
+    /**
      * Determine if the request was successful.
      *
      * A response is successful when it contains no errors. Note that a null
@@ -429,6 +562,56 @@ final class ResponseData extends AbstractData
     public function hasExtension(string $urn): bool
     {
         return $this->getExtension($urn) instanceof ExtensionData;
+    }
+
+    /**
+     * Validate array depth to prevent stack overflow attacks.
+     *
+     * @param array<string, mixed> $array     The array to validate
+     * @param int                  $maxDepth  Maximum allowed depth
+     * @param string               $fieldName Field name for error messages
+     * @param int                  $current   Current depth (internal use)
+     *
+     * @throws InvalidArgumentException If array exceeds maximum depth
+     */
+    private function validateArrayDepth(array $array, int $maxDepth, string $fieldName, int $current = 0): void
+    {
+        if ($current >= $maxDepth) {
+            throw new InvalidArgumentException(
+                sprintf('Field "%s" exceeds maximum depth of %d', $fieldName, $maxDepth)
+            );
+        }
+
+        foreach ($array as $value) {
+            if (is_array($value)) {
+                $this->validateArrayDepth($value, $maxDepth, $fieldName, $current + 1);
+            }
+        }
+    }
+
+    /**
+     * Static version of validateArrayDepth for use in static factory methods.
+     *
+     * @param array<string, mixed> $array     The array to validate
+     * @param int                  $maxDepth  Maximum allowed depth
+     * @param string               $fieldName Field name for error messages
+     * @param int                  $current   Current depth (internal use)
+     *
+     * @throws InvalidArgumentException If array exceeds maximum depth
+     */
+    private static function validateArrayDepthStatic(array $array, int $maxDepth, string $fieldName, int $current = 0): void
+    {
+        if ($current >= $maxDepth) {
+            throw new InvalidArgumentException(
+                sprintf('Field "%s" exceeds maximum depth of %d', $fieldName, $maxDepth)
+            );
+        }
+
+        foreach ($array as $value) {
+            if (is_array($value)) {
+                self::validateArrayDepthStatic($value, $maxDepth, $fieldName, $current + 1);
+            }
+        }
     }
 
     /**

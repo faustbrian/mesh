@@ -21,6 +21,7 @@ use function is_string;
 use function mb_substr;
 use function method_exists;
 use function str_starts_with;
+use function strlen;
 use function throw_if;
 
 /**
@@ -121,16 +122,12 @@ final class RuleTransformer
 
             // After (Date)
             if (str_starts_with($rule, 'after:')) {
-                $fieldSchema['properties'][$field]['type'] = 'string';
-                $fieldSchema['properties'][$field]['format'] = 'date-time';
-                $fieldSchema['properties'][$field]['exclusiveMinimum'] = mb_substr($rule, 6);
+                self::applyDateComparison($fieldSchema, $field, $rule, 'after:', 'exclusiveMinimum');
             }
 
             // After Or Equal (Date)
             if (str_starts_with($rule, 'after_or_equal:')) {
-                $fieldSchema['properties'][$field]['type'] = 'string';
-                $fieldSchema['properties'][$field]['format'] = 'date-time';
-                $fieldSchema['properties'][$field]['minimum'] = mb_substr($rule, 15);
+                self::applyDateComparison($fieldSchema, $field, $rule, 'after_or_equal:', 'minimum');
             }
 
             // Alpha
@@ -163,16 +160,12 @@ final class RuleTransformer
 
             // Before (Date)
             if (str_starts_with($rule, 'before:')) {
-                $fieldSchema['properties'][$field]['type'] = 'string';
-                $fieldSchema['properties'][$field]['format'] = 'date-time';
-                $fieldSchema['properties'][$field]['exclusiveMaximum'] = mb_substr($rule, 7);
+                self::applyDateComparison($fieldSchema, $field, $rule, 'before:', 'exclusiveMaximum');
             }
 
             // Before Or Equal (Date)
             if (str_starts_with($rule, 'before_or_equal:')) {
-                $fieldSchema['properties'][$field]['type'] = 'string';
-                $fieldSchema['properties'][$field]['format'] = 'date-time';
-                $fieldSchema['properties'][$field]['maximum'] = mb_substr($rule, 16);
+                self::applyDateComparison($fieldSchema, $field, $rule, 'before_or_equal:', 'maximum');
             }
 
             // Between
@@ -902,5 +895,29 @@ final class RuleTransformer
         }
 
         return $fieldSchema;
+    }
+
+    /**
+     * Apply date comparison constraint to field schema.
+     *
+     * Helper method to reduce duplication for date comparison rules
+     * (after, after_or_equal, before, before_or_equal).
+     *
+     * @param array<string, mixed> $schema    The schema being built (passed by reference)
+     * @param string               $field     The field name
+     * @param string               $rule      The full rule string (e.g., 'after:2024-01-01')
+     * @param string               $prefix    The rule prefix to strip (e.g., 'after:')
+     * @param string               $operator  The JSON Schema operator (e.g., 'exclusiveMinimum')
+     */
+    private static function applyDateComparison(
+        array &$schema,
+        string $field,
+        string $rule,
+        string $prefix,
+        string $operator,
+    ): void {
+        $schema['properties'][$field]['type'] = 'string';
+        $schema['properties'][$field]['format'] = 'date-time';
+        $schema['properties'][$field][$operator] = mb_substr($rule, strlen($prefix));
     }
 }
