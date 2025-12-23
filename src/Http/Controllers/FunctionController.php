@@ -120,7 +120,26 @@ final readonly class FunctionController
             return Response::json($result->data->toArray(), 200);
         }
 
-        return Response::json($result->data, 200);
+        if (is_array($result->data)) {
+            return Response::json($result->data, 200);
+        }
+
+        // Unexpected type - log and return error
+        Log::error('Invalid result data type', [
+            'type' => get_debug_type($result->data),
+            'class' => is_object($result->data) ? get_class($result->data) : null,
+        ]);
+
+        return Response::json([
+            'protocol' => ['name' => 'forrst', 'version' => '1.0.0'],
+            'id' => null,
+            'errors' => [[
+                'status' => '500',
+                'code' => 'internal_error',
+                'title' => 'Invalid response data',
+                'detail' => 'Server generated invalid response data type.',
+            ]],
+        ], 200);
     }
 
     /**
