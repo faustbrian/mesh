@@ -40,6 +40,24 @@ final class SourceData extends AbstractData
     ) {}
 
     /**
+     * Create a source from an array of data.
+     *
+     * Factory method for creating a SourceData instance from array data,
+     * typically from deserialized JSON. Accepts either pointer or position.
+     *
+     * @param array<string, mixed> $data Array containing 'pointer' or 'position' key
+     *
+     * @return self SourceData instance with data populated
+     */
+    public static function createFromArray(array $data): self
+    {
+        return new self(
+            pointer: isset($data['pointer']) && is_string($data['pointer']) ? $data['pointer'] : null,
+            position: isset($data['position']) && is_int($data['position']) ? $data['position'] : null,
+        );
+    }
+
+    /**
      * Create a source pointing to a request field.
      *
      * Factory method for creating a source that identifies a specific field
