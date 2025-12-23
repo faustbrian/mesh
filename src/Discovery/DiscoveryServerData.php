@@ -61,6 +61,7 @@ final class DiscoveryServerData extends Data
         public readonly ?array $extensions = null,
     ) {
         $this->validateUrlTemplate($url);
+        $this->validateVariableConsistency($url, $variables);
     }
 
     /**
@@ -94,6 +95,39 @@ final class DiscoveryServerData extends Data
         if (!filter_var($testUrl, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException(
                 "Invalid URL structure: '{$url}' is not a valid URL template"
+            );
+        }
+    }
+
+    /**
+     * Ensure all URL template variables are defined in $variables array.
+     *
+     * @param array<string, ServerVariableData>|null $variables
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateVariableConsistency(string $url, ?array $variables): void
+    {
+        preg_match_all('/\{([^}]+)\}/', $url, $matches);
+        $urlVars = $matches[1];
+
+        if (empty($urlVars)) {
+            return; // No variables in template
+        }
+
+        if ($variables === null) {
+            throw new InvalidArgumentException(
+                'URL template contains variables '.json_encode($urlVars)
+                .' but no variable definitions provided'
+            );
+        }
+
+        $definedVars = array_keys($variables);
+        $undefinedVars = array_diff($urlVars, $definedVars);
+
+        if (!empty($undefinedVars)) {
+            throw new InvalidArgumentException(
+                'URL template references undefined variables: '.json_encode($undefinedVars)
             );
         }
     }

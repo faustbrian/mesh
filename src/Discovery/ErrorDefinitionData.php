@@ -175,4 +175,25 @@ final class ErrorDefinitionData extends Data
             $this->validateJsonSchema($details['items'], $depth + 1);
         }
     }
+
+    /**
+     * Safely substitute placeholder values with HTML escaping.
+     *
+     * @param array<int, scalar> $values Values to substitute into placeholders
+     *
+     * @return string Message with escaped values substituted
+     */
+    public function formatMessage(array $values): string
+    {
+        $escaped = array_map(
+            fn ($val) => htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8'),
+            $values
+        );
+
+        return preg_replace_callback(
+            '/\{(\d+)\}/',
+            fn ($matches) => $escaped[(int) $matches[1]] ?? $matches[0],
+            $this->message
+        );
+    }
 }
