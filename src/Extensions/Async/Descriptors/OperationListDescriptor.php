@@ -55,9 +55,13 @@ final class OperationListDescriptor implements DescriptorInterface
             )
             ->argument(
                 name: 'cursor',
-                schema: ['type' => 'string'],
+                schema: [
+                    'type' => 'string',
+                    'pattern' => '^[a-zA-Z0-9+/=_-]+$',
+                    'description' => 'Opaque pagination cursor from previous response',
+                ],
                 required: false,
-                description: 'Pagination cursor',
+                description: 'Pagination cursor for retrieving next page',
             )
             ->result(
                 schema: [
