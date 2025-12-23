@@ -364,6 +364,25 @@ enum ErrorCode: string
     }
 
     /**
+     * Determine if this error indicates a maintenance or operational state.
+     *
+     * Maintenance errors indicate the service or function is temporarily
+     * unavailable due to scheduled maintenance or operational concerns.
+     *
+     * @return bool True if this is a maintenance error, false otherwise
+     */
+    public function isMaintenanceError(): bool
+    {
+        return match ($this) {
+            self::FunctionDisabled,
+            self::ServerMaintenance,
+            self::FunctionMaintenance,
+            self::Unavailable => true,
+            default => false,
+        };
+    }
+
+    /**
      * Convert the error code to an HTTP status code.
      *
      * Maps protocol error codes to their corresponding HTTP status codes for
