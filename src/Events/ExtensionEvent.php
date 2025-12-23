@@ -126,4 +126,45 @@ abstract class ExtensionEvent
     {
         return $this->shortCircuitResponse;
     }
+
+    /**
+     * Check if a short-circuit response is set.
+     *
+     * Returns true if setResponse() has been called with a non-null response.
+     * Useful for determining if the event has been fully handled.
+     *
+     * @return bool True if response is set, false otherwise
+     */
+    public function hasResponse(): bool
+    {
+        return $this->shortCircuitResponse !== null;
+    }
+
+    /**
+     * Check if the event is in a valid short-circuit state.
+     *
+     * A valid short-circuit requires both propagation stopped AND a response set.
+     * This ensures the dispatcher knows exactly what to do with a stopped event.
+     *
+     * @return bool True if event is properly short-circuited
+     */
+    public function isShortCircuited(): bool
+    {
+        return $this->propagationStopped && $this->shortCircuitResponse !== null;
+    }
+
+    /**
+     * Stop propagation and set response atomically.
+     *
+     * Convenience method that ensures propagation is stopped and response is set
+     * together, preventing inconsistent state. This is the recommended way to
+     * short-circuit execution.
+     *
+     * @param ResponseData $response The response to return to the client
+     */
+    public function shortCircuit(ResponseData $response): void
+    {
+        $this->shortCircuitResponse = $response;
+        $this->propagationStopped = true;
+    }
 }
