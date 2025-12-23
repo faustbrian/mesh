@@ -74,13 +74,13 @@ final class OperationData extends AbstractData
         public readonly string $id,
         public readonly string $function,
         public readonly ?string $version = null,
-        public readonly OperationStatus $status = OperationStatus::Pending,
+        OperationStatus $status = OperationStatus::Pending,
         ?float $progress = null,
         public readonly mixed $result = null,
         public readonly ?array $errors = null,
-        public readonly ?CarbonImmutable $startedAt = null,
-        public readonly ?CarbonImmutable $completedAt = null,
-        public readonly ?CarbonImmutable $cancelledAt = null,
+        ?CarbonImmutable $startedAt = null,
+        ?CarbonImmutable $completedAt = null,
+        ?CarbonImmutable $cancelledAt = null,
         public readonly ?array $metadata = null,
     ) {
         // Validate progress bounds
@@ -93,7 +93,49 @@ final class OperationData extends AbstractData
             );
         }
 
+        // Validate state-timestamp consistency
+        if ($status === OperationStatus::Completed && $completedAt === null) {
+            throw new \InvalidArgumentException(
+                'Completed operations must have a completedAt timestamp',
+            );
+        }
+
+        if ($status === OperationStatus::Failed && $errors === null) {
+            throw new \InvalidArgumentException(
+                'Failed operations must have errors array populated',
+            );
+        }
+
+        if ($status === OperationStatus::Cancelled && $cancelledAt === null) {
+            throw new \InvalidArgumentException(
+                'Cancelled operations must have a cancelledAt timestamp',
+            );
+        }
+
+        if ($status === OperationStatus::Processing && $startedAt === null) {
+            throw new \InvalidArgumentException(
+                'Processing operations must have a startedAt timestamp',
+            );
+        }
+
+        // Validate timestamp logical ordering
+        if ($startedAt && $completedAt && $completedAt->lt($startedAt)) {
+            throw new \InvalidArgumentException(
+                'Operation completedAt cannot be before startedAt',
+            );
+        }
+
+        if ($startedAt && $cancelledAt && $cancelledAt->lt($startedAt)) {
+            throw new \InvalidArgumentException(
+                'Operation cancelledAt cannot be before startedAt',
+            );
+        }
+
+        $this->status = $status;
         $this->progress = $progress;
+        $this->startedAt = $startedAt;
+        $this->completedAt = $completedAt;
+        $this->cancelledAt = $cancelledAt;
     }
 
     /**
