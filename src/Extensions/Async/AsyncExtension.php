@@ -484,19 +484,41 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param string      $operationId Unique operation identifier
      * @param float       $progress    Progress value between 0.0 (started) and 1.0 (complete)
      * @param null|string $message     Optional human-readable status message
+     *
+     * @throws OperationNotFoundException If operation doesn't exist
+     * @throws InvalidOperationStateException If operation cannot have progress updated
+     * @throws \InvalidArgumentException If progress message exceeds maximum length
      */
     public function updateProgress(string $operationId, float $progress, ?string $message = null): void
     {
         $operation = $this->operations->find($operationId);
 
         if (!$operation instanceof OperationData) {
-            return;
+            throw new OperationNotFoundException(sprintf(
+                'Cannot update progress for operation %s: operation not found',
+                $operationId,
+            ));
+        }
+
+        // Validate operation is in a state where progress updates make sense
+        if (!in_array($operation->status, [OperationStatus::Pending, OperationStatus::Processing], true)) {
+            throw new InvalidOperationStateException(sprintf(
+                'Cannot update progress for operation %s: operation is in %s state',
+                $operationId,
+                $operation->status->value,
+            ));
         }
 
         $metadata = $operation->metadata ?? [];
 
         if ($message !== null) {
+            if (strlen($message) > 1000) {
+                throw new \InvalidArgumentException(
+                    'Progress message cannot exceed 1000 characters',
+                );
+            }
             $metadata['progress_message'] = $message;
+            $metadata['progress_updated_at'] = now()->toIso8601String();
         }
 
         $updated = new OperationData(
