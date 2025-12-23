@@ -70,5 +70,42 @@ final class DiscoveryData extends Data
         public readonly ?array $resources = null,
         public readonly ?ComponentsData $components = null,
         public readonly ?ExternalDocsData $externalDocs = null,
-    ) {}
+    ) {
+        $this->validateVersions();
+    }
+
+    /**
+     * Validate semantic versioning for forrst and discovery fields.
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function validateVersions(): void
+    {
+        $this->validateSemanticVersion($this->forrst, 'Forrst protocol version');
+        $this->validateSemanticVersion($this->discovery, 'Discovery document version');
+    }
+
+    /**
+     * Validate that a version string follows semantic versioning format.
+     *
+     * @param string $version   The version string to validate
+     * @param string $fieldName The field name for error messages
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function validateSemanticVersion(string $version, string $fieldName): void
+    {
+        // Semantic versioning: MAJOR.MINOR.PATCH with optional pre-release and build metadata
+        $pattern = '/^\d+\.\d+\.\d+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$/';
+
+        if (!preg_match($pattern, $version)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    '%s "%s" must follow semantic versioning (e.g., "1.0.0", "2.1.0-beta.1")',
+                    $fieldName,
+                    $version
+                )
+            );
+        }
+    }
 }
