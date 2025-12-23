@@ -104,4 +104,84 @@ enum TimeUnit: string
 
         return $value * $multiplier;
     }
+
+    /**
+     * Convert seconds to a value in this time unit.
+     *
+     * Performs the inverse operation of toSeconds(), converting a duration
+     * in seconds back to this time unit. The result may be fractional and
+     * is returned as a float for precision.
+     *
+     * @param int $seconds Duration in seconds (must be non-negative)
+     *
+     * @return float Duration value in this time unit (may be fractional)
+     *
+     * @throws \InvalidArgumentException If seconds is negative
+     */
+    public function fromSeconds(int $seconds): float
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException(
+                sprintf('Seconds must be non-negative, got %d', $seconds)
+            );
+        }
+
+        return match ($this) {
+            self::Second => (float) $seconds,
+            self::Minute => $seconds / 60.0,
+            self::Hour => $seconds / 3_600.0,
+            self::Day => $seconds / 86_400.0,
+        };
+    }
+
+    /**
+     * Find the best time unit to represent a duration in seconds.
+     *
+     * Selects the largest time unit where the duration is >= 1.0,
+     * making durations more human-readable (e.g., "2 hours" instead of "7200 seconds").
+     *
+     * @param int $seconds Duration in seconds (must be non-negative)
+     *
+     * @return self The most appropriate time unit for this duration
+     *
+     * @throws \InvalidArgumentException If seconds is negative
+     */
+    public static function bestFit(int $seconds): self
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException(
+                sprintf('Seconds must be non-negative, got %d', $seconds)
+            );
+        }
+
+        return match (true) {
+            $seconds >= 86_400 => self::Day,
+            $seconds >= 3_600 => self::Hour,
+            $seconds >= 60 => self::Minute,
+            default => self::Second,
+        };
+    }
+
+    /**
+     * Convert seconds to the best-fit time unit and value.
+     *
+     * Combines bestFit() and fromSeconds() to automatically select the most
+     * appropriate time unit and convert the duration. Useful for displaying
+     * durations in human-readable format.
+     *
+     * @param int $seconds Duration in seconds (must be non-negative)
+     *
+     * @return array{value: float, unit: self} Duration and best-fit time unit
+     *
+     * @throws \InvalidArgumentException If seconds is negative
+     */
+    public static function fromSecondsAuto(int $seconds): array
+    {
+        $unit = self::bestFit($seconds);
+
+        return [
+            'value' => $unit->fromSeconds($seconds),
+            'unit' => $unit,
+        ];
+    }
 }
