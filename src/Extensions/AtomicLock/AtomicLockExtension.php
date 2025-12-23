@@ -20,6 +20,7 @@ use Cline\Forrst\Exceptions\LockKeyRequiredException;
 use Cline\Forrst\Exceptions\LockNotFoundException;
 use Cline\Forrst\Exceptions\LockOwnershipMismatchException;
 use Cline\Forrst\Exceptions\LockTimeoutException;
+use Cline\Forrst\Exceptions\LockTtlExceedsMaximumException;
 use Cline\Forrst\Exceptions\LockTtlRequiredException;
 use Cline\Forrst\Exceptions\UnauthorizedException;
 use Cline\Forrst\Extensions\AbstractExtension;

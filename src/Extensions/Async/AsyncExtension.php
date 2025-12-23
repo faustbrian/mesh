@@ -34,6 +34,7 @@ use function bin2hex;
 use function filter_var;
 use function in_array;
 use function is_string;
+use function json_encode;
 use function max;
 use function min;
 use function now;
@@ -42,6 +43,8 @@ use function random_bytes;
 use function sprintf;
 use function strlen;
 use function strtolower;
+
+use const JSON_THROW_ON_ERROR;
 
 use const FILTER_FLAG_NO_PRIV_RANGE;
 use const FILTER_FLAG_NO_RES_RANGE;
@@ -99,6 +102,11 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * Maximum allowed callback URL length to prevent DoS.
      */
     private const int MAX_CALLBACK_URL_LENGTH = 2048;
+
+    /**
+     * Maximum metadata size in bytes (64KB) to prevent storage bloat and DoS.
+     */
+    private const int MAX_METADATA_SIZE_BYTES = 65536;
 
     /**
      * Create a new async extension instance.
@@ -252,6 +260,8 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param int                       $retrySeconds Suggested seconds between poll attempts
      *
      * @return array{response: ResponseData, operation: OperationData} Tuple of response and operation
+     *
+     * @throws \InvalidArgumentException If metadata size exceeds maximum allowed (64KB)
      */
     public function createAsyncOperation(
         RequestObjectData $request,
@@ -259,19 +269,37 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
         ?array $metadata = null,
         int $retrySeconds = self::DEFAULT_RETRY_SECONDS,
     ): array {
+        // Validate metadata size
+        if ($metadata !== null) {
+            $metadataJson = json_encode($metadata, JSON_THROW_ON_ERROR);
+            $metadataSize = strlen($metadataJson);
+
+            if ($metadataSize > self::MAX_METADATA_SIZE_BYTES) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Operation metadata size (%d bytes) exceeds maximum allowed (%d bytes)',
+                    $metadataSize,
+                    self::MAX_METADATA_SIZE_BYTES,
+                ));
+            }
+        }
+
+        $systemMetadata = [
+            'original_request_id' => $request->id,
+            'callback_url' => $this->getCallbackUrl($extension->options),
+            'created_at' => now()->toIso8601String(),
+        ];
+
+        $finalMetadata = $metadata !== null
+            ? array_merge($metadata, $systemMetadata)
+            : $systemMetadata;
+
         // Create the operation record
         $operation = new OperationData(
             id: $this->generateOperationId(),
             function: $request->call->function,
             version: $request->call->version,
             status: OperationStatus::Pending,
-            metadata: $metadata !== null ? array_merge($metadata, [
-                'original_request_id' => $request->id,
-                'callback_url' => $this->getCallbackUrl($extension->options),
-            ]) : [
-                'original_request_id' => $request->id,
-                'callback_url' => $this->getCallbackUrl($extension->options),
-            ],
+            metadata: $finalMetadata,
         );
 
         // Persist the operation
