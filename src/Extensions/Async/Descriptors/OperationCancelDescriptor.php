@@ -30,9 +30,15 @@ final class OperationCancelDescriptor implements DescriptorInterface
             ->summary('Cancel a pending async operation')
             ->argument(
                 name: 'operation_id',
-                schema: ['type' => 'string'],
+                schema: [
+                    'type' => 'string',
+                    'pattern' => '^op_[a-f0-9]{24}$',
+                    'minLength' => 27,
+                    'maxLength' => 27,
+                    'description' => 'Operation identifier (format: op_ followed by 24 hex characters)',
+                ],
                 required: true,
-                description: 'Operation ID to cancel',
+                description: 'Unique operation identifier',
             )
             ->result(
                 schema: [
