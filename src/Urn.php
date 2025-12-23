@@ -58,6 +58,8 @@ final class Urn
      */
     public static function extension(string $name, ?string $vendor = null): string
     {
+        self::validateName($name, 'extension');
+
         return self::build(self::TYPE_EXTENSION, $name, $vendor);
     }
 
@@ -72,6 +74,8 @@ final class Urn
      */
     public static function function(string $name, ?string $vendor = null): string
     {
+        self::validateName($name, 'function');
+
         return self::build(self::TYPE_FUNCTION, $name, $vendor);
     }
 
@@ -86,6 +90,9 @@ final class Urn
      */
     public static function extensionFunction(string $extension, string $functionName, ?string $vendor = null): string
     {
+        self::validateName($extension, 'extension');
+        self::validateName($functionName, 'function');
+
         $vendor ??= self::VENDOR;
 
         return implode(':', [
@@ -184,5 +191,39 @@ final class Urn
         $vendor ??= self::VENDOR;
 
         return implode(':', ['urn', $vendor, self::PROTOCOL, $type, $name]);
+    }
+
+    /**
+     * Validate name format for URN components.
+     *
+     * @param string $name Name to validate
+     * @param string $type Type of component (for error message)
+     *
+     * @throws \InvalidArgumentException If name format is invalid
+     */
+    private static function validateName(string $name, string $type): void
+    {
+        if (empty($name)) {
+            throw new \InvalidArgumentException(
+                sprintf('%s name cannot be empty', ucfirst($type))
+            );
+        }
+
+        if (strlen($name) > 100) {
+            throw new \InvalidArgumentException(
+                sprintf('%s name cannot exceed 100 characters', ucfirst($type))
+            );
+        }
+
+        // Allow alphanumeric, hyphens, and colons (for hierarchical names)
+        if (!preg_match('/^[a-z][a-z0-9:-]*$/', $name)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    '%s name "%s" is invalid. Must start with a letter and contain only lowercase letters, numbers, hyphens, and colons',
+                    ucfirst($type),
+                    $name
+                )
+            );
+        }
     }
 }
