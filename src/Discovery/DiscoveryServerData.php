@@ -62,6 +62,7 @@ final class DiscoveryServerData extends Data
     ) {
         $this->validateUrlTemplate($url);
         $this->validateVariableConsistency($url, $variables);
+        $this->validateArrayStructure($variables, $extensions);
     }
 
     /**
@@ -129,6 +130,51 @@ final class DiscoveryServerData extends Data
             throw new InvalidArgumentException(
                 'URL template references undefined variables: '.json_encode($undefinedVars)
             );
+        }
+    }
+
+    /**
+     * Validate array structure for variables and extensions.
+     *
+     * @param array<string, ServerVariableData>|null          $variables
+     * @param array<int, ServerExtensionDeclarationData>|null $extensions
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateArrayStructure(?array $variables, ?array $extensions): void
+    {
+        // Validate variables array structure
+        if ($variables !== null) {
+            foreach ($variables as $key => $value) {
+                if (!is_string($key)) {
+                    throw new InvalidArgumentException(
+                        'Variables array must be keyed by variable name (string), got: '.gettype($key)
+                    );
+                }
+
+                if (!$value instanceof ServerVariableData) {
+                    throw new InvalidArgumentException(
+                        "Variable '{$key}' must be an instance of ServerVariableData, got: ".get_debug_type($value)
+                    );
+                }
+            }
+        }
+
+        // Validate extensions array structure
+        if ($extensions !== null) {
+            foreach ($extensions as $index => $value) {
+                if (!is_int($index)) {
+                    throw new InvalidArgumentException(
+                        'Extensions array must be indexed by integers, got: '.gettype($index)
+                    );
+                }
+
+                if (!$value instanceof ServerExtensionDeclarationData) {
+                    throw new InvalidArgumentException(
+                        "Extension at index {$index} must be an instance of ServerExtensionDeclarationData, got: ".get_debug_type($value)
+                    );
+                }
+            }
         }
     }
 }
