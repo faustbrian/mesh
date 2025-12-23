@@ -59,4 +59,27 @@ final class DocumentData extends AbstractData
         public readonly ?array $errors = null,
         public readonly ?array $meta = null,
     ) {}
+
+    /**
+     * Create a DocumentData instance from an array.
+     *
+     * Factory method that constructs a DocumentData object from a raw array,
+     * providing validation and proper type handling. This method is the
+     * recommended way to create DocumentData instances from external sources
+     * such as JSON payloads or database results.
+     *
+     * @param  array<string, mixed> $data Raw array containing document fields
+     * @return self New DocumentData instance
+     *
+     * @throws \InvalidArgumentException If required 'data' field is missing
+     */
+    public static function createFromArray(array $data): self
+    {
+        return new self(
+            data: $data['data'] ?? throw new \InvalidArgumentException('Data field is required'),
+            included: isset($data['included']) && \is_array($data['included']) ? $data['included'] : null,
+            errors: isset($data['errors']) && \is_array($data['errors']) ? $data['errors'] : null,
+            meta: isset($data['meta']) && \is_array($data['meta']) ? $data['meta'] : null,
+        );
+    }
 }
