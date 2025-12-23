@@ -63,6 +63,7 @@ final class ExampleData extends Data
         public readonly ?array $error = null,
     ) {
         $this->validateMutualExclusivity();
+        $this->validateExternalValue();
     }
 
     /**

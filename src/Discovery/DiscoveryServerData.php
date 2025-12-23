@@ -9,6 +9,7 @@
 
 namespace Cline\Forrst\Discovery;
 
+use InvalidArgumentException;
 use Spatie\LaravelData\Data;
 
 /**
@@ -58,5 +59,42 @@ final class DiscoveryServerData extends Data
         public readonly ?string $description = null,
         public readonly ?array $variables = null,
         public readonly ?array $extensions = null,
-    ) {}
+    ) {
+        $this->validateUrlTemplate($url);
+    }
+
+    /**
+     * Validate RFC 6570 URI template syntax.
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateUrlTemplate(string $url): void
+    {
+        // Check for basic template syntax errors
+        if (substr_count($url, '{') !== substr_count($url, '}')) {
+            throw new InvalidArgumentException(
+                "Invalid URI template: Mismatched braces in URL '{$url}'"
+            );
+        }
+
+        // Extract and validate variable names
+        preg_match_all('/\{([^}]+)\}/', $url, $matches);
+        foreach ($matches[1] as $varName) {
+            // RFC 6570: variable names must be [A-Za-z0-9_]+ (no hyphens, dots, etc.)
+            if (!preg_match('/^[A-Za-z0-9_]+$/', $varName)) {
+                throw new InvalidArgumentException(
+                    "Invalid variable name '{$varName}' in URI template. "
+                    .'Variable names must contain only letters, numbers, and underscores.'
+                );
+            }
+        }
+
+        // Validate URL structure (basic sanity check)
+        $testUrl = preg_replace('/\{[^}]+\}/', 'test', $url);
+        if (!filter_var($testUrl, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException(
+                "Invalid URL structure: '{$url}' is not a valid URL template"
+            );
+        }
+    }
 }

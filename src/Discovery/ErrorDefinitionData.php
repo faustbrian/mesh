@@ -51,11 +51,30 @@ final class ErrorDefinitionData extends Data
      *                                               handling and validation in client implementations.
      */
     public function __construct(
-        string|BackedEnum $code,
+        BackedEnum|string $code,
         public readonly string $message,
         public readonly ?string $description = null,
         public readonly ?array $details = null,
     ) {
-        $this->code = $code instanceof BackedEnum ? (string) $code->value : $code;
+        $this->code = match (true) {
+            $code instanceof BackedEnum => (string) $code->value,
+            default => $this->validateCode($code),
+        };
+    }
+
+    /**
+     * Validate error code follows SCREAMING_SNAKE_CASE convention.
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function validateCode(string $code): string
+    {
+        if (!preg_match('/^[A-Z][A-Z0-9_]*$/', $code)) {
+            throw new \InvalidArgumentException(
+                "Error code must follow SCREAMING_SNAKE_CASE convention. Got: '{$code}'"
+            );
+        }
+
+        return $code;
     }
 }
