@@ -86,4 +86,13 @@ interface ProtocolInterface
      * @return string Content-Type header value (e.g., 'application/json', 'text/xml')
      */
     public function getContentType(): string;
+
+    /**
+     * Validate that data structure conforms to protocol requirements.
+     *
+     * @param array<string, mixed> $data Data to validate
+     *
+     * @throws \InvalidArgumentException If data is invalid
+     */
+    public function validate(array $data): void;
 }
