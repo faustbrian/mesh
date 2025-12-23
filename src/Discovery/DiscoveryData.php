@@ -72,6 +72,45 @@ final class DiscoveryData extends Data
         public readonly ?ExternalDocsData $externalDocs = null,
     ) {
         $this->validateVersions();
+        $this->validateFunctions();
+    }
+
+    /**
+     * Validate that functions array contains valid FunctionDescriptorData instances
+     * and that function names are unique.
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function validateFunctions(): void
+    {
+        if (empty($this->functions)) {
+            throw new \InvalidArgumentException('Discovery document must define at least one function');
+        }
+
+        foreach ($this->functions as $index => $function) {
+            if (!$function instanceof FunctionDescriptorData) {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        'All functions must be instances of FunctionDescriptorData, got %s at index %d',
+                        get_debug_type($function),
+                        $index
+                    )
+                );
+            }
+        }
+
+        // Validate function name uniqueness
+        $names = array_map(fn ($f) => $f->name, $this->functions);
+        $duplicates = array_filter(array_count_values($names), fn ($count) => $count > 1);
+
+        if (!empty($duplicates)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Duplicate function names found: %s',
+                    implode(', ', array_keys($duplicates))
+                )
+            );
+        }
     }
 
     /**
