@@ -76,6 +76,36 @@ abstract class AbstractData extends Data
     }
 
     /**
+     * Determine if a value should be filtered out during serialization.
+     *
+     * Override this method in subclasses to customize filtering behavior.
+     * By default, only null values are filtered out.
+     *
+     * @param  string $key   The array key
+     * @param  mixed  $value The value to evaluate
+     * @return bool True if the value should be filtered out, false otherwise
+     */
+    protected function shouldFilterValue(string $key, mixed $value): bool
+    {
+        return $value === null;
+    }
+
+    /**
+     * Transform a value during serialization.
+     *
+     * Override this method in subclasses to apply custom transformations
+     * to values before they are included in the final array.
+     *
+     * @param  string $key   The array key
+     * @param  mixed  $value The value to transform
+     * @return mixed The transformed value
+     */
+    protected function transformValue(string $key, mixed $value): mixed
+    {
+        return $value;
+    }
+
+    /**
      * Recursively remove null values from nested arrays.
      *
      * Traverses the array structure and removes any keys with null values.
@@ -100,19 +130,19 @@ abstract class AbstractData extends Data
         }
 
         foreach ($array as $key => $value) {
-            if ($value === null) {
+            if ($this->shouldFilterValue($key, $value)) {
                 unset($array[$key]);
 
                 continue;
             }
 
-            if (!is_array($value)) {
-                continue;
-            }
+            $transformedValue = $this->transformValue($key, $value);
 
-            /** @var array<string, mixed> $recursiveValue */
-            $recursiveValue = $value;
-            $array[$key] = $this->removeNullValuesRecursively($recursiveValue, $depth + 1);
+            if (is_array($transformedValue)) {
+                $array[$key] = $this->removeNullValuesRecursively($transformedValue, $depth + 1);
+            } else {
+                $array[$key] = $transformedValue;
+            }
         }
 
         return $array;

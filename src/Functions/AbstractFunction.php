@@ -178,11 +178,10 @@ abstract class AbstractFunction implements FunctionInterface
     #[Override()]
     public function getResult(): ?ResultDescriptorData
     {
-        if (($descriptor = $this->resolveDescriptor()) instanceof FunctionDescriptor) {
-            return $descriptor->getResult();
-        }
-
-        return null;
+        return $this->fromDescriptorOr(
+            fn (FunctionDescriptor $d) => $d->getResult(),
+            null,
+        );
     }
 
     /**
@@ -190,16 +189,15 @@ abstract class AbstractFunction implements FunctionInterface
      *
      * Reads from the #[Descriptor] attribute if present, otherwise returns an empty array.
      *
-     * @return array<int, array<string, mixed>|ErrorDefinitionData> Array of error definitions
+     * @return list<ErrorDefinitionData> Array of error definitions
      */
     #[Override()]
     public function getErrors(): array
     {
-        if (($descriptor = $this->resolveDescriptor()) instanceof FunctionDescriptor) {
-            return $descriptor->getErrors();
-        }
-
-        return [];
+        return $this->fromDescriptorOr(
+            fn (FunctionDescriptor $d) => $d->getErrors(),
+            [],
+        );
     }
 
     /**
@@ -212,11 +210,10 @@ abstract class AbstractFunction implements FunctionInterface
     #[Override()]
     public function getDescription(): ?string
     {
-        if (($descriptor = $this->resolveDescriptor()) instanceof FunctionDescriptor) {
-            return $descriptor->getDescription();
-        }
-
-        return null;
+        return $this->fromDescriptorOr(
+            fn (FunctionDescriptor $d) => $d->getDescription(),
+            null,
+        );
     }
 
     /**

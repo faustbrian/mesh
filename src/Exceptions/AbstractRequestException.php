@@ -16,8 +16,6 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 
-use function array_filter;
-
 /**
  * Base exception class for Forrst request errors.
  *
@@ -170,7 +168,7 @@ abstract class AbstractRequestException extends Exception implements RpcExceptio
         }
 
         /** @var array<string, mixed> */
-        return array_filter($message);
+        return $message;
     }
 
     /**

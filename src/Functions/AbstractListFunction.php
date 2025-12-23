@@ -110,10 +110,10 @@ abstract class AbstractListFunction extends AbstractFunction
     /**
      * Get Forrst Discovery argument descriptors for the list function.
      *
-     * Generates standard list endpoint argument definitions including cursor pagination
-     * (cursor, limit), sparse fieldsets (fields), filtering (filter), relationship
-     * inclusion (include), and sorting (sort). These descriptors enable automatic
-     * API documentation and client code generation.
+     * Generates standard list endpoint argument definitions including pagination
+     * (cursor/offset/simple/none based on strategy), sparse fieldsets (fields),
+     * filtering (filter), relationship inclusion (include), and sorting (sort).
+     * These descriptors enable automatic API documentation and client code generation.
      *
      * @return array<int, ArgumentData|array<string, mixed>> Standard list endpoint argument descriptors
      */
@@ -122,21 +122,58 @@ abstract class AbstractListFunction extends AbstractFunction
     {
         $this->getResourceClass();
 
-        return [
-            // Cursor pagination arguments
-            ArgumentData::from([
+        $strategy = $this->getPaginationStrategy();
+        $arguments = [];
+
+        // Add pagination arguments based on strategy
+        if ($strategy === 'cursor') {
+            $arguments[] = ArgumentData::from([
                 'name' => 'cursor',
                 'schema' => ['type' => 'string'],
                 'required' => false,
                 'description' => 'Pagination cursor for the next page',
-            ]),
-            ArgumentData::from([
-                'name' => 'limit',
-                'schema' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 100],
+            ]);
+        } elseif ($strategy === 'offset') {
+            $arguments[] = ArgumentData::from([
+                'name' => 'page',
+                'schema' => ['type' => 'integer', 'minimum' => 1],
                 'required' => false,
-                'default' => 25,
+                'default' => 1,
+                'description' => 'Page number',
+            ]);
+        }
+
+        // Limit is common to all strategies except 'none'
+        if ($strategy !== 'none') {
+            $arguments[] = ArgumentData::from([
+                'name' => 'limit',
+                'schema' => [
+                    'type' => 'integer',
+                    'minimum' => 1,
+                    'maximum' => $this->getMaximumLimit(),
+                ],
+                'required' => false,
+                'default' => $this->getDefaultLimit(),
                 'description' => 'Number of items per page',
-            ]),
+            ]);
+        }
+
+        // Common query arguments
+        $arguments = [...$arguments, ...$this->getQueryArguments()];
+
+        return $arguments;
+    }
+
+    /**
+     * Get standard query arguments (fields, filter, include, sort).
+     *
+     * These arguments are common to all list functions regardless of pagination strategy.
+     *
+     * @return list<ArgumentData> Standard query argument descriptors
+     */
+    protected function getQueryArguments(): array
+    {
+        return [
             // Sparse fieldsets
             ArgumentData::from([
                 'name' => 'fields',
