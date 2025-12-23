@@ -89,6 +89,11 @@ final class HealthFunction extends AbstractFunction
         $component = $this->requestObject->getArgument('component');
         $includeDetails = $this->requestObject->getArgument('include_details', true);
 
+        // Validate component name if provided
+        if ($component !== null && $component !== 'self') {
+            $this->validateComponentName($component);
+        }
+
         // Require authentication for detailed health info
         if ($includeDetails && $this->requireAuthForDetails && !$this->isAuthenticated()) {
             throw UnauthorizedException::create('Authentication required for detailed health information');
@@ -194,6 +199,39 @@ final class HealthFunction extends AbstractFunction
     {
         // Check for user_id in context which indicates authentication
         return $this->requestObject->getContext('user_id') !== null;
+    }
+
+    /**
+     * Validate component name against registered checkers.
+     *
+     * @param string $component Component name to validate
+     *
+     * @throws \InvalidArgumentException If component name is invalid or not registered
+     */
+    private function validateComponentName(string $component): void
+    {
+        // Validate component name format (alphanumeric, dash, underscore only)
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $component)) {
+            throw new \InvalidArgumentException(
+                "Invalid component name format: {$component}. Must contain only alphanumeric characters, dashes, and underscores.",
+            );
+        }
+
+        // Build list of valid component names
+        $validComponents = array_map(
+            fn (HealthCheckerInterface $checker): string => $checker->getName(),
+            $this->checkers,
+        );
+
+        if (!in_array($component, $validComponents, true)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Invalid component: %s. Valid components: %s',
+                    $component,
+                    implode(', ', $validComponents),
+                ),
+            );
+        }
     }
 
     /**
