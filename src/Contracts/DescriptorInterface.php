@@ -18,9 +18,31 @@ use Cline\Forrst\Discovery\FunctionDescriptor;
  * separating schema definitions from business logic. Each function class
  * references its descriptor via the #[Descriptor] attribute.
  *
+ * Design Decision: The create() method is intentionally static because
+ * descriptors represent pure, stateless metadata. Implementations should
+ * be idempotent and side-effect free.
+ *
  * @author Brian Faust <brian@cline.sh>
  *
+ * @example
+ * ```php
+ * final class UserListDescriptor implements DescriptorInterface
+ * {
+ *     public static function create(): FunctionDescriptor
+ *     {
+ *         return FunctionDescriptor::make()
+ *             ->name('users:list')
+ *             ->version('1.0.0')
+ *             ->summary('Retrieve a paginated list of users')
+ *             ->argument(ArgumentData::make('limit')->type('integer')->optional())
+ *             ->result(ResultDescriptorData::make()->type('array'));
+ *     }
+ * }
+ * ```
+ *
  * @see https://docs.cline.sh/forrst/extensions/discovery
+ * @see Descriptor
+ * @see FunctionDescriptor
  */
 interface DescriptorInterface
 {
