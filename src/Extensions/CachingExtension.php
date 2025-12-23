@@ -19,6 +19,7 @@ use Override;
 
 use function assert;
 use function hash;
+use function hash_equals;
 use function implode;
 use function is_array;
 use function is_float;
@@ -165,6 +166,8 @@ final class CachingExtension extends AbstractExtension
      * timestamp comparison. Returns true if the client's cached version
      * is still current and can be reused.
      *
+     * Uses constant-time comparison for ETags to prevent timing attacks.
+     *
      * @param null|string          $clientEtag      Client's cached ETag value
      * @param null|CarbonImmutable $clientModified  Client's cached modification timestamp
      * @param string               $currentEtag     Current resource ETag
@@ -178,9 +181,12 @@ final class CachingExtension extends AbstractExtension
         string $currentEtag,
         ?CarbonImmutable $currentModified,
     ): bool {
-        // ETag check takes precedence
+        // ETag check takes precedence - use constant-time comparison
         if ($clientEtag !== null) {
-            return $this->normalizeEtag($clientEtag) === $this->normalizeEtag($currentEtag);
+            $normalizedClient = $this->normalizeEtag($clientEtag);
+            $normalizedCurrent = $this->normalizeEtag($currentEtag);
+
+            return hash_equals($normalizedClient, $normalizedCurrent);
         }
 
         // Fall back to timestamp check

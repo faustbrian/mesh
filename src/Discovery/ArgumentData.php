@@ -65,6 +65,115 @@ final class ArgumentData extends Data
     }
 
     /**
+     * Create a required string argument.
+     *
+     * @param string      $name        Argument name
+     * @param null|string $summary     Brief description
+     * @param null|string $description Detailed description
+     *
+     * @return self
+     */
+    public static function requiredString(
+        string $name,
+        ?string $summary = null,
+        ?string $description = null,
+    ): self {
+        return new self(
+            name: $name,
+            schema: ['type' => 'string'],
+            required: true,
+            summary: $summary,
+            description: $description,
+        );
+    }
+
+    /**
+     * Create an optional string argument with a default value.
+     *
+     * @param string      $name        Argument name
+     * @param string      $default     Default value
+     * @param null|string $summary     Brief description
+     * @param null|string $description Detailed description
+     *
+     * @return self
+     */
+    public static function optionalString(
+        string $name,
+        string $default,
+        ?string $summary = null,
+        ?string $description = null,
+    ): self {
+        return new self(
+            name: $name,
+            schema: ['type' => 'string'],
+            required: false,
+            summary: $summary,
+            description: $description,
+            default: $default,
+        );
+    }
+
+    /**
+     * Create a required integer argument.
+     *
+     * @param string      $name        Argument name
+     * @param null|int    $minimum     Minimum value
+     * @param null|int    $maximum     Maximum value
+     * @param null|string $summary     Brief description
+     * @param null|string $description Detailed description
+     *
+     * @return self
+     */
+    public static function requiredInteger(
+        string $name,
+        ?int $minimum = null,
+        ?int $maximum = null,
+        ?string $summary = null,
+        ?string $description = null,
+    ): self {
+        $schema = ['type' => 'integer'];
+
+        if ($minimum !== null) {
+            $schema['minimum'] = $minimum;
+        }
+
+        if ($maximum !== null) {
+            $schema['maximum'] = $maximum;
+        }
+
+        return new self(
+            name: $name,
+            schema: $schema,
+            required: true,
+            summary: $summary,
+            description: $description,
+        );
+    }
+
+    /**
+     * Create a required boolean argument.
+     *
+     * @param string      $name        Argument name
+     * @param null|string $summary     Brief description
+     * @param null|string $description Detailed description
+     *
+     * @return self
+     */
+    public static function requiredBoolean(
+        string $name,
+        ?string $summary = null,
+        ?string $description = null,
+    ): self {
+        return new self(
+            name: $name,
+            schema: ['type' => 'boolean'],
+            required: true,
+            summary: $summary,
+            description: $description,
+        );
+    }
+
+    /**
      * Validate that the default value matches the schema type.
      *
      * @throws \InvalidArgumentException if default value doesn't match schema type

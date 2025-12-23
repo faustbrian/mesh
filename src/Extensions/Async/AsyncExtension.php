@@ -19,6 +19,8 @@ use Cline\Forrst\Data\OperationStatus;
 use Cline\Forrst\Data\RequestObjectData;
 use Cline\Forrst\Data\ResponseData;
 use Cline\Forrst\Extensions\AbstractExtension;
+use Cline\Forrst\Extensions\Async\Exceptions\InvalidOperationStateException;
+use Cline\Forrst\Extensions\Async\Exceptions\OperationNotFoundException;
 use Cline\Forrst\Extensions\Async\Functions\OperationCancelFunction;
 use Cline\Forrst\Extensions\Async\Functions\OperationListFunction;
 use Cline\Forrst\Extensions\Async\Functions\OperationStatusFunction;
@@ -310,13 +312,41 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      *
      * @param string     $operationId Unique operation identifier
      * @param null|float $progress    Optional initial progress value (0.0 to 1.0)
+     *
+     * @throws OperationNotFoundException If operation doesn't exist
+     * @throws InvalidOperationStateException If operation cannot be marked as processing
      */
     public function markProcessing(string $operationId, ?float $progress = null): void
     {
         $operation = $this->operations->find($operationId);
 
         if (!$operation instanceof OperationData) {
-            return;
+            throw new OperationNotFoundException(sprintf(
+                'Cannot mark operation %s as processing: operation not found',
+                $operationId,
+            ));
+        }
+
+        // Validate state transitions
+        if ($operation->status === OperationStatus::Completed) {
+            throw new InvalidOperationStateException(sprintf(
+                'Cannot mark operation %s as processing: already completed',
+                $operationId,
+            ));
+        }
+
+        if ($operation->status === OperationStatus::Failed) {
+            throw new InvalidOperationStateException(sprintf(
+                'Cannot mark operation %s as processing: operation failed',
+                $operationId,
+            ));
+        }
+
+        if ($operation->status === OperationStatus::Cancelled) {
+            throw new InvalidOperationStateException(sprintf(
+                'Cannot mark operation %s as processing: operation was cancelled',
+                $operationId,
+            ));
         }
 
         $updated = new OperationData(
