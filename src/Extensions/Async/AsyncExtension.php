@@ -585,11 +585,32 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      *
      * Uses 12 random bytes (96 bits) encoded as hex, providing sufficient
      * uniqueness for distributed operation tracking without coordination.
+     * Checks for collisions and retries if necessary.
      *
      * @return string Operation identifier with 'op_' prefix
+     *
+     * @throws \RuntimeException If unable to generate unique ID after maximum attempts
      */
     private function generateOperationId(): string
     {
-        return 'op_'.bin2hex(random_bytes(12));
+        $maxAttempts = 10;
+
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            $operationId = 'op_'.bin2hex(random_bytes(12));
+
+            // Check if ID already exists
+            $existing = $this->operations->find($operationId);
+
+            if ($existing === null) {
+                return $operationId;
+            }
+
+            // Collision detected (extremely rare), try again
+        }
+
+        throw new \RuntimeException(sprintf(
+            'Failed to generate unique operation ID after %d attempts',
+            $maxAttempts,
+        ));
     }
 }

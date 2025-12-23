@@ -87,6 +87,16 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
     private const int MAX_TTL_SECONDS = 86_400;
 
     /**
+     * Maximum length for lock keys.
+     */
+    private const int MAX_KEY_LENGTH = 200;
+
+    /**
+     * Regex pattern for valid lock keys (alphanumeric, dash, underscore, colon, dot).
+     */
+    private const string KEY_PATTERN = '/^[a-zA-Z0-9\-_:.]+$/';
+
+    /**
      * Context for current request (set in onExecutingFunction).
      *
      * @var null|array{key: string, full_key: string, scope: string, lock: Lock, owner: string, ttl: int, auto_release: bool, expires_at: string}
