@@ -9,6 +9,7 @@
 
 namespace Cline\Forrst\Discovery;
 
+use InvalidArgumentException;
 use Spatie\LaravelData\Data;
 
 /**
@@ -53,5 +54,57 @@ final class LinkData extends Data
         public readonly ?string $function = null,
         public readonly ?array $params = null,
         public readonly ?DiscoveryServerData $server = null,
-    ) {}
+    ) {
+        // Validate name
+        $trimmedName = trim($this->name);
+        if ($trimmedName === '') {
+            throw new InvalidArgumentException('Link name cannot be empty');
+        }
+
+        if (mb_strlen($trimmedName) > 100) {
+            throw new InvalidArgumentException(
+                'Link name too long (max 100 characters, got ' . mb_strlen($trimmedName) . ')'
+            );
+        }
+
+        // Validate params structure if provided
+        if ($this->params !== null) {
+            $this->validateParams($this->params);
+        }
+
+        // Validate function name format if provided
+        if ($this->function !== null) {
+            if (!preg_match('/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*$/', $this->function)) {
+                trigger_error(
+                    "Warning: Function name '{$this->function}' should use dot notation (e.g., 'users.get', 'orders.create')",
+                    E_USER_WARNING
+                );
+            }
+        }
+    }
+
+    /**
+     * Validate params structure.
+     *
+     * @param array<string, mixed> $params
+     * @throws InvalidArgumentException
+     */
+    private function validateParams(array $params): void
+    {
+        foreach ($params as $paramName => $paramValue) {
+            if (!is_string($paramName) || trim($paramName) === '') {
+                throw new InvalidArgumentException('Parameter names must be non-empty strings');
+            }
+
+            // Check for runtime expression syntax: $result.field
+            if (is_string($paramValue) && str_starts_with($paramValue, '$')) {
+                if (!preg_match('/^\$result\.[a-zA-Z_][a-zA-Z0-9_.]*$/', $paramValue)) {
+                    trigger_error(
+                        "Warning: Parameter '{$paramName}' uses runtime expression but may have invalid syntax: '{$paramValue}'",
+                        E_USER_WARNING
+                    );
+                }
+            }
+        }
+    }
 }
