@@ -32,6 +32,9 @@ final class CancellationTokenNotFoundException extends NotFoundException
      * in the server's active token registry. Includes the invalid token value in
      * the error details for debugging purposes.
      *
+     * In production environments, the token is sanitized to prevent information
+     * leakage while maintaining debugging capability by showing partial token data.
+     *
      * @param  string $token The cancellation token that was not found or has expired.
      *                       Included in error details to help identify which token
      *                       the client attempted to use.
@@ -39,10 +42,35 @@ final class CancellationTokenNotFoundException extends NotFoundException
      */
     public static function forToken(string $token): self
     {
+        $details = ['token' => $token];
+
+        // Sanitize token in production to prevent information leakage
+        if (app()->environment('production')) {
+            $details['token'] = self::sanitizeToken($token);
+        }
+
         return self::new(
             code: ErrorCode::CancellationTokenUnknown,
             message: 'Unknown cancellation token',
-            details: ['token' => $token],
+            details: $details,
         );
+    }
+
+    /**
+     * Sanitize token for safe logging in production.
+     *
+     * Masks the middle portion of the token while preserving the first and last
+     * few characters for debugging and correlation purposes.
+     *
+     * @param  string $token The token to sanitize
+     * @return string The sanitized token
+     */
+    private static function sanitizeToken(string $token): string
+    {
+        if (strlen($token) <= 8) {
+            return '***';
+        }
+
+        return substr($token, 0, 4) . '***' . substr($token, -4);
     }
 }

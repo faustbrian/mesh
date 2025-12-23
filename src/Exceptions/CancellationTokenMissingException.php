@@ -32,13 +32,24 @@ final class CancellationTokenMissingException extends NotFoundException
      * the CANCELLATION_TOKEN_UNKNOWN error code. Used when the cancel request
      * does not include the required token parameter.
      *
+     * @param null|string $providedToken The token value that was provided, if any
+     *
      * @return self The constructed exception instance
      */
-    public static function create(): self
+    public static function create(?string $providedToken = null): self
     {
+        if ($providedToken === '') {
+            return self::new(
+                code: ErrorCode::CancellationTokenUnknown,
+                message: 'Cancellation token cannot be empty',
+                details: ['error' => 'Token parameter was provided but contains an empty string'],
+            );
+        }
+
         return self::new(
             code: ErrorCode::CancellationTokenUnknown,
             message: 'Cancellation token is required',
+            details: ['error' => 'Token parameter was not provided in the request'],
         );
     }
 }
