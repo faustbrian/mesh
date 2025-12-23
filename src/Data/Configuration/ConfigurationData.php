@@ -95,4 +95,45 @@ final class ConfigurationData extends AbstractData
         $config = config($configKey, []);
         return self::createFromArray($config);
     }
+
+    /**
+     * Validate configuration data.
+     *
+     * @throws \InvalidArgumentException When configuration is invalid
+     */
+    private function validate(): void
+    {
+        // Validate namespaces
+        if ($this->namespaces === []) {
+            throw new \InvalidArgumentException('Namespaces configuration cannot be empty');
+        }
+
+        foreach ($this->namespaces as $key => $namespace) {
+            if (!is_string($key) || !is_string($namespace)) {
+                throw new \InvalidArgumentException('Namespace mappings must be string => string');
+            }
+
+            if (!class_exists($namespace) && !str_starts_with($namespace, 'App\\')) {
+                throw new \InvalidArgumentException(
+                    sprintf('Invalid namespace "%s" for key "%s"', $namespace, $key)
+                );
+            }
+        }
+
+        // Validate paths
+        if ($this->paths === []) {
+            throw new \InvalidArgumentException('Paths configuration cannot be empty');
+        }
+
+        foreach ($this->paths as $key => $path) {
+            if (!is_string($key) || !is_string($path)) {
+                throw new \InvalidArgumentException('Path mappings must be string => string');
+            }
+        }
+
+        // Validate servers
+        if ($this->servers->isEmpty()) {
+            throw new \InvalidArgumentException('At least one server must be configured');
+        }
+    }
 }
