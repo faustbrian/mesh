@@ -68,24 +68,50 @@ final class OperationListDescriptor implements DescriptorInterface
                             'items' => [
                                 'type' => 'object',
                                 'properties' => [
-                                    'id' => ['type' => 'string'],
-                                    'function' => ['type' => 'string'],
-                                    'version' => ['type' => 'string'],
-                                    'status' => ['type' => 'string'],
-                                    'progress' => ['type' => 'number'],
-                                    'started_at' => ['type' => 'string', 'format' => 'date-time'],
+                                    'id' => [
+                                        'type' => 'string',
+                                        'pattern' => '^op_[a-f0-9]{24}$',
+                                        'description' => 'Unique operation identifier',
+                                    ],
+                                    'function' => [
+                                        'type' => 'string',
+                                        'description' => 'Function URN that was called',
+                                    ],
+                                    'version' => [
+                                        'type' => 'string',
+                                        'pattern' => '^\d+$',
+                                        'description' => 'Function version',
+                                    ],
+                                    'status' => [
+                                        'type' => 'string',
+                                        'enum' => ['pending', 'processing', 'completed', 'failed', 'cancelled'],
+                                        'description' => 'Current operation status',
+                                    ],
+                                    'progress' => [
+                                        'type' => 'number',
+                                        'minimum' => 0.0,
+                                        'maximum' => 1.0,
+                                        'description' => 'Progress percentage (0-1)',
+                                    ],
+                                    'started_at' => [
+                                        'type' => ['string', 'null'],
+                                        'format' => 'date-time',
+                                        'description' => 'When operation started processing',
+                                    ],
                                 ],
+                                'required' => ['id', 'function', 'version', 'status'],
                             ],
-                            'description' => 'List of operations',
+                            'description' => 'List of operations matching filter criteria',
                         ],
                         'next_cursor' => [
                             'type' => 'string',
-                            'description' => 'Pagination cursor for next page',
+                            'description' => 'Opaque cursor for fetching next page',
                         ],
                     ],
                     'required' => ['operations'],
+                    'additionalProperties' => false,
                 ],
-                description: 'Operation list response',
+                description: 'Paginated operation list response',
             );
     }
 }
