@@ -126,4 +126,60 @@ enum ReplayPriority: string
     {
         return self::Normal;
     }
+
+    /**
+     * Parse a priority string to a ReplayPriority enum case.
+     *
+     * Attempts to create a ReplayPriority from a string value with
+     * case-insensitive matching. Returns null if the value doesn't
+     * match any valid priority level.
+     *
+     * @param string $value Priority value to parse (e.g., 'high', 'NORMAL', 'Low')
+     * @return null|self Matched priority or null if invalid
+     */
+    public static function tryFromString(string $value): ?self
+    {
+        $normalized = \strtolower($value);
+
+        return match ($normalized) {
+            'high' => self::High,
+            'normal' => self::Normal,
+            'low' => self::Low,
+            default => null,
+        };
+    }
+
+    /**
+     * Parse a priority string or return the default priority.
+     *
+     * Convenience method combining tryFromString() with a default fallback.
+     * Useful for parsing optional priority values from requests.
+     *
+     * @param null|string $value Priority value to parse (null returns default)
+     * @return self Parsed priority or default priority
+     */
+    public static function fromOrDefault(?string $value): self
+    {
+        if ($value === null) {
+            return self::default();
+        }
+
+        return self::tryFromString($value) ?? self::default();
+    }
+
+    /**
+     * Get all valid priority values as strings.
+     *
+     * Returns an array of valid string values for validation, documentation,
+     * or UI dropdown generation. Values are lowercase to match API convention.
+     *
+     * @return array<string> Valid priority values ['high', 'normal', 'low']
+     */
+    public static function values(): array
+    {
+        return \array_map(
+            fn (self $case) => $case->value,
+            self::cases()
+        );
+    }
 }
