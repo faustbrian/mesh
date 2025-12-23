@@ -9,7 +9,10 @@
 
 namespace Cline\Forrst\Events;
 
+use Cline\Forrst\Data\ErrorData;
 use Cline\Forrst\Data\RequestObjectData;
+use Cline\Forrst\Data\ResponseData;
+use Cline\Forrst\Enums\ErrorCode;
 
 /**
  * Event dispatched after request parsing and protocol validation.
@@ -44,5 +47,94 @@ final class RequestValidated extends ExtensionEvent
         RequestObjectData $request,
     ) {
         parent::__construct($request);
+    }
+
+    /**
+     * Reject the request with an error response.
+     *
+     * Convenience method for early-stage validation failures. Creates
+     * an error response and stops propagation, preventing further processing.
+     *
+     * @param ErrorCode|string          $errorCode Error code (use ErrorCode enum values for standard errors)
+     * @param string                    $message   Human-readable error message
+     * @param null|array<string, mixed> $metadata  Additional error metadata
+     */
+    public function rejectRequest(
+        ErrorCode|string $errorCode,
+        string $message,
+        ?array $metadata = null,
+    ): void {
+        $error = new ErrorData(
+            code: $errorCode,
+            message: $message,
+            details: $metadata,
+        );
+
+        $errorResponse = ResponseData::error(
+            error: $error,
+            id: $this->request->id,
+        );
+
+        $this->shortCircuit($errorResponse);
+    }
+
+    /**
+     * Reject the request due to authorization failure.
+     *
+     * Specialized rejection for authorization/authentication failures.
+     * Sets appropriate error code and stops processing.
+     *
+     * @param string $reason Reason for authorization failure
+     */
+    public function rejectUnauthorized(string $reason = 'Authorization required'): void
+    {
+        $this->rejectRequest(
+            errorCode: ErrorCode::Unauthorized,
+            message: $reason,
+            metadata: ['requested_function' => $this->request->function ?? 'unknown'],
+        );
+    }
+
+    /**
+     * Reject the request due to rate limiting.
+     *
+     * Specialized rejection for rate limit violations. Includes
+     * retry-after metadata when provided.
+     *
+     * @param null|int $retryAfter Seconds until client can retry
+     * @param string   $message    Custom rate limit message
+     */
+    public function rejectRateLimited(?int $retryAfter = null, string $message = 'Rate limit exceeded'): void
+    {
+        $metadata = [];
+
+        if ($retryAfter !== null) {
+            $metadata['retry_after'] = $retryAfter;
+        }
+
+        $this->rejectRequest(
+            errorCode: ErrorCode::RateLimited,
+            message: $message,
+            metadata: $metadata,
+        );
+    }
+
+    /**
+     * Check if the request has been rejected.
+     *
+     * Returns true if a rejection method was called or if propagation
+     * was stopped with an error response.
+     *
+     * @return bool True if request was rejected
+     */
+    public function isRejected(): bool
+    {
+        if (!$this->isPropagationStopped()) {
+            return false;
+        }
+
+        $response = $this->getResponse();
+
+        return $response !== null && $response->isFailed();
     }
 }
