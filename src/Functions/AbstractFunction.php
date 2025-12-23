@@ -221,16 +221,15 @@ abstract class AbstractFunction implements FunctionInterface
      *
      * Reads from the #[Descriptor] attribute if present, otherwise returns null.
      *
-     * @return null|array<int, array<string, mixed>|TagData> Array of tags or null
+     * @return null|list<TagData> Array of tags or null
      */
     #[Override()]
     public function getTags(): ?array
     {
-        if (($descriptor = $this->resolveDescriptor()) instanceof FunctionDescriptor) {
-            return $descriptor->getTags();
-        }
-
-        return null;
+        return $this->fromDescriptorOr(
+            fn (FunctionDescriptor $d) => $d->getTags(),
+            null,
+        );
     }
 
     /**

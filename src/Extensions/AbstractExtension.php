@@ -14,17 +14,13 @@ use Cline\Forrst\Contracts\ExtensionInterface;
 /**
  * Base implementation for Forrst extension handlers.
  *
- * Provides default behavior and contracts for extension handlers that add
- * optional capabilities to the Forrst protocol such as caching, async operations,
- * deadlines, and deprecation warnings.
- *
  * Provides sensible defaults for extension behavior while requiring subclasses
  * to implement the core identification method (getUrn). Extensions add optional
  * capabilities to the Forrst protocol such as caching, async operations, deadlines,
  * and deprecation warnings.
  *
  * Default behavior:
- * - Not global: extension only runs when explicitly requested by clients
+ * - Opt-in mode: extension only runs when explicitly requested by clients
  * - Fatal errors: extension failures stop request processing
  * - No event subscriptions: subclasses must override getSubscribedEvents
  *
