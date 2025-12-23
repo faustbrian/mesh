@@ -29,11 +29,21 @@ use Override;
 use function array_merge;
 use function assert;
 use function bin2hex;
+use function filter_var;
+use function in_array;
 use function is_string;
 use function max;
 use function min;
 use function now;
+use function parse_url;
 use function random_bytes;
+use function sprintf;
+use function strlen;
+use function strtolower;
+
+use const FILTER_FLAG_NO_PRIV_RANGE;
+use const FILTER_FLAG_NO_RES_RANGE;
+use const FILTER_VALIDATE_IP;
 
 /**
  * Async operations extension handler.
@@ -65,6 +75,28 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * Default retry interval in seconds for polling.
      */
     private const int DEFAULT_RETRY_SECONDS = 5;
+
+    /**
+     * Allowed URL schemes for callback URLs (HTTPS only for security).
+     */
+    private const array ALLOWED_CALLBACK_SCHEMES = ['https'];
+
+    /**
+     * Blocked hosts to prevent SSRF attacks.
+     */
+    private const array BLOCKED_CALLBACK_HOSTS = [
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0',
+        '169.254.169.254', // AWS metadata endpoint
+        '::1',
+        'metadata.google.internal', // GCP metadata
+    ];
+
+    /**
+     * Maximum allowed callback URL length to prevent DoS.
+     */
+    private const int MAX_CALLBACK_URL_LENGTH = 2048;
 
     /**
      * Create a new async extension instance.
@@ -130,15 +162,73 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * If provided, the server should POST the operation result to this URL when
      * execution completes, allowing clients to avoid polling for long operations.
      *
+     * Validates URL format, enforces HTTPS, and blocks internal/private IPs to
+     * prevent SSRF (Server-Side Request Forgery) attacks.
+     *
      * @param null|array<string, mixed> $options Extension options from request
      *
      * @return null|string Callback URL or null if not specified
+     *
+     * @throws \InvalidArgumentException If callback URL is invalid or blocked
      */
     public function getCallbackUrl(?array $options): ?string
     {
         $callbackUrl = $options['callback_url'] ?? null;
 
-        assert(is_string($callbackUrl) || $callbackUrl === null);
+        if ($callbackUrl === null) {
+            return null;
+        }
+
+        if (!is_string($callbackUrl)) {
+            throw new \InvalidArgumentException(
+                'Callback URL must be a string',
+            );
+        }
+
+        // Validate max URL length (prevent DoS)
+        if (strlen($callbackUrl) > self::MAX_CALLBACK_URL_LENGTH) {
+            throw new \InvalidArgumentException(
+                'Callback URL exceeds maximum length of 2048 characters',
+            );
+        }
+
+        // Validate URL format
+        $parts = parse_url($callbackUrl);
+
+        if ($parts === false) {
+            throw new \InvalidArgumentException(sprintf(
+                'Invalid callback URL format: %s',
+                $callbackUrl,
+            ));
+        }
+
+        // Enforce HTTPS only
+        if (!isset($parts['scheme']) || !in_array($parts['scheme'], self::ALLOWED_CALLBACK_SCHEMES, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Callback URL must use HTTPS scheme, got: %s',
+                $parts['scheme'] ?? 'none',
+            ));
+        }
+
+        // Block internal/private IPs (SSRF protection)
+        $host = $parts['host'] ?? '';
+
+        if (in_array(strtolower($host), self::BLOCKED_CALLBACK_HOSTS, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Callback URL host is not allowed: %s',
+                $host,
+            ));
+        }
+
+        // Block private IP ranges
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            if (!filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Callback URL cannot use private/reserved IP addresses: %s',
+                    $host,
+                ));
+            }
+        }
 
         return $callbackUrl;
     }

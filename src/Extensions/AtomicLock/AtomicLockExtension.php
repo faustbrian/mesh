@@ -21,6 +21,7 @@ use Cline\Forrst\Exceptions\LockNotFoundException;
 use Cline\Forrst\Exceptions\LockOwnershipMismatchException;
 use Cline\Forrst\Exceptions\LockTimeoutException;
 use Cline\Forrst\Exceptions\LockTtlRequiredException;
+use Cline\Forrst\Exceptions\UnauthorizedException;
 use Cline\Forrst\Extensions\AbstractExtension;
 use Cline\Forrst\Extensions\AtomicLock\Functions\LockForceReleaseFunction;
 use Cline\Forrst\Extensions\AtomicLock\Functions\LockReleaseFunction;
@@ -106,6 +107,16 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
             LockReleaseFunction::class,
             LockForceReleaseFunction::class,
         ];
+    }
+
+    /**
+     * Set authorization callback for force release operations.
+     *
+     * @param callable(string): bool $callback Function receiving lock key, returning bool
+     */
+    public function setAuthorizationCallback(callable $callback): void
+    {
+        $this->authorizationCallback = $callback;
     }
 
     /**
@@ -303,10 +314,16 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
      * @param string $key The full lock key (with scope prefix)
      *
      * @throws LockNotFoundException If lock does not exist
+     * @throws UnauthorizedException If authorization check fails
      * @return bool                  True if released successfully
      */
     public function forceReleaseLock(string $key): bool
     {
+        // Authorization check
+        if ($this->authorizationCallback !== null && !($this->authorizationCallback)($key)) {
+            throw UnauthorizedException::create('Force release operation requires administrative privileges');
+        }
+
         // Check if lock exists via metadata
         $storedOwner = Cache::get($this->metadataKey($key, 'owner'));
 

@@ -389,12 +389,34 @@ final class CachingExtension extends AbstractExtension
 
         $parts = [
             'forrst_cache',
-            $request->call->function,
-            $request->call->version ?? 'latest',
+            $this->sanitizeCacheKeyComponent($request->call->function),
+            $this->sanitizeCacheKeyComponent($request->call->version ?? 'latest'),
             hash('sha256', $json), // Use full SHA-256 hash for cache keys
         ];
 
         return implode(':', $parts);
+    }
+
+    /**
+     * Sanitize component for safe use in cache key.
+     *
+     * Removes or replaces potentially dangerous characters to prevent
+     * cache key injection and ensure compatibility with cache backends.
+     * Only allows alphanumeric characters, dashes, underscores, and dots.
+     *
+     * @param string $component Component to sanitize
+     *
+     * @return string Sanitized component safe for cache key use
+     */
+    private function sanitizeCacheKeyComponent(string $component): string
+    {
+        // Remove or replace dangerous characters
+        // Allow only alphanumeric, dash, underscore, dot
+        $sanitized = preg_replace('/[^a-zA-Z0-9\-_.]+/', '_', $component);
+
+        assert(is_string($sanitized));
+
+        return $sanitized;
     }
 
     /**
