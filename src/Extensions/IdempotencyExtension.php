@@ -534,11 +534,20 @@ final class IdempotencyExtension extends AbstractExtension
      *
      * @param  null|array<string, mixed> $arguments Request arguments to hash
      * @return string                    SHA256 hash of the JSON-encoded arguments with algorithm prefix
+     *
+     * @throws \RuntimeException If arguments are not JSON-serializable
      */
     private function hashArguments(?array $arguments): string
     {
-        $encoded = json_encode($arguments ?? []);
-        assert($encoded !== false, 'JSON encoding failed');
+        try {
+            $encoded = json_encode($arguments ?? [], JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new \RuntimeException(
+                'Failed to hash arguments: arguments are not JSON-serializable',
+                0,
+                $e,
+            );
+        }
 
         return 'sha256:'.hash('sha256', $encoded);
     }
