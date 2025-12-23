@@ -78,7 +78,43 @@ interface SimulatableInterface extends FunctionInterface
      * mode without specifying a scenario name. Should typically be the most
      * common success case.
      *
+     * MUST return a name that exists in getSimulationScenarios().
+     *
      * @return string Default scenario name (e.g., "default", "success")
+     *
+     * @throws \InvalidArgumentException If default scenario doesn't exist
      */
     public function getDefaultScenario(): string;
+
+    /**
+     * Validate simulation configuration.
+     *
+     * Validates that the default scenario exists in the available simulation
+     * scenarios. This method should be called during function initialization
+     * to ensure the simulation configuration is valid.
+     *
+     * Implementation example:
+     * ```php
+     * public function validateSimulation(): void
+     * {
+     *     $scenarios = $this->getSimulationScenarios();
+     *     $default = $this->getDefaultScenario();
+     *
+     *     $scenarioNames = array_map(fn($s) => $s->name, $scenarios);
+     *
+     *     if (!in_array($default, $scenarioNames, true)) {
+     *         throw new \InvalidArgumentException(
+     *             sprintf(
+     *                 'Default scenario "%s" does not exist. Available: %s',
+     *                 $default,
+     *                 implode(', ', $scenarioNames)
+     *             )
+     *         );
+     *     }
+     * }
+     * ```
+     *
+     * @throws \InvalidArgumentException If default scenario doesn't exist in available scenarios
+     */
+    public function validateSimulation(): void;
 }
