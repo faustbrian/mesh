@@ -55,15 +55,35 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
     private const int DEFAULT_TTL = 300;
 
     /**
+     * Maximum token TTL in seconds (1 hour).
+     */
+    private const int MAX_TTL = 3_600;
+
+    /**
      * Create a new cancellation extension instance.
      *
      * @param int $tokenTtl Token time-to-live in seconds. Defines how long cancellation
      *                      tokens remain active in cache before expiring. Should exceed
      *                      typical request processing time to prevent premature cleanup.
+     *                      Maximum allowed: 3600 seconds (1 hour).
+     *
+     * @throws \InvalidArgumentException If TTL exceeds maximum or is negative
      */
     public function __construct(
-        private readonly int $tokenTtl = self::DEFAULT_TTL,
-    ) {}
+        private int $tokenTtl = self::DEFAULT_TTL,
+    ) {
+        if ($tokenTtl <= 0) {
+            throw new \InvalidArgumentException('Token TTL must be positive');
+        }
+
+        if ($tokenTtl > self::MAX_TTL) {
+            throw new \InvalidArgumentException(
+                'Token TTL cannot exceed '.self::MAX_TTL.' seconds',
+            );
+        }
+
+        $this->tokenTtl = $tokenTtl;
+    }
 
     /**
      * Get the functions provided by this extension.

@@ -130,4 +130,64 @@ final class ComponentsData extends Data
             'resources' => $this->resources[$componentName],
         };
     }
+
+    /**
+     * Get all component references in this components registry.
+     *
+     * @return array<string> Array of all valid component references
+     */
+    public function getAllReferences(): array
+    {
+        $references = [];
+
+        if ($this->schemas !== null) {
+            foreach (\array_keys($this->schemas) as $name) {
+                $references[] = "#/components/schemas/{$name}";
+            }
+        }
+
+        if ($this->contentDescriptors !== null) {
+            foreach (\array_keys($this->contentDescriptors) as $name) {
+                $references[] = "#/components/contentDescriptors/{$name}";
+            }
+        }
+
+        if ($this->errors !== null) {
+            foreach (\array_keys($this->errors) as $name) {
+                $references[] = "#/components/errors/{$name}";
+            }
+        }
+
+        if ($this->examples !== null) {
+            foreach (\array_keys($this->examples) as $name) {
+                $references[] = "#/components/examples/{$name}";
+            }
+        }
+
+        if ($this->examplePairings !== null) {
+            foreach (\array_keys($this->examplePairings) as $name) {
+                $references[] = "#/components/examplePairings/{$name}";
+            }
+        }
+
+        if ($this->links !== null) {
+            foreach (\array_keys($this->links) as $name) {
+                $references[] = "#/components/links/{$name}";
+            }
+        }
+
+        if ($this->tags !== null) {
+            foreach (\array_keys($this->tags) as $name) {
+                $references[] = "#/components/tags/{$name}";
+            }
+        }
+
+        if ($this->resources !== null) {
+            foreach (\array_keys($this->resources) as $name) {
+                $references[] = "#/components/resources/{$name}";
+            }
+        }
+
+        return $references;
+    }
 }

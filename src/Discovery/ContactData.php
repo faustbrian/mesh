@@ -24,6 +24,32 @@ use Spatie\LaravelData\Data;
 final class ContactData extends Data
 {
     /**
+     * Create contact data with normalized inputs.
+     *
+     * Normalizes inputs before construction:
+     * - Trims whitespace from name and email
+     * - Converts email to lowercase (case-insensitive per RFC 5321)
+     * - Removes trailing slashes from URLs
+     *
+     * @param null|string $name  Contact name
+     * @param null|string $url   Contact URL
+     * @param null|string $email Contact email
+     *
+     * @return self
+     */
+    public static function create(
+        ?string $name = null,
+        ?string $url = null,
+        ?string $email = null,
+    ): self {
+        return new self(
+            name: $name !== null ? trim($name) : null,
+            url: $url !== null ? rtrim($url, '/') : null,
+            email: $email !== null ? strtolower(trim($email)) : null,
+        );
+    }
+
+    /**
      * Create a new contact information instance.
      *
      * @param null|string $name  The name of the contact person, team, or organization responsible

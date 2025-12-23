@@ -22,7 +22,9 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use ReflectionClass;
+use ReflectionIntersectionType;
 use ReflectionNamedType;
+use ReflectionUnionType;
 use Spatie\LaravelData\Data;
 use Throwable;
 
