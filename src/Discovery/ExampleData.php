@@ -64,6 +64,7 @@ final class ExampleData extends Data
     ) {
         $this->validateMutualExclusivity();
         $this->validateExternalValue();
+        $this->validateUsagePattern();
     }
 
     /**
@@ -109,6 +110,23 @@ final class ExampleData extends Data
                     \E_USER_WARNING
                 );
             }
+        }
+    }
+
+    /**
+     * Validates that value and function fields are not mixed.
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function validateUsagePattern(): void
+    {
+        $hasValueFields = $this->value !== null || $this->externalValue !== null;
+        $hasFunctionFields = $this->arguments !== null || $this->result !== null || $this->error !== null;
+
+        if ($hasValueFields && $hasFunctionFields) {
+            throw new \InvalidArgumentException(
+                'Cannot mix value example fields (value/externalValue) with function example fields (arguments/result/error)'
+            );
         }
     }
 }

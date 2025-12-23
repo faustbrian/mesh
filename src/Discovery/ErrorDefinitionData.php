@@ -60,6 +60,10 @@ final class ErrorDefinitionData extends Data
             $code instanceof BackedEnum => (string) $code->value,
             default => $this->validateCode($code),
         };
+
+        if ($details !== null) {
+            $this->validateJsonSchema($details);
+        }
     }
 
     /**
@@ -76,5 +80,65 @@ final class ErrorDefinitionData extends Data
         }
 
         return $code;
+    }
+
+    /**
+     * Validate details field contains valid JSON Schema.
+     *
+     * @param array<string, mixed> $details
+     * @param int                  $depth  Current nesting depth (for DoS prevention)
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function validateJsonSchema(array $details, int $depth = 0): void
+    {
+        if ($depth > 10) {
+            throw new \InvalidArgumentException(
+                'JSON Schema nesting too deep (max 10 levels)'
+            );
+        }
+
+        if (!isset($details['type'])) {
+            throw new \InvalidArgumentException(
+                'JSON Schema in details must specify a "type" property'
+            );
+        }
+
+        $validTypes = ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'];
+        if (!\in_array($details['type'], $validTypes, true)) {
+            throw new \InvalidArgumentException(
+                "Invalid JSON Schema type '{$details['type']}'. "
+                .'Must be one of: '.implode(', ', $validTypes)
+            );
+        }
+
+        // If type is object, validate properties exist
+        if ($details['type'] === 'object' && isset($details['properties'])) {
+            if (!\is_array($details['properties'])) {
+                throw new \InvalidArgumentException(
+                    'JSON Schema "properties" must be an object/array'
+                );
+            }
+
+            // Recursively validate nested schemas
+            foreach ($details['properties'] as $propName => $propSchema) {
+                if (!\is_array($propSchema) || !isset($propSchema['type'])) {
+                    throw new \InvalidArgumentException(
+                        "Property '{$propName}' must have a valid JSON Schema with 'type'"
+                    );
+                }
+                $this->validateJsonSchema($propSchema, $depth + 1);
+            }
+        }
+
+        // If type is array, validate items exist
+        if ($details['type'] === 'array' && isset($details['items'])) {
+            if (!\is_array($details['items']) || !isset($details['items']['type'])) {
+                throw new \InvalidArgumentException(
+                    'JSON Schema "items" must be a valid schema with "type"'
+                );
+            }
+            $this->validateJsonSchema($details['items'], $depth + 1);
+        }
     }
 }
