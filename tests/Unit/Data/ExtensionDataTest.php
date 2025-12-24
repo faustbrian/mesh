@@ -8,6 +8,7 @@
  */
 
 use Cline\Forrst\Data\ExtensionData;
+use Cline\Forrst\Exceptions\EmptyFieldException;
 use Cline\Forrst\Extensions\ExtensionUrn;
 
 describe('ExtensionData', function (): void {
