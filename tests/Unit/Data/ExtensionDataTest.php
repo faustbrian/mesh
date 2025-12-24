@@ -16,13 +16,11 @@ describe('ExtensionData', function (): void {
             // Arrange
             $urn = 'urn:cline:forrst:ext:async';
             $options = ['timeout' => 5_000];
-            $data = ['operation_id' => 'op-123'];
 
             // Act
             $extension = new ExtensionData(
                 urn: $urn,
                 options: $options,
-                data: $data,
             );
 
             // Assert
@@ -106,7 +104,6 @@ describe('ExtensionData', function (): void {
             $array = [
                 'urn' => 'urn:cline:forrst:ext:idempotency',
                 'options' => ['key' => 'req-123'],
-                'data' => ['processed' => true],
             ];
 
             // Act
@@ -115,7 +112,7 @@ describe('ExtensionData', function (): void {
             // Assert
             expect($extension->urn)->toBe('urn:cline:forrst:ext:idempotency')
                 ->and($extension->options)->toBe(['key' => 'req-123'])
-                ->and($extension->data)->toBe(['processed' => true]);
+                ->and($extension->data)->toBeNull();
         });
 
         test('serializes to request array with URN and options only', function (): void {
@@ -152,12 +149,11 @@ describe('ExtensionData', function (): void {
             ])->and($array)->not->toHaveKey('options');
         });
 
-        test('serializes to complete array with both options and data', function (): void {
+        test('serializes to complete array with options', function (): void {
             // Arrange
             $extension = new ExtensionData(
                 urn: ExtensionUrn::Tracing,
                 options: ['trace_id' => 'tr-123'],
-                data: ['span_id' => 'sp-456'],
             );
 
             // Act
@@ -175,14 +171,11 @@ describe('ExtensionData', function (): void {
     describe('Sad Paths', function (): void {
         test('handles empty URN string from deserialization', function (): void {
             // Arrange
-            $array = ['options' => ['key' => 'value']];
+            $array = ['urn' => '', 'options' => ['key' => 'value']];
 
-            // Act
-            $extension = ExtensionData::from($array);
-
-            // Assert
-            expect($extension->urn)->toBe('')
-                ->and($extension->options)->toBe(['key' => 'value']);
+            // Act & Assert
+            expect(fn () => ExtensionData::from($array))
+                ->toThrow(EmptyFieldException::class, 'urn');
         });
 
         test('deserializes extension without options field', function (): void {
@@ -412,13 +405,9 @@ describe('ExtensionData', function (): void {
         ]);
 
         test('deserializes from empty array with default values', function (): void {
-            // Arrange & Act
-            $extension = ExtensionData::from([]);
-
-            // Assert
-            expect($extension->urn)->toBe('')
-                ->and($extension->options)->toBeNull()
-                ->and($extension->data)->toBeNull();
+            // Arrange & Act & Assert
+            expect(fn () => ExtensionData::from([]))
+                ->toThrow(EmptyFieldException::class, 'urn');
         });
 
         test('converts enum URN to string in toRequestArray', function (): void {
@@ -525,18 +514,25 @@ describe('ExtensionData', function (): void {
         });
 
         test('from() method handles all combinations of missing fields', function (): void {
-            // Test all possible combinations
+            // Test valid combinations (options OR data, but not both)
+            $validUrn = 'urn:cline:forrst:ext:test';
             $cases = [
-                ['urn' => 'test'],
-                ['urn' => 'test', 'options' => ['opt' => 1]],
-                ['urn' => 'test', 'data' => ['dat' => 2]],
-                ['urn' => 'test', 'options' => ['opt' => 1], 'data' => ['dat' => 2]],
+                ['urn' => $validUrn],
+                ['urn' => $validUrn, 'options' => ['opt' => 1]],
+                ['urn' => $validUrn, 'data' => ['dat' => 2]],
             ];
 
             foreach ($cases as $array) {
                 $extension = ExtensionData::from($array);
                 expect($extension)->toBeInstanceOf(ExtensionData::class);
             }
+
+            // Test that both options AND data throws exception
+            expect(fn () => ExtensionData::from([
+                'urn' => $validUrn,
+                'options' => ['opt' => 1],
+                'data' => ['dat' => 2],
+            ]))->toThrow(MutuallyExclusiveFieldsException::class);
         });
 
         test('serialization round-trip preserves all data for request', function (): void {

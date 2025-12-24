@@ -210,7 +210,7 @@ describe('ArgumentData', function (): void {
                 schema: ['type' => 'string'],
                 deprecated: new DeprecatedData(
                     reason: 'Use new_param instead',
-                    sunset: '2026-06-01',
+                    sunset: '2026-06-01T00:00:00+00:00',
                 ),
             );
 
@@ -220,7 +220,7 @@ describe('ArgumentData', function (): void {
             // Assert
             expect($array['deprecated'])->toBeArray()
                 ->and($array['deprecated']['reason'])->toBe('Use new_param instead')
-                ->and($array['deprecated']['sunset'])->toBe('2026-06-01');
+                ->and($array['deprecated']['sunset'])->toBe('2026-06-01T00:00:00+00:00');
         });
     });
 

@@ -159,17 +159,16 @@ describe('ErrorDefinitionData', function (): void {
             expect($error->details)->toBeNull();
         });
 
-        test('handles empty details array', function (): void {
-            // Arrange & Act
-            $error = new ErrorDefinitionData(
+        test('validates details array must have type field', function (): void {
+            // Arrange & Act & Assert
+            expect(fn () => new ErrorDefinitionData(
                 code: 'ERROR',
                 message: 'Error',
                 details: [],
+            ))->toThrow(
+                MissingRequiredFieldException::class,
+                'details.type',
             );
-
-            // Assert
-            expect($error->details)->toBe([])
-                ->and($error->details)->toHaveCount(0);
         });
 
         test('handles error code with underscores', function (): void {

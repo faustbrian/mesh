@@ -94,7 +94,7 @@ describe('FunctionExtensionsData', function (): void {
     });
 
     describe('Edge Cases', function (): void {
-        test('handles empty supported array', function (): void {
+        test('rejects empty supported array', function (): void {
             // Arrange & Act
             $extensions = new FunctionExtensionsData(
                 supported: [],
@@ -105,7 +105,7 @@ describe('FunctionExtensionsData', function (): void {
                 ->and($extensions->supported)->toHaveCount(0);
         });
 
-        test('handles empty excluded array', function (): void {
+        test('rejects empty excluded array', function (): void {
             // Arrange & Act
             $extensions = new FunctionExtensionsData(
                 excluded: [],

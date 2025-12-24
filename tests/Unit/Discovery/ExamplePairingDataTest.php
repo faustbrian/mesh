@@ -116,7 +116,7 @@ describe('ExamplePairingData', function (): void {
             expect(fn (): ExamplePairingData => new ExamplePairingData(
                 name: 'NoParams',
                 params: [],
-            ))->toThrow(InvalidArgumentException::class, 'at least one parameter');
+            ))->toThrow(EmptyFieldException::class, 'params');
         });
 
         test('rejects param missing name key', function (): void {
@@ -126,7 +126,7 @@ describe('ExamplePairingData', function (): void {
                 params: [
                     ['value' => 123], // Missing 'name'
                 ],
-            ))->toThrow(InvalidArgumentException::class, "missing required 'name' key");
+            ))->toThrow(MissingRequiredFieldException::class, "params[0].name");
         });
 
         test('rejects param missing value key', function (): void {
@@ -136,7 +136,7 @@ describe('ExamplePairingData', function (): void {
                 params: [
                     ['name' => 'userId'], // Missing 'value'
                 ],
-            ))->toThrow(InvalidArgumentException::class, "missing required 'value' key");
+            ))->toThrow(MissingRequiredFieldException::class, "params[0].value");
         });
 
         test('rejects invalid parameter name format with hyphens', function (): void {
@@ -146,7 +146,7 @@ describe('ExamplePairingData', function (): void {
                 params: [
                     ['name' => 'Invalid-Name', 'value' => 123], // Hyphens not allowed
                 ],
-            ))->toThrow(InvalidArgumentException::class, 'camelCase/snake_case');
+            ))->toThrow(InvalidFieldValueException::class, 'camelCase/snake_case');
         });
 
         test('rejects invalid parameter name starting with uppercase', function (): void {
@@ -156,7 +156,7 @@ describe('ExamplePairingData', function (): void {
                 params: [
                     ['name' => 'UpperCase', 'value' => 123], // Must start with lowercase
                 ],
-            ))->toThrow(InvalidArgumentException::class, 'camelCase/snake_case');
+            ))->toThrow(InvalidFieldValueException::class, 'camelCase/snake_case');
         });
 
         test('rejects invalid parameter name starting with number', function (): void {
@@ -166,7 +166,7 @@ describe('ExamplePairingData', function (): void {
                 params: [
                     ['name' => '1invalid', 'value' => 123], // Must start with lowercase letter
                 ],
-            ))->toThrow(InvalidArgumentException::class, 'camelCase/snake_case');
+            ))->toThrow(InvalidFieldValueException::class, 'camelCase/snake_case');
         });
 
         test('rejects non-array parameter', function (): void {
@@ -176,7 +176,7 @@ describe('ExamplePairingData', function (): void {
                 params: [
                     'not-an-array',
                 ],
-            ))->toThrow(InvalidArgumentException::class, 'must be an array');
+            ))->toThrow(InvalidFieldTypeException::class, 'array');
         });
 
         test('rejects param with non-string name', function (): void {
@@ -186,7 +186,7 @@ describe('ExamplePairingData', function (): void {
                 params: [
                     ['name' => 123, 'value' => 'test'], // Name must be string
                 ],
-            ))->toThrow(InvalidArgumentException::class, 'must be a string');
+            ))->toThrow(InvalidFieldTypeException::class, 'string');
         });
 
         test('rejects result missing name key', function (): void {
@@ -195,7 +195,7 @@ describe('ExamplePairingData', function (): void {
                 name: 'MissingResultName',
                 params: [['name' => 'param', 'value' => 1]],
                 result: ['value' => 'data'], // Missing 'name'
-            ))->toThrow(InvalidArgumentException::class, "missing required 'name' key");
+            ))->toThrow(MissingRequiredFieldException::class, "result.name");
         });
 
         test('rejects result missing value key', function (): void {
@@ -204,7 +204,7 @@ describe('ExamplePairingData', function (): void {
                 name: 'MissingResultValue',
                 params: [['name' => 'param', 'value' => 1]],
                 result: ['name' => 'result'], // Missing 'value'
-            ))->toThrow(InvalidArgumentException::class, "missing required 'value' key");
+            ))->toThrow(MissingRequiredFieldException::class, "result.value");
         });
 
         test('rejects result with non-string name', function (): void {
@@ -213,7 +213,7 @@ describe('ExamplePairingData', function (): void {
                 name: 'NonStringResultName',
                 params: [['name' => 'param', 'value' => 1]],
                 result: ['name' => 123, 'value' => 'data'], // Name must be string
-            ))->toThrow(InvalidArgumentException::class, 'must be a string');
+            ))->toThrow(InvalidFieldTypeException::class, 'string');
         });
     });
 

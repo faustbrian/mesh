@@ -1,0 +1,66 @@
+ERROR CATEGORIES (224 failures):
+
+1. TagData readonly property - Cannot modify readonly property TagData::$name
+   - Files: FunctionDescriptorTest, FunctionDescriptorDataTest
+   - Fix: Remove assignment, use promoted property
+
+2. URN vs dot notation mismatches
+   - RequestObjectData expects URN but test expects dot notation  
+   - LinkData warnings for URN format function names
+   - Fix: Update tests or validation logic
+
+3. Deprecated date format - DateTimeImmutable instead of string
+   - FunctionDescriptor::getDeprecated() returns object not string
+   - Fix: Return formatted string
+
+4. ExtensionData mutual exclusivity
+   - Cannot have both options and data
+   - Empty URN validation
+   - Fix: Tests expecting invalid combinations
+
+5. Empty array validations
+   - ExamplePairingData params cannot be empty
+   - FunctionExtensionsData supported/excluded cannot be empty  
+   - Fix: Add validation
+
+6. Missing required keys validation
+   - params[].name, params[].value required
+   - result.name, result.value required
+   - Fix: Add validation in ExamplePairingData
+
+7. Type validation issues  
+   - params[] must be array
+   - params[].name must be string
+   - result.name must be string
+   - Fix: Add type checks
+
+8. ResultDescriptorData validation
+   - resource/schema mutual exclusivity
+   - At least one required
+   - Fix: Add validation
+
+9. ErrorDefinitionData validation
+   - details.type required when details present
+   - Fix: Already validated, test expectations wrong
+
+10. ServerVariableData conversion
+    - variables.version must be ServerVariableData, got array
+    - Fix: Convert arrays to ServerVariableData
+
+11. Operation test data missing fields
+    - startedAt, completedAt missing
+    - Fix: Add timestamps to test fixtures
+
+12. Version formatting
+    - '2' should become '2.0.0'
+    - Fix: Normalize version in RequestObjectData
+
+13. ArgumentData toArray date serialization
+    - DateTimeImmutable not being formatted
+    - Fix: Handle date serialization
+
+14. LinkData validation issues
+    - Empty params array
+    - Runtime expression warnings
+    - Function name with underscores
+    - Fix: Update validation/tests

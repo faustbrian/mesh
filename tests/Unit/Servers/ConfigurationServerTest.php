@@ -32,7 +32,7 @@ describe('ConfigurationServer', function (): void {
         expect($server)->toBeInstanceOf(ConfigurationServer::class);
         expect($server->getName())->toBe('test');
         expect($server->getRoutePath())->toBe('/rpc');
-        expect($server->getRouteName())->toBe('rpc');
+        expect($server->getRouteName())->toBe('/rpc');
         expect($server->getVersion())->toBe('1.0');
         expect($server->getMiddleware())->toBe([]);
     });

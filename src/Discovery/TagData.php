@@ -66,26 +66,22 @@ final class TagData extends Data
         public readonly ?ExternalDocsData $externalDocs = null,
     ) {
         // Validate name
-        $trimmedName = mb_trim($name);
-
-        if ($trimmedName === '') {
+        if (mb_trim($this->name) === '') {
             throw EmptyFieldException::forField('name');
         }
 
-        if (mb_strlen($trimmedName) > 50) {
+        if (mb_strlen($this->name) > 50) {
             throw FieldExceedsMaxLengthException::forField('name', 50);
         }
 
         // Recommend kebab-case or snake_case for consistency
-        if (!preg_match('/^[a-z][a-z0-9_-]*$/', $trimmedName)) {
+        if (!preg_match('/^[a-z][a-z0-9_-]*$/', $this->name)) {
             trigger_error(
-                sprintf("Warning: Tag name '%s' should use lowercase kebab-case or snake_case ", $trimmedName).
+                sprintf("Warning: Tag name '%s' should use lowercase kebab-case or snake_case ", $this->name).
                 "(e.g., 'user-management', 'billing', 'analytics')",
                 E_USER_WARNING,
             );
         }
-
-        $this->name = $trimmedName;
 
         // Validate summary length
         if ($this->summary === null || mb_strlen($this->summary) <= 60) {

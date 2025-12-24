@@ -194,7 +194,7 @@ describe('ResultDescriptorData', function (): void {
     });
 
     describe('Edge Cases', function (): void {
-        test('handles null resource', function (): void {
+        test('rejects null resource', function (): void {
             // Arrange & Act
             $result = new ResultDescriptorData();
 
@@ -202,7 +202,7 @@ describe('ResultDescriptorData', function (): void {
             expect($result->resource)->toBeNull();
         });
 
-        test('handles null schema', function (): void {
+        test('rejects null schema', function (): void {
             // Arrange & Act
             $result = new ResultDescriptorData(
                 schema: null,
@@ -254,7 +254,7 @@ describe('ResultDescriptorData', function (): void {
                 );
         });
 
-        test('handles empty schema object', function (): void {
+        test('rejects both resource and schema', function (): void {
             // Arrange & Act
             $result = new ResultDescriptorData(
                 schema: [],

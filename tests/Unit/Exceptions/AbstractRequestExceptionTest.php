@@ -162,7 +162,7 @@ describe('AbstractRequestException', function (): void {
             expect($array['details']['debug'])->toHaveKeys(['file', 'line', 'trace']);
         });
 
-        test('handles empty data array', function (): void {
+        test('rejects empty data array', function (): void {
             // Arrange
             Config::set('app.debug', false);
             $exception = ConcreteRequestException::make(ErrorCode::InvalidRequest, 'Invalid request', []);

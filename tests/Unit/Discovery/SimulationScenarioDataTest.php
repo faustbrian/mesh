@@ -256,7 +256,7 @@ describe('SimulationScenarioData', function (): void {
             }
         });
 
-        test('handles empty arrays in input and output', function (): void {
+        test('rejects empty name field', function (): void {
             // Arrange
             $name = 'empty_arrays';
             $input = [];
@@ -313,7 +313,7 @@ describe('SimulationScenarioData', function (): void {
                 ->and($scenario->error)->not->toHaveKey('data');
         });
 
-        test('handles empty string as error code', function (): void {
+        test('rejects empty string as error code', function (): void {
             // Arrange
             $name = 'empty_error_code';
             $input = ['test' => true];
@@ -351,7 +351,7 @@ describe('SimulationScenarioData', function (): void {
             expect($scenario->error['code'])->toBe('CUSTOM_ERROR');
         });
 
-        test('handles empty string as name', function (): void {
+        test('rejects empty string as name', function (): void {
             // Arrange
             $name = '';
             $input = ['test' => true];

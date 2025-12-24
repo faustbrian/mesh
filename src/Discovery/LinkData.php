@@ -82,13 +82,13 @@ final class LinkData extends Data
             $this->validateParams($this->params);
         }
 
-        // Validate function name format if provided
-        if ($this->function === null || preg_match('/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*$/', $this->function)) {
+        // Validate function name format if provided (accept both dot notation and URN format)
+        if ($this->function === null || preg_match('/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*$/', $this->function) || preg_match('/^urn:[a-z0-9_-]+:forrst:fn:[a-z0-9_:]+$/', $this->function)) {
             return;
         }
 
         trigger_error(
-            sprintf("Warning: Function name '%s' should use dot notation (e.g., 'users.get', 'orders.create')", $this->function),
+            sprintf("Warning: Function name '%s' should use dot notation (e.g., 'users.get') or URN format (e.g., 'urn:vendor:forrst:fn:users:get')", $this->function),
             E_USER_WARNING,
         );
     }
@@ -106,8 +106,8 @@ final class LinkData extends Data
                 throw EmptyFieldException::forField('parameter name');
             }
 
-            // Check for runtime expression syntax: $result.field
-            if (!is_string($paramValue) || !str_starts_with($paramValue, '$') || preg_match('/^\$result\.[a-zA-Z_][a-zA-Z0-9_.]*$/', $paramValue)) {
+            // Check for runtime expression syntax: $result.field (allow array access like $result.data.items[0].id)
+            if (!is_string($paramValue) || !str_starts_with($paramValue, '$') || preg_match('/^\$result\.[a-zA-Z_][a-zA-Z0-9_.\[\]]*$/', $paramValue)) {
                 continue;
             }
 
