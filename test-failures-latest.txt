@@ -1,0 +1,3199 @@
+  ✓ BootServer Middleware → Sad Paths → throws BadRequestHttpException when route name is null
+  ✓ BootServer Middleware → Sad Paths → throws BadRequestHttpException when route exists but has no name
+  ✓ BootServer Middleware → Edge Cases → terminate does nothing during unit tests
+  ✓ BootServer Middleware → Edge Cases → terminate forgets ServerInterf… 0.01s  
+  ✓ BootServer Middleware → Edge Cases → handles multiple sequential requests with proper cleanup simulation
+--
+   PASS  Tests\Unit\Data\ErrorDataTest
+  ✓ ErrorData → Happy Paths → creates error data with code, message and data
+  ✓ ErrorData → Happy Paths → creates error data without additional data
+  ✓ ErrorData → Happy Paths → creates from array using inherited from method
+  ✓ ErrorData → Client Error Detection → identifies invalid request as client error
+  ✓ ErrorData → Client Error Detection → identifies function not found as client error
+  ✓ ErrorData → Client Error Detection → identifies invalid arguments as client error
+  ✓ ErrorData → Client Error Detection → identifies parse error as client error
+  ✓ ErrorData → Client Error Detection → identifies validation error as client error
+  ✓ ErrorData → Client Error Detection → identifies unauthorized as client error
+  ✓ ErrorData → Client Error Detection → identifies forbidden as client error
+  ✓ ErrorData → Client Error Detection → identifies rate limited as operational error (neither client nor server)
+  ✓ ErrorData → Client Error Detection → does not identify internal error as client error
+  ✓ ErrorData → Server Error Detection → identifies internal error as server error
+  ✓ ErrorData → Server Error Detection → identifies server error as server error
+  ✓ ErrorData → Server Error Detection → identifies service unavailable as server error
+  ✓ ErrorData → Server Error Detection → custom Server prefixed errors are unclassified
+  ✓ ErrorData → Server Error Detection → does not identify client errors as server errors
+  ✓ ErrorData → Server Error Detection → does not identify unknown errors as server errors
+  ✓ ErrorData → HTTP Status Code Mapping → maps parse error to 400 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps invalid request to 400 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps function not found to 404 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps invalid arguments to 400 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps validation error to 422 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps unauthorized to 401 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps forbidden to 403 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps rate limited to 429 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps internal error to 500 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps server error to 500 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps service unavailable to 503 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps custom prefixed errors to 400 status code
+  ✓ ErrorData → HTTP Status Code Mapping → maps unknown errors to 400 status code
+  ✓ ErrorData → Edge Cases → handles empty string error code
+  ✓ ErrorData → Edge Cases → handles error with null data field
+  ✓ ErrorData → Edge Cases → handles error with empty string data
+  ✓ ErrorData → Edge Cases → handles error with different data types in details array
+  ✓ ErrorData → Edge Cases → handles error with complex data structures
+  ✓ ErrorData → Edge Cases → handles error with unicode characters in message
+  ✓ ErrorData → Edge Cases → handles error with very long message
+  ✓ ErrorData → Regression Tests → ensures all predefined error codes map to correct status codes
+  ✓ ErrorData → Regression Tests → ensures all client error codes are correctly classified
+  ✓ ErrorData → Regression Tests → ensures all server error codes are correctly classified
+
+   PASS  Tests\Unit\Data\Errors\SourceDataTest
+  ✓ SourceData → Happy Paths → creates instance with pointer             0.01s  
+  ✓ SourceData → Happy Paths → creates instance with position
+  ✓ SourceData → Happy Paths → creates instance with both pointer and position
+--
+   FAIL  Tests\Unit\Discovery\ErrorDefinitionDataTest
+  ✓ ErrorDefinitionData → Happy Paths → creates instance with required…  0.01s  
+  ✓ ErrorDefinitionData → Happy Paths → creates instance with all fields populated
+  ✓ ErrorDefinitionData → Happy Paths → creates instance with complex details schema
+  ✓ ErrorDefinitionData → Happy Paths → toArray includes all required fields
+  ✓ ErrorDefinitionData → Happy Paths → toArray handles null optional fields
+  ✓ ErrorDefinitionData → Happy Paths → toArray includes details when set
+  ✓ ErrorDefinitionData → Edge Cases → handles null description
+  ✓ ErrorDefinitionData → Edge Cases → handles null details
+  ⨯ ErrorDefinitionData → Edge Cases → handles empty details array
+  ✓ ErrorDefinitionData → Edge Cases → handles error code with underscores
+  ⨯ ErrorDefinitionData → Edge Cases → handles error code in lowercase
+  ✓ ErrorDefinitionData → Edge Cases → handles error code with numbers
+  ✓ ErrorDefinitionData → Edge Cases → handles empty description
+  ⨯ ErrorDefinitionData → Edge Cases → handles details with $ref
+  ✓ ErrorDefinitionData → Edge Cases → handles details with nested schema
+  ✓ ErrorDefinitionData → Edge Cases → toArray preserves details schema structure
+  ✓ ErrorDefinitionData → Sad Paths → validates required code field exists
+  ✓ ErrorDefinitionData → Sad Paths → validates required message field exists
+  ✓ ErrorDefinitionData → Sad Paths → validates optional description field
+  ✓ ErrorDefinitionData → Sad Paths → validates optional details field
+
+   FAIL  Tests\Unit\Discovery\ExamplePairingDataTest
+  ✓ ExamplePairingData → Happy Paths → creates instance with required f… 0.01s  
+--
+  ⨯ ExamplePairingData → Sad Paths - Validation Errors → rejects empty params array
+  ⨯ ExamplePairingData → Sad Paths - Validation Errors → rejects param missing name key
+  ⨯ ExamplePairingData → Sad Paths - Validation Errors → rejects param missing value key
+  ✓ ExamplePairingData → Sad Paths - Validation Errors → rejects invalid parameter name format with hyphens
+  ✓ ExamplePairingData → Sad Paths - Validation Errors → rejects invalid parameter name starting with uppercase
+  ✓ ExamplePairingData → Sad Paths - Validation Errors → rejects invalid parameter name starting with number
+  ⨯ ExamplePairingData → Sad Paths - Validation Errors → rejects non-array parameter
+  ⨯ ExamplePairingData → Sad Paths - Validation Errors → rejects param with non-string name
+  ⨯ ExamplePairingData → Sad Paths - Validation Errors → rejects result missing name key
+  ⨯ ExamplePairingData → Sad Paths - Validation Errors → rejects result missing value key
+  ⨯ ExamplePairingData → Sad Paths - Validation Errors → rejects result with non-string name
+  ✓ ExamplePairingData → Edge Cases → accepts valid camelCase parameter names
+  ✓ ExamplePairingData → Edge Cases → accepts valid snake_case parameter names
+  ✓ ExamplePairingData → Edge Cases → handles params with null values
+--
+  ✓ FunctionDescriptor → Happy Paths → adds error with ErrorCode enum
+  ⨯ FunctionDescriptor → Happy Paths → adds tag with string
+  ⨯ FunctionDescriptor → Happy Paths → adds tag with BackedEnum
+  ✓ FunctionDescriptor → Happy Paths → sets query capabilities
+--
+   FAIL  Tests\Unit\Exceptions\AbstractRequestExceptionTest
+  ✓ AbstractRequestException → Happy Paths → creates exception with err… 0.01s  
+  ✓ AbstractRequestException → Happy Paths → returns error data via getErrorDetails
+  ✓ AbstractRequestException → Happy Paths → converts exception to error data object
+  ✓ AbstractRequestException → Happy Paths → converts exception to array representation
+  ✓ AbstractRequestException → Happy Paths → returns empty headers by default
+  ✓ AbstractRequestException → Sad Paths → handles exception with null data
+  ✓ AbstractRequestException → Edge Cases → includes debug information when debug mode is enabled
+  ✓ AbstractRequestException → Edge Cases → excludes debug information when debug mode is disabled
+  ✓ AbstractRequestException → Edge Cases → filters out null values in array representation
+  ✓ AbstractRequestException → Edge Cases → merges debug data with existing error data
+  ⨯ AbstractRequestException → Edge Cases → handles empty data array
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 400 for parse error
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 400 for invalid request
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 404 for function not found
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 400 for invalid arguments
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 500 for internal error
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 500 for server error
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 401 for unauthorized
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 403 for forbidden
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 422 for validation error
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → r… 0.01s  
+  ✓ AbstractRequestException → getStatusCode - Standard Error Codes → returns 503 for service unavailable
+
+   PASS  Tests\Unit\Exceptions\Actions\RendersThrowableTest
+  ✓ RendersThrowable → Happy Paths → registers renderable on Exceptions… 0.01s  
+  ✓ RendersThrowable → Happy Paths → returns JSON response for JSON req… 0.01s  
+  ✓ RendersThrowable → Happy Paths → maps exception through ExceptionMapper
+  ✓ RendersThrowable → Happy Paths → includes request ID in response
+  ✓ RendersThrowable → Happy Paths → maps authentication exception to unauthorized error
+  ✓ RendersThrowable → Happy Paths → maps authorization exception to forbidden error
+--
+   PASS  Tests\Unit\Exceptions\Concerns\RendersThrowableTest
+  ✓ RendersThrowable → renderableThrowable registers a renderable closu… 0.01s  
+  ✓ RendersThrowable → returns null when request does not want JSON
+  ✓ RendersThrowable → maps exception through ExceptionMapper for JSON requests
+  ✓ RendersThrowable → includes request ID in response when present
+  ✓ RendersThrowable → generates ID when not present in request
+  ✓ RendersThrowable → uses status code from mapped exception
+--
+  ✓ RendersThrowable → maps ValidationException to SemanticValidationException
+  ✓ RendersThrowable → preserves Forrst compliant exception without remapping
+  ✓ RendersThrowable → returns Forrst protocol compliant response structure
+
+   PASS  Tests\Unit\Exceptions\ExceptionMapperTest
+  ✓ ExceptionMapper → maps exception to Forrst exception                 0.01s  
+
+   PASS  Tests\Unit\Exceptions\ForbiddenExceptionTest
+  ✓ ForbiddenException → Happy Paths → creates an forbidden exception
+
+   PASS  Tests\Unit\Exceptions\FunctionNotFoundExceptionTest
+  ✓ FunctionNotFoundException → Happy Paths → creates a method not found exception
+
+   PASS  Tests\Unit\Exceptions\InternalErrorExceptionTest
+  ✓ InternalErrorException → Happy Paths → creates an internal error exception
+
+   PASS  Tests\Unit\Exceptions\InvalidDataExceptionTest
+  ✓ InvalidDataException → Happy Paths → creates an invalid params exception from a validation exception
+
+   PASS  Tests\Unit\Exceptions\InvalidFieldsExceptionTest
+  ✓ InvalidFieldsException → Happy Paths → creates an invalid fields ex… 0.01s  
+
+   PASS  Tests\Unit\Exceptions\InvalidFiltersExceptionTest
+  ✓ InvalidFiltersException → Happy Paths → creates an invalid filters exception
+
+   PASS  Tests\Unit\Exceptions\InvalidParamsExceptionTest
+  ✓ InvalidParamsException → Happy Paths → creates a server error exception
+
+   PASS  Tests\Unit\Exceptions\InvalidRelationshipsExceptionTest
+  ✓ InvalidRelationshipsException → Happy Paths → creates exception with unknown and allowed relationships
+  ✓ InvalidRelationshipsException → Happy Paths → creates exception with empty allowed relationships array
+  ✓ InvalidRelationshipsException → Happy Paths → creates exception with multiple unknown relationships
+  ✓ InvalidRelationshipsException → Sad Paths → creates exception when some unknown relationships overlap with allowed
+  ✓ InvalidRelationshipsException → Sad Paths → creates exception with empty unknown relationships after filtering
+  ✓ InvalidRelationshipsException → Edge Cases → creates exception with special characters in relationship names
+  ✓ InvalidRelationshipsException → Edge Cases → creates exception with very long relationship names
+  ✓ InvalidRelationshipsException → Edge Cases → creates exception with duplicate unknown relationships
+
+   PASS  Tests\Unit\Exceptions\InvalidRequestExceptionTest
+  ✓ InvalidRequestException → Happy Paths → creates an invalid request…  0.01s  
+
+   PASS  Tests\Unit\Exceptions\InvalidSortsExceptionTest
+  ✓ InvalidSortsException → Happy Paths → creates an invalid filters exception
+
+   PASS  Tests\Unit\Exceptions\JsonSchemaExceptionTest
+  ✓ JsonSchemaException → Happy Paths → creates exception for invalid rule
+
+   PASS  Tests\Unit\Exceptions\OperationFailedExceptionTest
+  ✓ OperationFailedException → Happy Paths → creates exception with operation id and custom reason
+  ✓ OperationFailedException → Happy Paths → creates exception with default message when reason is null
+  ✓ OperationFailedException → Edge Cases → handles empty operation id
+  ✓ OperationFailedException → Edge Cases → handles empty reason string
+
+   PASS  Tests\Unit\Exceptions\ParseErrorExceptionTest
+  ✓ ParseErrorException → Happy Paths → creates a parse error exception  0.01s  
+
+   PASS  Tests\Unit\Exceptions\ResourceNotFoundExceptionTest
+  ✓ ResourceNotFoundException → Happy Paths → creates exception with de… 0.01s  
+  ✓ ResourceNotFoundException → Happy Paths → creates exception with custom detail
+
+   PASS  Tests\Unit\Exceptions\ServerErrorExceptionTest
+  ✓ ServerErrorException → Happy Paths → creates a server error exception
+
+   PASS  Tests\Unit\Exceptions\ServerNotFoundExceptionTest
+  ✓ ServerNotFoundException → Happy Paths → creates a server not error exception
+
+   PASS  Tests\Unit\Exceptions\ServiceUnavailableExceptionTest
+  ✓ ServiceUnavailableException → Happy Paths → creates exception with default detail
+  ✓ ServiceUnavailableException → Happy Paths → creates exception with custom detail
+
+   PASS  Tests\Unit\Exceptions\TooManyRequestsExceptionTest
+  ✓ TooManyRequestsException → Happy Paths → creates basic rate limit exception with default detail message
+  ✓ TooManyRequestsException → Happy Paths → creates basic rate limit exception with custom detail message
+  ✓ TooManyRequestsException → Happy Paths → creates exception with complete rate limit details for client backoff
+  ✓ TooManyRequestsException → Happy Paths → includes rate limit threshold in structured details
+  ✓ TooManyRequestsException → Happy Paths → includes current usage count in structured details
+  ✓ TooManyRequestsException → Happy Paths → includes time window definition with value and unit
+  ✓ TooManyRequestsException → Happy Paths → includes retry timing information with value and unit
+  ✓ TooManyRequestsException → Happy Paths → serializes to array with all rate limit information
+  ✓ TooManyRequestsException → Happy Paths → returns 429 status code for HTTP responses
+  ✓ TooManyRequestsException → Sad Paths → handles zero limit indicating no requests allowed
+  ✓ TooManyRequestsException → Sad Paths → handles excessive usage count far exceeding limit
+  ✓ TooManyRequestsException → Sad Paths → uses default detail message when null is provided to create method
+  ✓ TooManyRequestsException → Sad Paths → uses default detail message when null is provided to createWithDetails method
+  ✓ TooManyRequestsException → Edge Cases → handles rate limit at exact threshold with equal used and limit
+  ✓ TooManyRequestsException → Edge Cases → handles very short time window of 1 second
+  ✓ TooManyRequestsException → Edge Cases → handles very long time window of 24 hours
+  ✓ TooManyRequestsException → Edge Cases → handles immediate retry with zero retry-after value
+  ✓ TooManyRequestsException → Edge Cases → handles large retry-after value for long backoff period
+  ✓ TooManyRequestsException → Edge Cases → includes HTTP status code i… 0.01s  
+  ✓ TooManyRequestsException → Edge Cases → includes HTTP status code in details for createWithDetails method
+  ✓ TooManyRequestsException → Edge Cases → includes error title in details for basic create method
+  ✓ TooManyRequestsException → Edge Cases → includes error title in details for createWithDetails method
+  ✓ TooManyRequestsException → Edge Cases → handles custom detail message with special characters
+  ✓ TooManyRequestsException → Edge Cases → handles very large limit values for high-throughput APIs
+  ✓ TooManyRequestsException → Edge Cases → handles different time unit combinations for window and retry
+  ✓ TooManyRequestsException → Edge Cases → preserves all structured data when serialized to array
+
+   PASS  Tests\Unit\Exceptions\UnauthorizedExceptionTest
+  ✓ UnauthorizedException → Happy Paths → creates an unauthorized excep… 0.01s  
+
+   PASS  Tests\Unit\Exceptions\UnprocessableEntityExceptionTest
+  ✓ UnprocessableEntityException → Happy Paths → creates exception with default detail
+  ✓ UnprocessableEntityException → Happy Paths → creates exception with custom detail
+  ✓ UnprocessableEntityException → Happy Paths → creates exception from Laravel validation exception
+
+   PASS  Tests\Unit\Extensions\AbstractExtensionTest
+  ✓ AbstractExtension → Happy Paths → implements ExtensionInterface contract
+--
+  ✓ AbstractExtension → Happy Paths → isErrorFatal returns true by default for fatal error handling
+  ✓ AbstractExtension → Happy Paths → getSubscribedEvents returns empty array by default
+  ✓ AbstractExtension → Happy Paths → toCapabilities returns URN in capabilities format
+  ✓ AbstractExtension → Happy Paths → toCapabilities array contains only URN by default
+--
+  ✓ AbstractExtension → Edge Cases → concrete extension can override isErrorFatal to return false
+  ✓ AbstractExtension → Edge Cases → concrete extension can override getSubscribedEvents with custom subscriptions
+  ✓ AbstractExtension → Edge Cases → concrete extension can override getCapabilityMetadata to include documentation URL
+  ✓ AbstractExtension → Edge Cases → toCapabilities uses getUrn method consistently
+--
+  ✓ AsyncExtension → Happy Paths → isErrorFatal returns true
+  ⨯ AsyncExtension → Happy Paths → createAsyncOperation generates opera… 0.01s  
+  ⨯ AsyncExtension → Happy Paths → createAsyncOperation includes callback URL in operation metadata when provided
+  ⨯ AsyncExtension → Happy Paths → createAsyncOperation includes original request ID in operation metadata
+--
+  ✓ OperationCancelFunction → Happy Paths → getErrors() → returns both error definitions
+  ✓ OperationCancelFunction → Happy Paths → getErrors() → includes AsyncOperationNotFound error definition
+  ✓ OperationCancelFunction → Happy Paths → getErrors() → includes AsyncCannotCancel error definition
+  ⨯ OperationCancelFunction → Happy Paths → __invoke() → cancels pendin… 0.01s  
+  ⨯ OperationCancelFunction → Happy Paths → __invoke() → cancels processing operation
+  ⨯ OperationCancelFunction → Happy Paths → __invoke() → updates operation status to cancelled
+--
+  ⨯ OperationCancelFunction → Sad Paths → operation not found → throws NotFoundException when operation does not exist
+  ⨯ OperationCancelFunction → Sad Paths → cannot cancel terminal operations → throws OperationException when trying to cancel completed operation
+  ⨯ OperationCancelFunction → Sad Paths → cannot cancel terminal operations → throws OperationException when trying to cancel failed operation
+  ⨯ OperationCancelFunction → Sad Paths → cannot cancel terminal operations → throws OperationException when trying to cancel already cancelled operation
+  ✓ OperationCancelFunction → Sad Paths → repository errors → propagates repository find exception
+  ✓ OperationCancelFunction → Sad Paths → repository errors → propagates repository save exception
+
+--
+  ✓ OperationStatusFunction → Happy Paths → getErrors() → returns AsyncOperationNotFound error definition
+  ⨯ OperationStatusFunction → Happy Paths → __invoke() → returns operation data for pending operation
+  ⨯ OperationStatusFunction → Happy Paths → __invoke() → returns operation data for processing operation with progress
+  ⨯ OperationStatusFunction → Happy Paths → __invoke() → returns operation data for completed operation with result
+--
+  ⨯ OperationStatusFunction → Sad Paths → operation not found → throws NotFoundException when operation does not exist
+  ⨯ OperationStatusFunction → Sad Paths → operation not found → exception message includes operation ID
+  ✓ OperationStatusFunction → Sad Paths → repository errors → propagates repository exception
+
+--
+  ✓ AtomicLockExtension → Sad Paths → onExecutingFunction throws LockAcquisitionFailedException when lock is held
+  ✓ AtomicLockExtension → Sad Paths → onExecutingFunction throws LockTimeoutException when blocking times out
+  ✓ AtomicLockExtension → Sad Paths → releaseLock throws LockNotFoundEx… 0.01s  
+  ✓ AtomicLockExtension → Sad Paths → releaseLock throws LockOwnershipMismatchException when owner does not match
+  ✓ AtomicLockExtension → Sad Paths → forceReleaseLock throws LockNotFoundException when lock does not exist
+
+   FAIL  Tests\Unit\Extensions\CachingExtensionTest
+  ✓ CachingExtension → Happy Paths → returns correct URN constant        0.01s  
+--
+  ✓ DryRunExtension → Happy Paths → buildValidationError creates properly formatted error entry
+  ✓ DryRunExtension → Happy Paths → buildWouldAffect creates resource entry with string ID
+  ✓ DryRunExtension → Happy Paths → buildWouldAffect creates resource entry with integer ID
+  ✓ DryRunExtension → Happy Paths → buildWouldAffectCount creates count-based entry
+--
+  ✓ DryRunExtension → Edge Cases → buildValidationError handles special characters in field names
+  ✓ DryRunExtension → Edge Cases → buildInvalidResponse with multiple validation errors
+  ✓ DryRunExtension → Edge Cases → buildWouldAffectCount handles zero count
+  ✓ DryRunExtension → Edge Cases → buildSideEffect handles very large count
+--
+  ✓ LocaleExtension → Happy Paths → isErrorFatal returns false for graceful degradation
+  ✓ LocaleExtension → Happy Paths → getSupportedLanguages returns configured languages
+  ✓ LocaleExtension → Happy Paths → default supported language is en
+  ✓ LocaleExtension → Happy Paths → isValidLanguageTag validates known language codes
+--
+  ✓ MaintenanceExtension → Happy Paths → isErrorFatal returns true for maintenance mode
+  ✓ MaintenanceExtension → Happy Paths → isGlobal returns true for maintenance extension
+  ✓ MaintenanceExtension → Happy Paths → buildDuration creates duration object
+  ✓ MaintenanceExtension → Happy Paths → buildServerMaintenance creates complete server maintenance data
+--
+  ✓ MaintenanceExtension → Happy Paths → buildServerMaintenanceErrorDetails creates error details
+  ✓ MaintenanceExtension → Happy Paths → buildFunctionMaintenanceErrorDetails creates error details with function
+  ✓ MaintenanceExtension → Happy Paths → enrichResponse adds maintenance extension to response
+  ✓ MaintenanceExtension → Happy Paths → calculateRetryAfterSeconds converts seconds correctly
+  ✓ MaintenanceExtension → Happy Paths → calculateRetryAfterSeconds converts minutes correctly
+--
+  ✓ QueryExtension → Happy Paths → isErrorFatal returns true for query validation errors
+  ✓ QueryExtension → Happy Paths → getFilters extracts filters from options
+  ✓ QueryExtension → Happy Paths → getSorts extracts sorts from options
+  ✓ QueryExtension → Happy Paths → getPagination extracts pagination fr… 0.01s  
+--
+  ✓ RateLimitExtension → Happy Paths → isErrorFatal returns false for advisory rate limit info
+  ✓ RateLimitExtension → Happy Paths → getRequestedScope extracts scope from options
+  ✓ RateLimitExtension → Happy Paths → getRequestedScope returns null when not specified
+  ✓ RateLimitExtension → Happy Paths → buildDuration creates duration object
+--
+  ✓ RedactExtension → Sad Paths → isErrorFatal returns true for security-critical extension
+  ✓ RedactExtension → Sad Paths → getMode returns full before request processing
+  ✓ RedactExtension → Sad Paths → shouldRedact returns false when mode is None via reflection
+  ✓ RedactExtension → Redaction Mode Enum → RedactionMode has three valid modes
+--
+  ✓ ReplayExtension → Happy Paths → isErrorFatal returns false for replay extension
+  ✓ ReplayExtension → Happy Paths → isGlobal returns false for replay extension
+  ✓ ReplayExtension → Happy Paths → buildDuration creates duration object
+  ✓ ReplayExtension → Happy Paths → buildOptions creates complete options
+--
+  ✓ SimulationExtension → Happy Paths → isErrorFatal returns true
+  ✓ SimulationExtension → Happy Paths → isEnabled returns true when enabled option is true
+  ✓ SimulationExtension → Happy Paths → isEnabled returns false when enabled option is false
+  ✓ SimulationExtension → Happy Paths → shouldListScenarios returns true when list_scenarios is true
+--
+  ✓ SimulationExtension → Happy Paths → buildSimulatedErrorResponse cre… 0.01s  
+  ✓ SimulationExtension → Happy Paths → buildSimulatedErrorResponse creates error simulation response with custom error
+  ✓ SimulationExtension → Happy Paths → buildScenarioListResponse lists all available scenarios
+  ✓ SimulationExtension → Happy Paths → buildUnsupportedResponse creates error for non-simulatable function
+  ✓ SimulationExtension → Happy Paths → buildScenarioNotFoundResponse creates error for missing scenario
+--
+  ✓ SimulationExtension → Edge Cases → buildSimulatedErrorResponse handles error without data field
+  ⨯ SimulationExtension → Sad Paths → buildSimulatedResponse preserves…  0.01s  
+  ⨯ SimulationExtension → Sad Paths → buildSimulatedErrorResponse preserves request ID in error response
+  ✓ SimulationExtension → Sad Paths → buildScenarioListResponse preserves request ID
+  ✓ SimulationExtension → Sad Paths → buildUnsupportedResponse preserves request ID
+  ✓ SimulationExtension → Sad Paths → buildScenarioNotFoundResponse pre… 0.01s  
+--
+  ✓ TracingExtension → Happy Paths → isErrorFatal returns false indicating tracing errors should not fail requests
+  ✓ TracingExtension → Happy Paths → getSubscribedEvents returns correct event configuration
+  ✓ TracingExtension → Happy Paths → onExecutingFunction initializes context from extension options
+  ✓ TracingExtension → Happy Paths → onFunctionExecuted enriches response with trace metadata and duration
+--
+  ✓ AbstractFunction → Happy Paths → getErrors() → returns empty array by default
+  ✓ AbstractFunction → Happy Paths → getErrors() → can be overridden to define error descriptors
+  ✓ AbstractFunction → Happy Paths → getErrors() → returns error arrays with string-based codes for Forrst compatibility
+  ✓ AbstractFunction → Happy Paths → setRequest() → stores request obje… 0.01s  
+  ✓ AbstractFunction → Happy Paths → setRequest() → accepts request with null arguments
+  ✓ AbstractFunction → Happy Paths → setRequest() → accepts request wit… 0.01s  
+--
+  ✓ AbstractFunction → Edge Cases → getErrors() edge cases → handles si… 0.01s  
+  ✓ AbstractFunction → Edge Cases → getErrors() edge cases → handles ma… 0.01s  
+  ✓ AbstractFunction → Edge Cases → setRequest() with various request t… 0.01s  
+  ✓ AbstractFunction → Edge Cases → setRequest() with various request types → handles request with string id
+  ✓ AbstractFunction → Edge Cases → setRequest() with various request types → handles request with numeric-like string id
+--
+  ✓ InteractsWithCancellation → throwIfCancellationRequested → Sad Paths → throws CancelledException when token is cancelled
+  ✓ InteractsWithCancellation → throwIfCancellationRequested → Edge Cases → does not throw when token is not in cache
+  ✓ InteractsWithCancellation → throwIfCancellationRequested → Edge Cases → throws exception that can be caught and inspected
+  ✓ InteractsWithCancellation → throwIfCancellationRequested → Edge Cases → can be called multiple times without throwing if not cancelled
+--
+  ✓ CancelFunction → Happy Paths → getErrors() → returns array of ErrorDefinitionData with two error types
+  ✓ CancelFunction → Happy Paths → getErrors() → defines CancellationTokenUnknown error
+  ✓ CancelFunction → Happy Paths → getErrors() → defines CancellationTo… 0.01s  
+  ✓ CancelFunction → Sad Paths → __invoke() with missing token → throws CancellationTokenMissingException when token argument is missing
+  ✓ CancelFunction → Sad Paths → __invoke() with missing token → throws CancellationTokenMissingException when token argument is null
+  ✓ CancelFunction → Sad Paths → __invoke() with missing token → throws CancellationTokenMissingException when token is empty string
+  ✓ CancelFunction → Sad Paths → __invoke() with missing token → throws CancellationTokenMissingException when token is non-string type
+  ✓ CancelFunction → Sad Paths → __invoke() with unknown token → throws CancellationTokenNotFoundException when extension cancel returns false
+  ✓ CancelFunction → Sad Paths → __invoke() with unknown token → throws CancellationTokenNotFoundException with correct message for expired token
+  ✓ CancelFunction → Edge Cases → __invoke() with whitespace-only token → processes cancellation successfully when token contains whitespace
+  ✓ CancelFunction → Edge Cases → __invoke() with very long token → processes cancellation successfully with very long valid token
+  ✓ CancelFunction → Edge Cases → __invoke() with special characters in token → processes cancellation successfully with special characters in token
+--
+  ⨯ LockForceReleaseFunction → Happy Paths → getErrors() → returns array of ErrorDefinitionData with one error type
+  ✓ LockForceReleaseFunction → Happy Paths → getErrors() → defines LockNotFound error
+  ✓ LockForceReleaseFunction → Sad Paths → __invoke() with missing key…  0.01s  
+  ✓ LockForceReleaseFunction → Sad Paths → __invoke() with missing key → throws InvalidArgumentException when key is empty string
+  ✓ LockForceReleaseFunction → Sad Paths → __invoke() with missing key → throws InvalidArgumentException when key is non-string type
+  ✓ LockForceReleaseFunction → Sad Paths → __invoke() with non-existent lock → throws LockNotFoundException when lock does not exist
+
+   PASS  Tests\Unit\Functions\System\LockReleaseFunctionTest
+  ✓ LockReleaseFunction → Happy Paths → __invoke() → releases lock succ… 0.01s  
+--
+  ✓ LockReleaseFunction → Happy Paths → getErrors() → returns array of ErrorDefinitionData with two error types
+  ✓ LockReleaseFunction → Happy Paths → getErrors() → defines LockNotFound error
+  ✓ LockReleaseFunction → Happy Paths → getErrors() → defines LockOwnershipMismatch error
+  ✓ LockReleaseFunction → Sad Paths → __invoke() with missing key → throws LockKeyRequiredException when key argument is missing
+  ✓ LockReleaseFunction → Sad Paths → __invoke() with missing key → throws LockKeyRequiredException when key is empty string
+  ✓ LockReleaseFunction → Sad Paths → __invoke() with missing owner → throws LockOwnerRequiredException when owner argument is missing
+  ✓ LockReleaseFunction → Sad Paths → __invoke() with missing owner → throws LockOwnerRequiredException when owner is empty string
+  ✓ LockReleaseFunction → Sad Paths → __invoke() with non-existent lock → throws LockNotFoundException when lock does not exist
+  ✓ LockReleaseFunction → Sad Paths → __invoke() with wrong owner → throws LockOwnershipMismatchException when owner does not match
+
+   FAIL  Tests\Unit\Functions\System\LockStatusFunctionTest
+  ✓ LockStatusFunction → Happy Paths → __invoke() → returns locked stat… 0.01s  
+--
+  ⨯ LockStatusFunction → Happy Paths → getErrors() → returns empty array as status check does not fail
+  ✓ LockStatusFunction → Sad Paths → __invoke() with missing key → throws InvalidArgumentException when key argument is missing
+  ✓ LockStatusFunction → Sad Paths → __invoke() with missing key → throws InvalidArgumentException when key is empty string
+  ✓ LockStatusFunction → Sad Paths → __invoke() with missing key → throws InvalidArgumentException when key is non-string type
+  ✓ LockStatusFunction → Edge Cases → __invoke() with expired lock → returns unlocked status for expired lock
+
+   PASS  Tests\Unit\Functions\System\PingFunctionTest
+--
+  ✓ RenderThrowable Middleware → Happy Paths → renders InvalidRequestException as Forrst error
+  ✓ RenderThrowable Middleware → Happy Paths → renders FunctionNotFoundException as Forrst error
+  ✓ RenderThrowable Middleware → Happy Paths → renders InternalErrorException as Forrst error
+  ✓ RenderThrowable Middleware → Happy Paths → includes request id in error response when present
+  ✓ RenderThrowable Middleware → Happy Paths → handles numeric request id
+  ✓ RenderThrowable Middleware → Happy Paths → handles string request id
+--
+  ✓ RenderThrowable Middleware → Edge Cases → handles TypeError exception
+  ✓ RenderThrowable Middleware → Edge Cases → preserves response headers from mapped exception
+  ✓ RenderThrowable Middleware → Edge Cases → handles request with application/json Accept header
+  ✓ RenderThrowable Middleware → Edge Cases → handles exception thrown during response building
+--
+  ✓ CallFunction → Sad Paths → handles ValidationException during Data object validation
+  ✓ CallFunction → Sad Paths → returns error response for method that throws exception
+  ✓ CallFunction → Sad Paths → handles InvalidDataException during parameter resolution
+  ⨯ CallFunction → Sad Paths → throws InvalidDataException when Data object validation fails
+  ⨯ CallFunction → Sad Paths → handles validation error for Data parame… 0.01s  
+  ⨯ CallFunction → Sad Paths → handles validation failure for multiple Data parameters
+  ✓ CallFunction → Edge Cases → handles empty params array
+--
+  ✓ CallFunction → Regressions → ensures ExceptionMapper is used for all caught exceptions
+  ✓ CallFunction → Regressions → ensures requestObject parameter is always filtered from parameter resolution
+  ✓ CallFunction → Regressions → ensures error responses always include protocol
+  ⨯ CallFunction → Regressions → ensures ValidationException is wrapped in InvalidDataException for Data objects
+
+   PASS  Tests\Unit\JsonSchema\RuleTransformerTest
+  ✓ RuleTransformer → transform → Happy Paths → transforms accepted rul… 0.01s  
+--
+  ✓ Version Resolution → Exact Version Matching → throws VersionNotFoundException for non-existent version
+  ✓ Version Resolution → Stability Alias Resolution → resolves "stable" to latest stable version (2.0.0)
+  ✓ Version Resolution → Stability Alias Resolution → resolves "beta" to latest beta version (3.0.0-beta.2)
+  ✓ Version Resolution → Stability Alias Resolution → resolves "alpha" to latest alpha version (3.0.0-alpha.1)
+  ✓ Version Resolution → Stability Alias Resolution → throws VersionNotFoundException for stability with no matching versions
+  ✓ Version Resolution → Default Resolution (null version) → resolves to latest stable when version is null
+  ✓ Version Resolution → Default Resolution (null version) → resolves to latest stable ignoring prerelease versions
+  ✓ Version Resolution → Version Index → returns all versions for a function
+--
+  ✓ Version Resolution → Error Details → VersionNotFoundException includes available versions
+  ✓ Version Resolution → Error Details → FunctionNotFoundException includes function name
+  ✓ Version Resolution → Edge Cases → handles function with only prerelease versions
+  ✓ Version Resolution → Edge Cases → handles function with only one version
+  ✓ Version Resolution → Edge Cases → all() returns functions indexed by name@version
+--
+  ✓ RequestHandler Complete Coverage → Method Exception Handling → handles authentication exception from method
+  ✓ RequestHandler Complete Coverage → Method Exception Handling → handles authorization exception from method
+  ✓ RequestHandler Complete Coverage → Method Exception Handling → handles function not found error
+  ✓ RequestHandler Complete Coverage → Batch Requests → batch requests…  0.01s  
+  ✓ RequestHandler Complete Coverage → Request ID Requirement → requests without id field return error (id is required in Forrst)
+  ✓ RequestHandler Complete Coverage → Request ID Requirement → legacy JSON-RPC format without id returns error
+  ✓ RequestHandler Complete Coverage → Parse Errors → handles invalid JSON string
+  ✓ RequestHandler Complete Coverage → Parse Errors → handles empty array
+  ✓ RequestHandler Complete Coverage → Validation Errors → handles missing protocol field
+  ✓ RequestHandler Complete Coverage → Validation Errors → handles missing call field
+  ✓ RequestHandler Complete Coverage → Validation Errors → handles missing function in call
+
+   PASS  Tests\Unit\Resources\AbstractDataResourceTest
+  ✓ AbstractDataResource → Happy Paths → __construct() → creates resour… 0.01s  
+--
+  ⨯ ConfigurationServer → Edge Cases and Error Handling → filters out PHP files that do not contain valid classes
+  ⨯ ConfigurationServer → Edge Cases and Error Handling → filters out classes that do not implement FunctionInterface
+
+   PASS  Tests\Unit\Streaming\StreamChunkTest
+  ✓ StreamChunk → Happy Paths → creates data chunk with payload          0.01s  
+--
+   FAILED  Tests\Http\Controller\FunctionControllerTest > `FunctionControlle…   
+  Unable to find JSON: 
+
+[{
+--
+   FAILED  Tests\Http\Controller\FunctionControllerTest > `FunctionControlle…   
+  Unable to find JSON: 
+
+[{
+--
+   FAILED  Tests\Http\Controller\FunctionControllerTest > `FunctionControlle…   
+  Unable to find JSON: 
+
+[{
+--
+   FAILED  Tests\Unit\Data\Configuration\ServerD…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Data\ExtensionDataTe…  MutuallyExclusiveFieldsException   
+  Cannot have both options and data
+
+  at src/Exceptions/MutuallyExclusiveFieldsException.php:22
+     18▕ final class MutuallyExclusiveFieldsException extends ValidationException
+     19▕ {
+     20▕     public static function forFields(string $field1, string $field2): self
+     21▕     {
+--
+  1   src/Exceptions/MutuallyExclusiveFieldsException.php:22
+  2   src/Data/ExtensionData.php:74
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Data\ExtensionDataTe…  MutuallyExclusiveFieldsException   
+  Cannot have both options and data
+
+  at src/Exceptions/MutuallyExclusiveFieldsException.php:22
+     18▕ final class MutuallyExclusiveFieldsException extends ValidationException
+     19▕ {
+     20▕     public static function forFields(string $field1, string $field2): self
+     21▕     {
+--
+  1   src/Exceptions/MutuallyExclusiveFieldsException.php:22
+  2   src/Data/ExtensionData.php:74
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Data\ExtensionDataTe…  MutuallyExclusiveFieldsException   
+  Cannot have both options and data
+
+  at src/Exceptions/MutuallyExclusiveFieldsException.php:22
+     18▕ final class MutuallyExclusiveFieldsException extends ValidationException
+     19▕ {
+     20▕     public static function forFields(string $field1, string $field2): self
+     21▕     {
+--
+  1   src/Exceptions/MutuallyExclusiveFieldsException.php:22
+  2   src/Data/ExtensionData.php:74
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Data\ExtensionDataTest > `Extensi…  EmptyFieldException   
+  urn cannot be empty
+
+  at src/Exceptions/EmptyFieldException.php:22
+     18▕ final class EmptyFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyFieldException.php:22
+  2   src/Data/ExtensionData.php:130
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Data\ExtensionDataTest > `Extensi…  EmptyFieldException   
+  urn cannot be empty
+
+  at src/Exceptions/EmptyFieldException.php:22
+     18▕ final class EmptyFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyFieldException.php:22
+  2   src/Data/ExtensionData.php:130
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Data\ExtensionDataTest > `…  InvalidFieldValueException   
+  Extension urn is invalid: must follow format 'urn:vendor:forrst:ext:name', got: test
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Validation/UrnValidator.php:49
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ArgumentDataTest…  InvalidFieldValueException   
+  sunset is invalid: Sunset date "2025-06-01" is in the past. Deprecated elements with past sunset dates should be removed.
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/DeprecatedData.php:278
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\DiscoveryDataTest > `Di…  EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ErrorDefiniti…  MissingRequiredFieldException   
+  details.type is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ErrorDefinitionData.php:243
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ErrorDefinitionD…  InvalidFieldValueException   
+  code is invalid: Error code must follow SCREAMING_SNAKE_CASE convention. Got: 'not_found'
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/ErrorDefinitionData.php:178
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ErrorDefiniti…  MissingRequiredFieldException   
+  details.type is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ErrorDefinitionData.php:243
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ExamplePairingDataTest > `ExamplePairingData…   
+  Expected: params cannot be empty
+
+  To contain: at least one parameter
+--
+  ➜ 119▕             ))->toThrow(InvalidArgumentException::class, 'at least one parameter');
+    120▕         });
+    121▕ 
+    122▕         test('rejects param missing name key', function (): void {
+--
+   FAILED  Tests\Unit\Discovery\ExamplePairingDataTest > `ExamplePairingData…   
+  Expected: params[0].name is required
+
+  To contain: missing required 'name' key
+--
+  ➜ 129▕             ))->toThrow(InvalidArgumentException::class, "missing required 'name' key");
+    130▕         });
+    131▕ 
+    132▕         test('rejects param missing value key', function (): void {
+--
+   FAILED  Tests\Unit\Discovery\ExamplePairingDataTest > `ExamplePairingData…   
+  Expected: params[0].value is required
+
+  To contain: missing required 'value' key
+--
+  ➜ 139▕             ))->toThrow(InvalidArgumentException::class, "missing required 'value' key");
+    140▕         });
+    141▕ 
+    142▕         test('rejects invalid parameter name format with hyphens', function (): void {
+--
+   FAILED  Tests\Unit\Discovery\ExamplePairingDataTest > `ExamplePairingData…   
+  Expected: params[0] must be array, got string
+
+  To contain: must be an array
+--
+  ➜ 179▕             ))->toThrow(InvalidArgumentException::class, 'must be an array');
+    180▕         });
+    181▕ 
+    182▕         test('rejects param with non-string name', function (): void {
+--
+   FAILED  Tests\Unit\Discovery\ExamplePairingDataTest > `ExamplePairingData…   
+  Expected: params[0].name must be string, got integer
+
+  To contain: must be a string
+--
+  ➜ 189▕             ))->toThrow(InvalidArgumentException::class, 'must be a string');
+    190▕         });
+    191▕ 
+    192▕         test('rejects result missing name key', function (): void {
+--
+   FAILED  Tests\Unit\Discovery\ExamplePairingDataTest > `ExamplePairingData…   
+  Expected: result.name is required
+
+  To contain: missing required 'name' key
+--
+  ➜ 198▕             ))->toThrow(InvalidArgumentException::class, "missing required 'name' key");
+    199▕         });
+    200▕ 
+    201▕         test('rejects result missing value key', function (): void {
+--
+   FAILED  Tests\Unit\Discovery\ExamplePairingDataTest > `ExamplePairingData…   
+  Expected: result.value is required
+
+  To contain: missing required 'value' key
+--
+  ➜ 207▕             ))->toThrow(InvalidArgumentException::class, "missing required 'value' key");
+    208▕         });
+    209▕ 
+    210▕         test('rejects result with non-string name', function (): void {
+--
+   FAILED  Tests\Unit\Discovery\ExamplePairingDataTest > `ExamplePairingData…   
+  Expected: result.name must be string, got integer
+
+  To contain: must be a string
+--
+  ➜ 216▕             ))->toThrow(InvalidArgumentException::class, 'must be a string');
+    217▕         });
+    218▕     });
+    219▕ 
+--
+   FAILED  Tests\Unit\Discovery\FunctionDescriptorDataTest > `Functio…  Error   
+  Cannot modify readonly property Cline\Forrst\Discovery\TagData::$name
+
+  at src/Discovery/TagData.php:88
+--
+   FAILED  Tests\Unit\Discovery\FunctionDescriptorTest > `FunctionDes…  Error   
+  Cannot modify readonly property Cline\Forrst\Discovery\TagData::$name
+
+  at src/Discovery/TagData.php:88
+--
+   FAILED  Tests\Unit\Discovery\FunctionDescriptorTest > `FunctionDes…  Error   
+  Cannot modify readonly property Cline\Forrst\Discovery\TagData::$name
+
+  at src/Discovery/TagData.php:88
+--
+   FAILED  Tests\Unit\Discovery\FunctionDescriptorTest > `FunctionDescriptor…   
+  Failed asserting that DateTimeImmutable Object #143329 (
+    'date' => '2025-12-31 00:00:00.000000',
+    'timezone_type' => 3,
+--
+   FAILED  Tests\Unit\Discovery\FunctionDescriptorTest > `Fu…  ErrorException   
+  Warning: Function name 'urn:app:forrst:fn:users:get' should use dot notation (e.g., 'users.get', 'orders.create')
+
+  at src/Discovery/LinkData.php:90
+--
+   FAILED  Tests\Unit\Discovery\FunctionDescriptorTest > `FunctionDes…  Error   
+  Cannot modify readonly property Cline\Forrst\Discovery\TagData::$name
+
+  at src/Discovery/TagData.php:88
+--
+   FAILED  Tests\Unit\Discovery\FunctionDescriptorTest > `FunctionDes…  Error   
+  Cannot modify readonly property Cline\Forrst\Discovery\TagData::$name
+
+  at src/Discovery/TagData.php:88
+--
+   FAILED  Tests\Unit\Discovery\FunctionDescr…  MissingRequiredFieldException   
+  message is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/SimulationScenarioData.php:177
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\FunctionExtensionsDataT…  EmptyFieldException   
+  supported cannot be empty
+
+  at src/Exceptions/EmptyFieldException.php:22
+     18▕ final class EmptyFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyFieldException.php:22
+  2   src/Discovery/FunctionExtensionsData.php:129
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\FunctionExtensionsDataT…  EmptyFieldException   
+  excluded cannot be empty
+
+  at src/Exceptions/EmptyFieldException.php:22
+     18▕ final class EmptyFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyFieldException.php:22
+  2   src/Discovery/FunctionExtensionsData.php:133
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\LinkDataTest > `LinkData` →…   ErrorException   
+  Warning: Function name 'order_items.list' should use dot notation (e.g., 'users.get', 'orders.create')
+
+  at src/Discovery/LinkData.php:90
+--
+   FAILED  Tests\Unit\Discovery\LinkDataTest > `LinkData` →…   ErrorException   
+  Warning: Parameter 'id' uses runtime expression but may have invalid syntax: '$result.data.items[0].id'
+
+  at src/Discovery/LinkData.php:114
+--
+   FAILED  Tests\Unit\Discovery\LinkDataTest > `L…  InvalidFieldTypeException   
+  variables.version must be ServerVariableData, got array
+
+  at src/Exceptions/InvalidFieldTypeException.php:23
+     19▕ final class InvalidFieldTypeException extends ValidationException
+     20▕ {
+     21▕     public static function forField(string $field, string $expectedType, mixed $actualValue): self
+     22▕     {
+--
+  1   src/Exceptions/InvalidFieldTypeException.php:23
+  2   src/Discovery/DiscoveryServerData.php:175
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescriptor…  InvalidFieldValueException   
+  resource/schema is invalid: Cannot specify both "resource" and "schema". Use resource for resource objects or schema for custom return types, but not both.
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/ResultDescriptorData.php:59
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescrip…  MissingRequiredFieldException   
+  resource or schema is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ResultDescriptorData.php:68
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescrip…  MissingRequiredFieldException   
+  resource or schema is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ResultDescriptorData.php:68
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescrip…  MissingRequiredFieldException   
+  resource or schema is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ResultDescriptorData.php:68
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescriptor…  InvalidFieldValueException   
+  resource/schema is invalid: Cannot specify both "resource" and "schema". Use resource for resource objects or schema for custom return types, but not both.
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/ResultDescriptorData.php:59
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescrip…  MissingRequiredFieldException   
+  resource or schema is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ResultDescriptorData.php:68
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescript…  InvalidResultSchemaException   
+  Invalid result schema: JSON Schema must include "type" or "$ref" property
+
+  at src/Exceptions/InvalidResultSchemaException.php:22
+     18▕ final class InvalidResultSchemaException extends ValidationException
+     19▕ {
+     20▕     public static function forSchema(string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidResultSchemaException.php:22
+  2   src/Discovery/ResultDescriptorData.php:96
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescrip…  MissingRequiredFieldException   
+  resource or schema is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ResultDescriptorData.php:68
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescrip…  MissingRequiredFieldException   
+  resource or schema is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ResultDescriptorData.php:68
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescrip…  MissingRequiredFieldException   
+  resource or schema is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ResultDescriptorData.php:68
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ResultDescrip…  MissingRequiredFieldException   
+  resource or schema is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Discovery/ResultDescriptorData.php:68
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ServerExtensionD…  InvalidFieldValueException   
+  urn is invalid: Invalid extension URN: 'urn:cline:forrst:ext:caching'. Expected format: 'urn:forrst:ext:extensionname' (e.g., 'urn:forrst:ext:async')
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/ServerExtensionDeclarationData.php:48
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ServerExtensionD…  InvalidFieldValueException   
+  urn is invalid: Invalid extension URN: 'urn:vendor:product:forrst:ext:custom-feature'. Expected format: 'urn:forrst:ext:extensionname' (e.g., 'urn:forrst:ext:async')
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/ServerExtensionDeclarationData.php:48
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\ServerVariableDataTest > `ServerVariableData…   
+  Expected: enum cannot be empty
+
+  To contain: Enum array cannot be empty
+--
+  ➜ 230▕             ))->toThrow(InvalidArgumentException::class, 'Enum array cannot be empty');
+    231▕         });
+    232▕ 
+    233▕         test('rejects non-string enum values', function (): void {
+--
+   FAILED  Tests\Unit\Discovery\ServerVariableDataTest > `ServerVariableData…   
+  Expected: enum[2] must be string, got integer
+
+  To contain: Enum value at index 2 must be string
+--
+  ➜ 300▕             ))->toThrow(InvalidArgumentException::class, 'Enum value at index 2 must be string');
+    301▕         });
+    302▕ 
+    303▕         test('validates enum before checking default is in enum', function (): void {
+--
+   FAILED  Tests\Unit\Discovery\ServerVariableDataTest > `ServerVariableData…   
+  Expected: enum[0] must be string, got integer
+
+  To contain: Enum value at index 0 must be string
+--
+  ➜ 309▕             ))->toThrow(InvalidArgumentException::class, 'Enum value at index 0 must be string');
+    310▕         });
+    311▕     });
+    312▕ });
+--
+   FAILED  Tests\Unit\Discovery\SimulationScenar…  InvalidFieldValueException   
+  output/error is invalid: Cannot specify both "output" and "error". Success scenarios use output, error scenarios use error field.
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/SimulationScenarioData.php:88
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\SimulationScenarioDataT…  EmptyArrayException   
+  input cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/SimulationScenarioData.php:83
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\SimulationScenar…  InvalidFieldValueException   
+  error.code is invalid: Error code must be SCREAMING_SNAKE_CASE string
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/SimulationScenarioData.php:181
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\SimulationScenar…  InvalidFieldValueException   
+  error.code is invalid: Error code must be SCREAMING_SNAKE_CASE string
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/SimulationScenarioData.php:181
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Discovery\SimulationScenarioDataT…  EmptyFieldException   
+  name cannot be empty
+
+  at src/Exceptions/EmptyFieldException.php:22
+     18▕ final class EmptyFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyFieldException.php:22
+  2   src/Discovery/SimulationScenarioData.php:78
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Exceptions\AbstractRequestExceptionTest > `AbstractReq…   
+  Expecting […] not to have key 'details'.
+
+  at tests/Unit/Exceptions/AbstractRequestExceptionTest.php:176
+    172▕ 
+    173▕             // Assert
+    174▕             expect($array)->toHaveKeys(['code', 'message']);
+--
+    180▕     describe('getStatusCode - Standard Error Codes', function (): void {
+
+  1   tests/Unit/Exceptions/AbstractRequestExceptionTest.php:176
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExtensio…  BadMethodCallException   
+  Received Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find(), but no expectations were specified
+
+  at src/Extensions/Async/AsyncExtension.php:675
+--
+   FAILED  Tests\Unit\Extensions\Async\AsyncExtensio…  BadMethodCallException   
+  Received Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find(), but no expectations were specified
+
+  at src/Extensions/Async/AsyncExtension.php:675
+--
+   FAILED  Tests\Unit\Extensions\Async\AsyncExtensio…  BadMethodCallException   
+  Received Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find(), but no expectations were specified
+
+  at src/Extensions/Async/AsyncExtension.php:675
+--
+   FAILED  Tests\Unit\Extensions\Async\AsyncExtensio…  BadMethodCallException   
+  Received Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find(), but no expectations were specified
+
+  at src/Extensions/Async/AsyncExtension.php:675
+--
+   FAILED  Tests\Unit\Extensions\Async\AsyncExtensio…  BadMethodCallException   
+  Received Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find(), but no expectations were specified
+
+  at src/Extensions/Async/AsyncExtension.php:675
+--
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 6
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 6
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 6
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 6
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 6
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncE…  MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 11
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 11
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 11
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 11
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncE…  MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncE…  MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncE…  MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExtensio…  BadMethodCallException   
+  Received Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find(), but no expectations were specified
+
+  at src/Extensions/Async/AsyncExtension.php:675
+--
+   FAILED  Tests\Unit\Extensions\Async\AsyncExtensio…  BadMethodCallException   
+  Received Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find(), but no expectations were specified
+
+  at src/Extensions/Async/AsyncExtension.php:675
+--
+   FAILED  Tests\Unit\Extensions\Async\AsyncExtensio…  BadMethodCallException   
+  Received Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find(), but no expectations were specified
+
+  at src/Extensions/Async/AsyncExtension.php:675
+--
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 6
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncE…  MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncE…  MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncE…  MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 6
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\AsyncExte…  InvalidFieldValueException   
+  operation_id is invalid: Invalid length: expected 27, got 6
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/AsyncExtension.php:634
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\Functions\OperationCancelFunctionTest…   
+  Failed asserting that two strings are identical.
+  -'Operation ID to cancel'
+  +'Unique operation identifier'
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-123', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationCancelFunction.php:93
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-456', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationCancelFunction.php:93
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-789', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationCancelFunction.php:93
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-999', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationCancelFunction.php:93
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-save', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationCancelFunction.php:93
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-123', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationCancelFunction.php:93
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-time', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationCancelFunction.php:93
+--
+   FAILED  Tests\Unit\Extensions\Async\Functions\OperationCancelFunctionTest…   
+  Failed asserting that an instance of class Cline\Forrst\Exceptions\InvalidFieldValueException is an instance of class Cline\Forrst\Exceptions\OperationNotFoundException.
+
+  at tests/Unit/Extensions/Async/Functions/OperationCancelFunctionTest.php:453
+    449▕                 );
+--
+  ➜ 453▕                 expect(fn (): array => $function())->toThrow(OperationNotFoundException::class);
+    454▕             });
+    455▕         });
+    456▕ 
+--
+   FAILED  Tests\Unit\Extensions\Async\Functions\OperationCancelFunctionTest…   
+  Failed asserting that an instance of class Mockery\Exception\NoMatchingExpectationException is an instance of class Cline\Forrst\Exceptions\OperationCannotCancelException.
+
+  at tests/Unit/Extensions/Async/Functions/OperationCancelFunctionTest.php:481
+    477▕                 );
+--
+  ➜ 481▕                 expect(fn (): array => $function())->toThrow(OperationCannotCancelException::class);
+    482▕             });
+    483▕ 
+    484▕             test('throws OperationException when trying to cancel failed operation', function (): void {
+    485▕                 // Arrange
+
+  1   tests/Unit/Extensions/Async/Functions/OperationCancelFunctionTest.php:481
+--
+   FAILED  Tests\Unit\Extensions\Async\Functions\OperationCancelFunctionTest…   
+  Failed asserting that an instance of class Mockery\Exception\NoMatchingExpectationException is an instance of class Cline\Forrst\Exceptions\OperationCannotCancelException.
+
+  at tests/Unit/Extensions/Async/Functions/OperationCancelFunctionTest.php:507
+    503▕                 );
+--
+  ➜ 507▕                 expect(fn (): array => $function())->toThrow(OperationCannotCancelException::class);
+    508▕             });
+    509▕ 
+    510▕             test('throws OperationException when trying to cancel already cancelled operation', function (): void {
+    511▕                 // Arrange
+
+  1   tests/Unit/Extensions/Async/Functions/OperationCancelFunctionTest.php:507
+--
+   FAILED  Tests\Unit\Extensions\Async\Functions\OperationCancelFunctionTest…   
+  Failed asserting that an instance of class Mockery\Exception\NoMatchingExpectationException is an instance of class Cline\Forrst\Exceptions\OperationCannotCancelException.
+
+  at tests/Unit/Extensions/Async/Functions/OperationCancelFunctionTest.php:532
+    528▕                 );
+--
+  ➜ 532▕                 expect(fn (): array => $function())->toThrow(OperationCannotCancelException::class);
+    533▕             });
+    534▕         });
+    535▕ 
+--
+   FAILED  Tests\Unit\Extensions\Async\Functions\OperationListFunctionTest >…   
+  Failed asserting that two strings are identical.
+  -'Pagination cursor'
+  +'Pagination cursor for retrieving next page'
+--
+   FAILED  Tests\Unit\Extensions\Async\Functions\OperationListFunctionTest >…   
+  Failed asserting that two strings are identical.
+  -'Operation list response'
+  +'Paginated operation list response'
+--
+   FAILED  Tests\Unit\Extensions\Async\Functi…  MissingRequiredFieldException   
+  completedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:134
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::list('completed', NULL, 50, NULL, NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationListFunction.php:96
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::list(NULL, 'urn:app:forrst:fn:users:create', 50, NULL, NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationListFunction.php:96
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::list(NULL, NULL, 25, NULL, NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationListFunction.php:96
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::list(NULL, NULL, 50, NULL, NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationListFunction.php:96
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::list(NULL, NULL, 50, 'cursor-abc123', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationListFunction.php:96
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::list('processing', 'data.export', 10, 'cursor-123', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationListFunction.php:96
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::list(NULL, NULL, 1, NULL, NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationListFunction.php:96
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::list(NULL, NULL, 50, NULL, NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationListFunction.php:96
+--
+   FAILED  Tests\Unit\Extensions\Async\Functions\OperationStatusFunctionTest…   
+  Failed asserting that two strings are identical.
+  -'Operation ID to check'
+  +'Unique operation identifier'
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-123', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationStatusFunction.php:76
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-456', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationStatusFunction.php:76
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-789', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationStatusFunction.php:76
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-999', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationStatusFunction.php:76
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-111', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationStatusFunction.php:76
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-min', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationStatusFunction.php:76
+--
+   FAILED  Tests\Unit\Extensions\Async\Funct…  NoMatchingExpectationException   
+  No matching handler found for Mockery_5_Cline_Forrst_Contracts_OperationRepositoryInterface::find('op-full', NULL). Either the method was unexpected or its arguments matched no expected argument list for this method
+
+  at src/Extensions/Async/Functions/OperationStatusFunction.php:76
+--
+   FAILED  Tests\Unit\Extensions\Async\Functions\OperationStatusFunctionTest…   
+  Failed asserting that an instance of class Cline\Forrst\Exceptions\InvalidFieldValueException is an instance of class Cline\Forrst\Exceptions\OperationNotFoundException.
+
+  at tests/Unit/Extensions/Async/Functions/OperationStatusFunctionTest.php:435
+    431▕                 );
+--
+  ➜ 435▕                 expect(fn (): array => $function())->toThrow(OperationNotFoundException::class);
+    436▕             });
+    437▕ 
+    438▕             test('exception message includes operation ID', function (): void {
+--
+   FAILED  Tests\Unit\Extensions\Async\Functions…  InvalidFieldValueException   
+  operation_id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric)
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Async/Functions/OperationStatusFunction.php:131
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\AtomicLockExtensionT…  InvalidCountException   
+  Method forget(<Any Arguments>) from Mockery_7_Illuminate_Cache_CacheManager should be called
+ exactly 3 times but called 0 times.
+
+--
+   FAILED  Tests\Unit\Extensions\CachingExtensio…  InvalidFieldValueException   
+  Extension urn is invalid: must follow format 'urn:vendor:forrst:ext:name', got: urn:custom:ext
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Validation/UrnValidator.php:49
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\CancellationExtensionTest > `CancellationEx…   
+  Failed asserting that false is true.
+
+  at tests/Unit/Extensions/CancellationExtensionTest.php:619
+--
+   FAILED  Tests\Unit\Extensions\CancellationExtensionTest > `CancellationEx…   
+  Failed asserting that false is true.
+
+  at tests/Unit/Extensions/CancellationExtensionTest.php:642
+--
+   FAILED  Tests\Unit\Extensions\DeadlineExtensio…  DeadlineExceededException   
+  Deadline cannot exceed 1 hour from now
+
+  at src/Exceptions/DeadlineExceededException.php:22
+     18▕ final class DeadlineExceededException extends ValidationException
+     19▕ {
+     20▕     public static function exceedsMaximum(string $maximum): self
+     21▕     {
+--
+  1   src/Exceptions/DeadlineExceededException.php:22
+  2   src/Extensions/DeadlineExtension.php:281
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\DeadlineExtensio…  DeadlineExceededException   
+  Deadline cannot exceed 1 hour from now
+
+  at src/Exceptions/DeadlineExceededException.php:22
+     18▕ final class DeadlineExceededException extends ValidationException
+     19▕ {
+     20▕     public static function exceedsMaximum(string $maximum): self
+     21▕     {
+--
+  1   src/Exceptions/DeadlineExceededException.php:22
+  2   src/Extensions/DeadlineExtension.php:281
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\DeadlineExtensi…  InvalidFieldValueException   
+  Extension urn is invalid: must follow format 'urn:vendor:forrst:ext:name', got: urn:custom:ext
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Validation/UrnValidator.php:49
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\DeprecationExte…  InvalidFieldValueException   
+  Extension urn is invalid: must follow format 'urn:vendor:forrst:ext:name', got: urn:custom:ext
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Validation/UrnValidator.php:49
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\Discovery\DescribeFunctionTest > `DescribeF…   
+  Failed asserting that the string value matches its snapshot (tests/.pest/snapshots/Unit/Extensions/Discovery/DescribeFunctionTest/_DescribeFunction__→__Snapshot_Tests__→_health_descriptor_matches_snapshot.snap).
+Failed asserting that two strings are identical.
+           {
+--
+   FAILED  Tests\Unit\Extensions\Discovery\DescribeFunctionTest > `DescribeF…   
+  Failed asserting that the string value matches its snapshot (tests/.pest/snapshots/Unit/Extensions/Discovery/DescribeFunctionTest/_DescribeFunction__→__Snapshot_Tests__→_lock_status_descriptor_matches_snapshot.snap).
+Failed asserting that two strings are identical.
+           {
+--
+   FAILED  Tests\Unit\Extensions\Discovery\DescribeFunctionTest > `DescribeF…   
+  Failed asserting that the string value matches its snapshot (tests/.pest/snapshots/Unit/Extensions/Discovery/DescribeFunctionTest/_DescribeFunction__→__Snapshot_Tests__→_lock_release_descriptor_matches_snapshot.snap).
+Failed asserting that two strings are identical.
+           {
+--
+   FAILED  Tests\Unit\Extensions\Discovery\DescribeFunctionTest > `DescribeF…   
+  Failed asserting that the string value matches its snapshot (tests/.pest/snapshots/Unit/Extensions/Discovery/DescribeFunctionTest/_DescribeFunction__→__Snapshot_Tests__→_lock_force_release_descriptor_matches_snapshot.snap).
+Failed asserting that two strings are identical.
+       "name": "urn:cline:forrst:ext:atomic-lock:fn:force-release",
+--
+   FAILED  Tests\Unit\Extensions\Discovery\DescribeFunctionTest > `DescribeF…   
+  Failed asserting that the string value matches its snapshot (tests/.pest/snapshots/Unit/Extensions/Discovery/DescribeFunctionTest/_DescribeFunction__→__Snapshot_Tests__→_operation_status_descriptor_matches_snapshot.snap).
+Failed asserting that two strings are identical.
+           {
+--
+   FAILED  Tests\Unit\Extensions\Discovery\DescribeFunctionTest > `DescribeF…   
+  Failed asserting that the string value matches its snapshot (tests/.pest/snapshots/Unit/Extensions/Discovery/DescribeFunctionTest/_DescribeFunction__→__Snapshot_Tests__→_operation_list_descriptor_matches_snapshot.snap).
+Failed asserting that two strings are identical.
+           {
+--
+   FAILED  Tests\Unit\Extensions\Discovery\DescribeFunctionTest > `DescribeF…   
+  Failed asserting that the string value matches its snapshot (tests/.pest/snapshots/Unit/Extensions/Discovery/DescribeFunctionTest/_DescribeFunction__→__Snapshot_Tests__→_operation_cancel_descriptor_matches_snapshot.snap).
+Failed asserting that two strings are identical.
+           {
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\ExtensionRegistryTe…  BadMethodCallException   
+  Received Mockery_10_Cline_Forrst_Contracts_ExtensionInterface::getSubscribedEvents(), but no expectations were specified
+
+  at src/Extensions/ExtensionRegistry.php:62
+--
+     65▕                 throw InvalidFieldValueException::forField('eventClass', sprintf('class %s does not exist', $eventClass));
+     66▕             }
+
+  1   src/Extensions/ExtensionRegistry.php:62
+--
+   FAILED  Tests\Unit\Extensions\IdempotencyExtension…  InvalidCountException   
+  Method put(<Any Arguments>) from Mockery_8_Illuminate_Contracts_Cache_Repository should be called
+ exactly 1 times but called 0 times.
+
+--
+   FAILED  Tests\Unit\Extensions\IdempotencyExtension…  InvalidCountException   
+  Method put(<Any Arguments>) from Mockery_8_Illuminate_Contracts_Cache_Repository should be called
+ exactly 2 times but called 1 times.
+
+--
+   FAILED  Tests\Unit\Extensions\IdempotencyExtensi…  MustBePositiveException   
+  ttl must be positive
+
+  at src/Exceptions/MustBePositiveException.php:22
+     18▕ final class MustBePositiveException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MustBePositiveException.php:22
+  2   src/Extensions/IdempotencyExtension.php:357
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\IdempotencyExtension…  InvalidCountException   
+  Method put(<Pattern>, <Array>, 30) from Mockery_8_Illuminate_Contracts_Cache_Repository should be called
+ exactly 1 times but called 0 times.
+
+--
+   FAILED  Tests\Unit\Extensions\IdempotencyExtensionTest > `IdempotencyExte…   
+  Failed asserting that null is an instance of class Cline\Forrst\Data\ResponseData.
+
+  at tests/Unit/Extensions/IdempotencyExtensionTest.php:336
+--
+    340▕             $error = $result->getFirstError();
+
+  1   tests/Unit/Extensions/IdempotencyExtensionTest.php:336
+
+--
+   FAILED  Tests\Unit\Extensions\IdempotencyExtensi…  MustBePositiveException   
+  ttl must be positive
+
+  at src/Exceptions/MustBePositiveException.php:22
+     18▕ final class MustBePositiveException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MustBePositiveException.php:22
+  2   src/Extensions/IdempotencyExtension.php:357
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\IdempotencyExtension…  InvalidCountException   
+  Method put(<Pattern>, <Array>, 30) from Mockery_8_Illuminate_Contracts_Cache_Repository should be called
+ exactly 1 times but called 0 times.
+
+--
+   FAILED  Tests\Unit\Extensions\IdempotencyExtension…  InvalidCountException   
+  Method put(<Any Arguments>) from Mockery_8_Illuminate_Contracts_Cache_Repository should be called
+ exactly 2 times but called 1 times.
+
+--
+   FAILED  Tests\Unit\Extensions\IdempotencyExtensionTest > `Idempote…  Error   
+  Call to a member function getFirstError() on null
+
+  at tests/Unit/Extensions/IdempotencyExtensionTest.php:564
+    560▕             $extension->onExecutingFunction($event);
+--
+  ➜ 564▕             $error = $result->getFirstError();
+    565▕             expect($error->details)->toHaveKey('retry_after')
+    566▕                 ->and($error->details['retry_after'])->toBe(['value' => 1, 'unit' => 'second']);
+    567▕         });
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that two strings are identical.
+  -'de'
+  +'en'
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that two strings are identical.
+  -'zh-Hans'
+  +'en'
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtension…  InvalidFieldValueException   
+  Extension urn is invalid: must follow format 'urn:vendor:forrst:ext:name', got: urn:custom:ext
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Validation/UrnValidator.php:49
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that false is true.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:474
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that null is identical to 'USD'.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:543
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that false is true.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:566
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that false is true.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:589
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that two strings are identical.
+  -'de'
+  +'en'
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that two strings are identical.
+  -'de-DE'
+  +'en'
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that two strings are identical.
+  -'zh-Hans'
+  +'en'
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that two strings are identical.
+  -'fr'
+  +'en'
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that two strings are identical.
+  -'es'
+  +'en'
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that two strings are identical.
+  -'de-DE'
+  +'en'
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that false is true.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:804
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that false is true.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:830
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that false is true.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:853
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that two strings are identical.
+  -'de-DE-u-co-phonebk'
+  +'en'
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that null is identical to 'America/New_York'.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:912
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that null is identical to 'Etc/GMT+5'.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:936
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that null is identical to 'US/Eastern'.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:1032
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that null is identical to 'USD'.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:1068
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that null is identical to 'EUR'.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:1092
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that null is identical to 'GBP'.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:1115
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that null is identical to 'XAF'.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:1280
+--
+   FAILED  Tests\Unit\Extensions\LocaleExtensionTest > `LocaleExtension` → `…   
+  Failed asserting that null is identical to 'CHF'.
+
+  at tests/Unit/Extensions/LocaleExtensionTest.php:1303
+--
+   FAILED  Tests\Unit\Extensions\ReplayExtensionTest > `Repl…  ErrorException   
+  The float 9.223372036854776E+18 is not representable as an int, cast occurred
+
+  at src/Enums/TimeUnit.php:141
+--
+    144▕             throw OverflowException::forOperation(sprintf('toSeconds conversion (%d %s)', $value, $this->value));
+    145▕         }
+
+  1   src/Extensions/ReplayExtension.php:344
+--
+   FAILED  Tests\Unit\Extensions\ReplayExtensionTest > `Repl…  ErrorException   
+  The float 9.223372036854776E+18 is not representable as an int, cast occurred
+
+  at src/Enums/TimeUnit.php:141
+--
+    144▕             throw OverflowException::forOperation(sprintf('toSeconds conversion (%d %s)', $value, $this->value));
+    145▕         }
+
+  1   tests/Unit/Extensions/ReplayExtensionTest.php:457
+--
+   FAILED  Tests\Unit\Extensions\SimulationExtensionTes…  EmptyArrayException   
+  input cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/SimulationScenarioData.php:83
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Extensions\SimulationExtensionTes…  EmptyArrayException   
+  input cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/SimulationScenarioData.php:83
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\FunctionConditionCoverageTest > `Function Condition Co…   
+  Failed asserting that 5 is identical to 4.
+
+  at tests/Unit/FunctionConditionCoverageTest.php:112
+--
+   FAILED  Tests\Unit\Functions\AbstractListFunctionTest > `Abstr…  TypeError   
+  Cline\Forrst\Functions\AbstractListFunction::beforePagination(): Argument #1 ($query) must be of type Illuminate\Database\Eloquent\Builder, Cline\Forrst\QueryBuilders\QueryBuilder given, called in /Users/brian/Developer/cline/forrst/src/Functions/AbstractListFunction.php on line 77
+
+  at src/Functions/AbstractListFunction.php:168
+--
+   FAILED  Tests\Unit\Functions\DescribeFuncti…  InvalidFunctionNameException   
+  Invalid function name "test.function": Expected format: 'urn:namespace:forrst:ext:extension:fn:name' or 'urn:namespace:forrst:fn:name'
+
+  at src/Exceptions/InvalidFunctionNameException.php:22
+     18▕ final class InvalidFunctionNameException extends ValidationException
+     19▕ {
+     20▕     public static function forName(string $name, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFunctionNameException.php:22
+  2   src/Discovery/FunctionDescriptorData.php:142
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFunctionTest >…   EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFuncti…  InvalidFunctionNameException   
+  Invalid function name "function.one": Expected format: 'urn:namespace:forrst:ext:extension:fn:name' or 'urn:namespace:forrst:fn:name'
+
+  at src/Exceptions/InvalidFunctionNameException.php:22
+     18▕ final class InvalidFunctionNameException extends ValidationException
+     19▕ {
+     20▕     public static function forName(string $name, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFunctionNameException.php:22
+  2   src/Discovery/FunctionDescriptorData.php:142
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFunctionTest >…   EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFunctionTest >…   EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFunction…  InvalidFieldValueException   
+  version is invalid: Invalid semantic version: '1'. Must follow semver format (e.g., '1.0.0')
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Discovery/FunctionDescriptorData.php:155
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFunctionTest >…   EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFuncti…  InvalidFunctionNameException   
+  Invalid function name "test.function": Expected format: 'urn:namespace:forrst:ext:extension:fn:name' or 'urn:namespace:forrst:fn:name'
+
+  at src/Exceptions/InvalidFunctionNameException.php:22
+     18▕ final class InvalidFunctionNameException extends ValidationException
+     19▕ {
+     20▕     public static function forName(string $name, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFunctionNameException.php:22
+  2   src/Discovery/FunctionDescriptorData.php:142
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFunctionTest >…   EmptyArrayException   
+  functions cannot be empty
+
+  at src/Exceptions/EmptyArrayException.php:22
+     18▕ final class EmptyArrayException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/EmptyArrayException.php:22
+  2   src/Discovery/DiscoveryData.php:101
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFuncti…  InvalidFunctionNameException   
+  Invalid function name "test.function": Expected format: 'urn:namespace:forrst:ext:extension:fn:name' or 'urn:namespace:forrst:fn:name'
+
+  at src/Exceptions/InvalidFunctionNameException.php:22
+     18▕ final class InvalidFunctionNameException extends ValidationException
+     19▕ {
+     20▕     public static function forName(string $name, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFunctionNameException.php:22
+  2   src/Discovery/FunctionDescriptorData.php:142
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\DescribeFuncti…  InvalidFunctionNameException   
+  Invalid function name "test.function": Expected format: 'urn:namespace:forrst:ext:extension:fn:name' or 'urn:namespace:forrst:fn:name'
+
+  at src/Exceptions/InvalidFunctionNameException.php:22
+     18▕ final class InvalidFunctionNameException extends ValidationException
+     19▕ {
+     20▕     public static function forName(string $name, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFunctionNameException.php:22
+  2   src/Discovery/FunctionDescriptorData.php:142
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunctionTest > `HealthFunction`…   
+  Failed asserting that two strings are identical.
+  -'Check specific component only'
+  +'Check specific component only (use "self" for basic ping)'
+--
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunction…  UnauthorizedException   
+  Unauthorized
+
+  at src/Exceptions/AbstractRequestException.php:244
+    240▕         // PHPStan cannot infer that 'new static' returns 'static' type in abstract classes
+    241▕         // This is a known limitation when using LSB (Late Static Binding) with abstract constructors
+    242▕         // Safe to suppress as all subclasses must call parent constructor accepting ErrorData
+    243▕         // @phpstan-ignore-next-line
+  ➜ 244▕         return new static(
+    245▕             new ErrorData(
+    246▕                 code: $code,
+    247▕                 message: $message,
+    248▕                 source: $source,
+--
+  1   src/Exceptions/AbstractRequestException.php:244
+  2   src/Exceptions/UnauthorizedException.php:62
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFun…  InvalidFieldValueException   
+  component is invalid: Valid components: database
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Extensions/Diagnostics/Functions/HealthFunction.php:239
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Functions\System\HealthFunctionTest > `HealthFunction`…   
+  Failed asserting that an instance of class Cline\Forrst\Exceptions\UnauthorizedException is an instance of class RuntimeException.
+
+  at tests/Unit/Functions/System/HealthFunctionTest.php:479
+    475▕             $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
+--
+  ➜ 479▕             expect(fn (): array => $function())->toThrow(RuntimeException::class);
+    480▕         });
+    481▕     });
+    482▕ });
+--
+   FAILED  Tests\Unit\Functions\System\LockForceReleaseFunctionTest > `LockF…   
+  Failed asserting that two strings are identical.
+  -'Force release a lock without ownership check (admin)'
+  +'Force release a lock without ownership check (admin only)'
+--
+   FAILED  Tests\Unit\Functions\System\LockForceReleaseFunctionTest > `LockF…   
+  Failed asserting that actual size 2 matches expected size 1.
+
+  at tests/Unit/Functions/System/LockForceReleaseFunctionTest.php:215
+    211▕                 $result = $function->getErrors();
+    212▕ 
+    213▕                 // Assert
+    214▕                 expect($result)->toBeArray()
+--
+    216▕                     ->and($result[0])->toBeInstanceOf(ErrorDefinitionData::class);
+    217▕             });
+    218▕ 
+    219▕             test('defines LockNotFound error', function (): void {
+--
+   FAILED  Tests\Unit\Functions\System\LockStatusFunctionTest > `LockStatusF…   
+  Failed asserting that an array is empty.
+
+  at tests/Unit/Functions/System/LockStatusFunctionTest.php:218
+    214▕                 $result = $function->getErrors();
+    215▕ 
+    216▕                 // Assert
+    217▕                 expect($result)->toBeArray()
+--
+   FAILED  Tests\Unit\FunctionsTest > `Functions` → `Happy Paths` → sends Fo…   
+  Failed asserting that two strings are equal.
+  -'01J34641TE5SF58ZX3N9HPT1BA'
+  +'01KD7HXSKJG0QQ5S2H52AQF1G5'
+--
+   FAILED  Tests\Unit\FunctionsTest > `Functions` → `Happy Paths` → sends Fo…   
+  Failed asserting that two strings are equal.
+  -'01J34641TE5SF58ZX3N9HPT1BA'
+  +'01KD7HXSKQ83JPN1GF4MQ0BZFH'
+--
+   FAILED  Tests\Unit\FunctionsTest > `Functions` → `Edge Cases` → handles U…   
+  Failed asserting that two strings are equal.
+  -'01J34641TE5SF58ZX3N9HPT1BA'
+  +'01KD7HXSQ89GW2KPVPDTNV7QET'
+--
+   FAILED  Tests\Unit\Jobs\CallFunctionTest > `CallFunction` → `Sad Paths` →…   
+  Failed asserting that two strings are identical.
+  -'INVALID_ARGUMENTS'
+  +'INTERNAL_ERROR'
+--
+    590▕                 ->and($response->getFirstError())->toBeInstanceOf(ErrorData::class)
+  ➜ 591▕                 ->and($response->getFirstError()->code)->toBe(ErrorCode::InvalidArguments->value)
+    592▕                 ->and($response->getFirstError()->message)->toBe('Invalid arguments')
+    593▕                 ->and($response->result)->toBeNull();
+    594▕         });
+    595▕
+--
+   FAILED  Tests\Unit\Jobs\CallFunctionTest > `CallFunction` → `Sad Paths` →…   
+  Failed asserting that two strings are identical.
+  -'INVALID_ARGUMENTS'
+  +'INTERNAL_ERROR'
+--
+    624▕                 ->and($response->getFirstError())->toBeInstanceOf(ErrorData::class)
+  ➜ 625▕                 ->and($response->getFirstError()->code)->toBe(ErrorCode::InvalidArguments->value)
+    626▕                 ->and($response->result)->toBeNull();
+    627▕         });
+    628▕ 
+--
+   FAILED  Tests\Unit\Jobs\CallFunctionTest > `CallFunction` → `Sad Paths` →…   
+  Failed asserting that two strings are identical.
+  -'INVALID_ARGUMENTS'
+  +'INTERNAL_ERROR'
+--
+    666▕                 ->and($response->getFirstError())->toBeInstanceOf(ErrorData::class)
+  ➜ 667▕                 ->and($response->getFirstError()->code)->toBe(ErrorCode::InvalidArguments->value);
+    668▕         });
+    669▕     });
+    670▕ 
+--
+   FAILED  Tests\Unit\Jobs\CallFunctionTest > `CallFunction` → `Edge Cases`…    
+  Failed asserting that two arrays are identical.
+   Array &0 [
+       'enabled' => false,
+--
+   FAILED  Tests\Unit\Jobs\CallFunctionTest > `CallFunction` → `Edge Cases`…    
+  Failed asserting that two strings are identical.
+  -'INVALID_ARGUMENTS'
+  +'INTERNAL_ERROR'
+--
+    1083▕                 ->and($response->getFirstError())->toBeInstanceOf(ErrorData::class)
+  ➜ 1084▕                 ->and($response->getFirstError()->code)->toBe(ErrorCode::InvalidArguments->value)
+    1085▕                 ->and($response->result)->toBeNull();
+    1086▕         });
+    1087▕ 
+--
+   FAILED  Tests\Unit\Jobs\CallFunctionTest > `CallFunction` → `Regressions`…   
+  Failed asserting that two strings are identical.
+  -'INVALID_ARGUMENTS'
+  +'INTERNAL_ERROR'
+--
+    1299▕             // Assert - ValidationException should be caught and wrapped in InvalidDataException
+    1300▕             expect($response)->toBeInstanceOf(ResponseData::class)
+    1301▕                 ->and($response->getFirstError())->toBeInstanceOf(ErrorData::class)
+  ➜ 1302▕                 ->and($response->getFirstError()->code)->toBe(ErrorCode::InvalidArguments->value)
+    1303▕                 ->and($response->getFirstError()->message)->toBe('Invalid arguments')
+    1304▕                 ->and($response->result)->toBeNull();
+    1305▕         });
+    1306▕     });
+--
+   FAILED  Tests\Unit\Models\OperationTest >…   MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Models\OperationTest >…   MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Models\OperationTest > `Op…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-multi-error
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Normalizers\NormalizationR…  InvalidFieldValueException   
+  type is invalid: must be lowercase and contain only letters, numbers, hyphens, or underscores
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/ResourceObjectData.php:72
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-find-1
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-new-1
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-new-2
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-update-1
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-update-2
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-update-3
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-update-4
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-list-1
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOp…  MissingRequiredFieldException   
+  completedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:134
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-limit-1
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-page-10
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-caller-1
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOp…  MissingRequiredFieldException   
+  startedAt is required
+
+  at src/Exceptions/MissingRequiredFieldException.php:22
+     18▕ final class MissingRequiredFieldException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field): self
+     21▕     {
+--
+  1   src/Exceptions/MissingRequiredFieldException.php:22
+  2   src/Data/OperationData.php:146
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Repositories\DatabaseOpera…  InvalidFieldValueException   
+  id is invalid: Operation ID must be a valid UUID, ULID, or prefixed format (op_/op- followed by alphanumeric), got: op-exact-1
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/OperationData.php:118
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Servers\ConfigurationServe…  InvalidFieldValueException   
+  route is invalid: Route "rpc" must start with "/"
+
+  at src/Exceptions/InvalidFieldValueException.php:22
+     18▕ final class InvalidFieldValueException extends ValidationException
+     19▕ {
+     20▕     public static function forField(string $field, string $reason): self
+     21▕     {
+--
+  1   src/Exceptions/InvalidFieldValueException.php:22
+  2   src/Data/Configuration/ServerData.php:168
+
+
