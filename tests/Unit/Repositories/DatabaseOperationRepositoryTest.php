@@ -100,6 +100,7 @@ describe('DatabaseOperationRepository', function (): void {
                 function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 progress: 0.5,
+                startedAt: CarbonImmutable::now(),
             );
 
             // Act
@@ -127,6 +128,7 @@ describe('DatabaseOperationRepository', function (): void {
                 function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Completed,
                 result: ['data' => 'value', 'count' => 42],
+                startedAt: CarbonImmutable::now()->subMinutes(1),
                 completedAt: CarbonImmutable::now(),
             );
 
@@ -189,6 +191,7 @@ describe('DatabaseOperationRepository', function (): void {
                 function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 metadata: ['user_id' => '123', 'retry_count' => 2],
+                startedAt: CarbonImmutable::now(),
             );
 
             // Act
@@ -580,6 +583,7 @@ describe('DatabaseOperationRepository', function (): void {
                 function: 'urn:cline:forrst:fn:test:func',
                 status: OperationStatus::Processing,
                 progress: 0.5,
+                startedAt: CarbonImmutable::now(),
             );
 
             // Act
