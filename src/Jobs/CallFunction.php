@@ -162,6 +162,9 @@ final readonly class CallFunction
                         $parameterName,
                     );
                 }
+            } catch (InvalidDataException $e) {
+                // Re-throw validation exceptions directly to preserve error code
+                throw $e;
             } catch (Throwable $e) {
                 $resolutionErrors[] = sprintf(
                     'Failed to resolve parameter "%s": %s',
