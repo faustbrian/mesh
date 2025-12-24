@@ -8,6 +8,10 @@
  */
 
 use Cline\Forrst\Discovery\ExamplePairingData;
+use Cline\Forrst\Exceptions\EmptyFieldException;
+use Cline\Forrst\Exceptions\InvalidFieldTypeException;
+use Cline\Forrst\Exceptions\InvalidFieldValueException;
+use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 
 describe('ExamplePairingData', function (): void {
     describe('Happy Paths', function (): void {
