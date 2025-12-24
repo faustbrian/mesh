@@ -20,7 +20,7 @@ describe('HealthFunction', function (): void {
         describe('getName()', function (): void {
             test('returns standard Forrst health function name', function (): void {
                 // Arrange
-                $function = new HealthFunction();
+                $function = new HealthFunction(requireAuthForDetails: false);
 
                 // Act
                 $result = $function->getUrn();
@@ -33,7 +33,7 @@ describe('HealthFunction', function (): void {
         describe('getVersion()', function (): void {
             test('returns default version', function (): void {
                 // Arrange
-                $function = new HealthFunction();
+                $function = new HealthFunction(requireAuthForDetails: false);
 
                 // Act
                 $result = $function->getVersion();
@@ -46,7 +46,7 @@ describe('HealthFunction', function (): void {
         describe('getSummary()', function (): void {
             test('returns description of health function', function (): void {
                 // Arrange
-                $function = new HealthFunction();
+                $function = new HealthFunction(requireAuthForDetails: false);
 
                 // Act
                 $result = $function->getSummary();
@@ -59,7 +59,7 @@ describe('HealthFunction', function (): void {
         describe('getArguments()', function (): void {
             test('returns component and include_details arguments', function (): void {
                 // Arrange
-                $function = new HealthFunction();
+                $function = new HealthFunction(requireAuthForDetails: false);
 
                 // Act
                 $result = $function->getArguments();
@@ -71,7 +71,7 @@ describe('HealthFunction', function (): void {
 
             test('component argument is optional string', function (): void {
                 // Arrange
-                $function = new HealthFunction();
+                $function = new HealthFunction(requireAuthForDetails: false);
 
                 // Act
                 $result = $function->getArguments();
@@ -81,12 +81,12 @@ describe('HealthFunction', function (): void {
                     ->and($result[0]->name)->toBe('component')
                     ->and($result[0]->schema['type'])->toBe('string')
                     ->and($result[0]->required)->toBeFalse()
-                    ->and($result[0]->description)->toBe('Check specific component only');
+                    ->and($result[0]->description)->toBe('Check specific component only (use "self" for basic ping)');
             });
 
             test('include_details argument is optional boolean with default true', function (): void {
                 // Arrange
-                $function = new HealthFunction();
+                $function = new HealthFunction(requireAuthForDetails: false);
 
                 // Act
                 $result = $function->getArguments();
@@ -104,7 +104,7 @@ describe('HealthFunction', function (): void {
         describe('getResult()', function (): void {
             test('returns ResultDescriptorData with health response schema', function (): void {
                 // Arrange
-                $function = new HealthFunction();
+                $function = new HealthFunction(requireAuthForDetails: false);
 
                 // Act
                 $result = $function->getResult();
@@ -122,7 +122,7 @@ describe('HealthFunction', function (): void {
 
             test('schema defines status enum with health states', function (): void {
                 // Arrange
-                $function = new HealthFunction();
+                $function = new HealthFunction(requireAuthForDetails: false);
 
                 // Act
                 $result = $function->getResult();
@@ -140,7 +140,7 @@ describe('HealthFunction', function (): void {
 
             test('schema requires status and timestamp fields', function (): void {
                 // Arrange
-                $function = new HealthFunction();
+                $function = new HealthFunction(requireAuthForDetails: false);
 
                 // Act
                 $result = $function->getResult();
@@ -156,7 +156,7 @@ describe('HealthFunction', function (): void {
         describe('__invoke()', function (): void {
             test('returns healthy status with no checkers', function (): void {
                 // Arrange
-                $function = new HealthFunction([]);
+                $function = new HealthFunction([], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
                 $function->setRequest($request);
 
@@ -171,7 +171,7 @@ describe('HealthFunction', function (): void {
 
             test('returns timestamp in ISO 8601 format', function (): void {
                 // Arrange
-                $function = new HealthFunction([]);
+                $function = new HealthFunction([], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
                 $function->setRequest($request);
                 $before = CarbonImmutable::now()->subSecond();
@@ -204,7 +204,7 @@ describe('HealthFunction', function (): void {
                     ]);
                 });
 
-                $function = new HealthFunction([$checker1, $checker2]);
+                $function = new HealthFunction([$checker1, $checker2], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
                 $function->setRequest($request);
 
@@ -230,7 +230,7 @@ describe('HealthFunction', function (): void {
                     $mock->shouldReceive('check')->andReturn(['status' => 'degraded']);
                 });
 
-                $function = new HealthFunction([$checker1, $checker2]);
+                $function = new HealthFunction([$checker1, $checker2], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
                 $function->setRequest($request);
 
@@ -253,7 +253,7 @@ describe('HealthFunction', function (): void {
                     $mock->shouldReceive('check')->andReturn(['status' => 'unhealthy']);
                 });
 
-                $function = new HealthFunction([$checker1, $checker2]);
+                $function = new HealthFunction([$checker1, $checker2], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
                 $function->setRequest($request);
 
@@ -275,7 +275,7 @@ describe('HealthFunction', function (): void {
                     $mock->shouldReceive('getName')->andReturn('cache');
                 });
 
-                $function = new HealthFunction([$checker1, $checker2]);
+                $function = new HealthFunction([$checker1, $checker2], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:diagnostics:fn:health',
                     ['component' => 'database'],
@@ -293,7 +293,7 @@ describe('HealthFunction', function (): void {
 
             test('returns self health when component is self', function (): void {
                 // Arrange
-                $function = new HealthFunction([]);
+                $function = new HealthFunction([], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:diagnostics:fn:health',
                     ['component' => 'self'],
@@ -320,7 +320,7 @@ describe('HealthFunction', function (): void {
                     ]);
                 });
 
-                $function = new HealthFunction([$checker]);
+                $function = new HealthFunction([$checker], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:diagnostics:fn:health',
                     ['include_details' => true],
@@ -347,7 +347,7 @@ describe('HealthFunction', function (): void {
                     ]);
                 });
 
-                $function = new HealthFunction([$checker]);
+                $function = new HealthFunction([$checker], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:diagnostics:fn:health',
                     ['include_details' => false],
@@ -379,7 +379,7 @@ describe('HealthFunction', function (): void {
                     $mock->shouldReceive('check')->andReturn(['status' => 'unhealthy']);
                 });
 
-                $function = new HealthFunction([$checker1, $checker2]);
+                $function = new HealthFunction([$checker1, $checker2], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
                 $function->setRequest($request);
 
@@ -402,7 +402,7 @@ describe('HealthFunction', function (): void {
                     $mock->shouldReceive('check')->andReturn(['status' => 'degraded']);
                 });
 
-                $function = new HealthFunction([$checker1, $checker2]);
+                $function = new HealthFunction([$checker1, $checker2], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
                 $function->setRequest($request);
 
@@ -425,7 +425,7 @@ describe('HealthFunction', function (): void {
                     $mock->shouldReceive('check')->andReturn(['status' => 'unhealthy']);
                 });
 
-                $function = new HealthFunction([$checker1, $checker2]);
+                $function = new HealthFunction([$checker1, $checker2], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
                 $function->setRequest($request);
 
@@ -444,7 +444,7 @@ describe('HealthFunction', function (): void {
                     $mock->shouldReceive('getName')->andReturn('database');
                 });
 
-                $function = new HealthFunction([$checker]);
+                $function = new HealthFunction([$checker], requireAuthForDetails: false);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:diagnostics:fn:health',
                     ['component' => 'nonexistent'],
@@ -471,7 +471,7 @@ describe('HealthFunction', function (): void {
                 );
             });
 
-            $function = new HealthFunction([$checker]);
+            $function = new HealthFunction([$checker], requireAuthForDetails: false);
             $request = RequestObjectData::asRequest('urn:cline:forrst:ext:diagnostics:fn:health', []);
             $function->setRequest($request);
 
