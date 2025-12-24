@@ -15,14 +15,19 @@ use Cline\Forrst\Events\ExtensionEvent;
 use Cline\Forrst\Events\FunctionExecuted;
 use Cline\Forrst\Events\RequestValidated;
 use Cline\Forrst\Events\SendingResponse;
+use Cline\Forrst\Exceptions\InvalidExtensionConfigurationException;
 use Cline\Forrst\Facades\Server;
 use Illuminate\Container\Attributes\Singleton;
+use ReflectionMethod;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
 
+use function is_int;
+use function is_string;
 use function ksort;
+use function method_exists;
 use function throw_if;
 
 /**
@@ -227,6 +232,14 @@ final class ExtensionEventSubscriber
      * Collects event subscriptions from all registered extensions and organizes
      * them by event class and priority. Sorts by priority to ensure lower-priority
      * listeners execute first.
+     *
+     * Validates each subscription to ensure:
+     * - Priority is an integer
+     * - Method name is a string
+     * - Method exists on the extension class
+     * - Method is publicly callable
+     *
+     * @throws InvalidExtensionConfigurationException If any subscription is invalid
      */
     private function buildListenerMap(): void
     {
@@ -236,6 +249,17 @@ final class ExtensionEventSubscriber
             foreach ($extension->getSubscribedEvents() as $eventClass => $config) {
                 $priority = $config['priority'];
                 $method = $config['method'];
+                $extensionUrn = $extension->getUrn();
+                $extensionClass = $extension::class;
+
+                $this->validateSubscription(
+                    $extension,
+                    $extensionUrn,
+                    $extensionClass,
+                    $eventClass,
+                    $priority,
+                    $method,
+                );
 
                 $this->listeners[$eventClass][$priority][] = [
                     'extension' => $extension,
@@ -247,6 +271,67 @@ final class ExtensionEventSubscriber
         // Sort each event's listeners by priority (lower = earlier)
         foreach ($this->listeners as &$priorities) {
             ksort($priorities);
+        }
+    }
+
+    /**
+     * Validate a single event subscription configuration.
+     *
+     * @param ExtensionInterface $extension      Extension instance
+     * @param string             $extensionUrn   Extension URN for error messages
+     * @param string             $extensionClass Extension class name for error messages
+     * @param string             $eventClass     Event class being subscribed to
+     * @param mixed              $priority       Priority value (must be int)
+     * @param mixed              $method         Method name (must be string and callable)
+     *
+     * @throws InvalidExtensionConfigurationException If validation fails
+     */
+    private function validateSubscription(
+        ExtensionInterface $extension,
+        string $extensionUrn,
+        string $extensionClass,
+        string $eventClass,
+        mixed $priority,
+        mixed $method,
+    ): void {
+        // Validate priority is an integer
+        if (!is_int($priority)) {
+            throw InvalidExtensionConfigurationException::invalidPriority(
+                $extensionUrn,
+                $eventClass,
+                $priority,
+            );
+        }
+
+        // Validate method is a string
+        if (!is_string($method)) {
+            throw InvalidExtensionConfigurationException::invalidMethod(
+                $extensionUrn,
+                $eventClass,
+                $method,
+            );
+        }
+
+        // Validate method exists on extension
+        if (!method_exists($extension, $method)) {
+            throw InvalidExtensionConfigurationException::methodNotFound(
+                $extensionUrn,
+                $eventClass,
+                $method,
+                $extensionClass,
+            );
+        }
+
+        // Validate method is public (callable)
+        $reflection = new ReflectionMethod($extension, $method);
+
+        if (!$reflection->isPublic()) {
+            throw InvalidExtensionConfigurationException::methodNotCallable(
+                $extensionUrn,
+                $eventClass,
+                $method,
+                $extensionClass,
+            );
         }
     }
 }
