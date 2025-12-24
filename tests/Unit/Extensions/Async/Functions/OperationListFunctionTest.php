@@ -169,7 +169,7 @@ describe('OperationListFunction', function (): void {
                     ->and($array['schema'])->toHaveKey('type')
                     ->and($array['schema']['type'])->toBe('object')
                     ->and($array)->toHaveKey('description')
-                    ->and($array['description'])->toBe('Operation list response');
+                    ->and($array['description'])->toBe('Paginated operation list response');
             });
 
             test('schema requires operations array', function (): void {
