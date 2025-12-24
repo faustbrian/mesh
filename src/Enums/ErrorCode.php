@@ -406,56 +406,44 @@ enum ErrorCode: string
             self::ParseError,
             self::InvalidRequest,
             self::InvalidProtocolVersion => 'protocol',
-
             self::FunctionNotFound,
             self::VersionNotFound,
             self::FunctionDisabled,
             self::InvalidArguments,
             self::SchemaValidationFailed,
             self::FunctionMaintenance => 'function',
-
             self::ExtensionNotSupported,
             self::ExtensionNotApplicable => 'extension',
-
             self::Unauthorized,
             self::Forbidden => 'authentication',
-
             self::NotFound,
             self::Conflict,
             self::Gone => 'resource',
-
             self::DeadlineExceeded,
             self::RateLimited => 'rate_limiting',
-
             self::InternalError,
             self::Unavailable,
             self::DependencyError,
             self::ServerMaintenance => 'server',
-
             self::IdempotencyConflict,
             self::IdempotencyProcessing => 'idempotency',
-
             self::AsyncOperationNotFound,
             self::AsyncOperationFailed,
             self::AsyncCannotCancel,
             self::AsyncVersionConflict,
             self::AsyncQuotaExceeded => 'async',
-
             self::ReplayNotFound,
             self::ReplayExpired,
             self::ReplayAlreadyComplete,
             self::ReplayCancelled => 'replay',
-
             self::Cancelled,
             self::CancellationTokenUnknown,
             self::CancellationTooLate => 'cancellation',
-
             self::LockAcquisitionFailed,
             self::LockTimeout,
             self::LockNotFound,
             self::LockOwnershipMismatch,
             self::LockAlreadyReleased => 'locking',
-
             self::SimulationNotSupported,
             self::SimulationScenarioNotFound => 'simulation',
         };
@@ -486,8 +474,8 @@ enum ErrorCode: string
      * protocol specification. Includes the error code, HTTP status, and
      * optional message and metadata.
      *
-     * @param string $message Human-readable error message
-     * @param array<string, mixed> $metadata Additional error context/metadata
+     * @param  string                                                                            $message  Human-readable error message
+     * @param  array<string, mixed>                                                              $metadata Additional error context/metadata
      * @return array{code: string, status: int, message: string, metadata: array<string, mixed>}
      */
     public function toErrorResponse(string $message, array $metadata = []): array

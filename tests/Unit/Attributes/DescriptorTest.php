@@ -11,6 +11,9 @@ use Cline\Forrst\Attributes\Descriptor;
 use Cline\Forrst\Contracts\DescriptorInterface;
 use Cline\Forrst\Discovery\FunctionDescriptor;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class TestDescriptor implements DescriptorInterface
 {
     public static function create(): FunctionDescriptor
@@ -21,6 +24,9 @@ final class TestDescriptor implements DescriptorInterface
     }
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 #[Descriptor(TestDescriptor::class)]
 final class TestFunction {}
 

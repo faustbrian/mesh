@@ -25,6 +25,7 @@ use Illuminate\Validation\ValidationException;
  * to RequestValidationFailedException which handles top-level Forrst request structure
  * violations. Uses HTTP 422 status and Forrst error code SCHEMA_VALIDATION_FAILED.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/errors Error handling specification
  * @see https://docs.cline.sh/forrst/protocol Protocol specification
  */

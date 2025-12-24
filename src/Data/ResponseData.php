@@ -99,7 +99,7 @@ final class ResponseData extends AbstractData
             if (count($errors) > self::MAX_ERRORS_COUNT) {
                 throw InvalidFieldValueException::forField(
                     'errors',
-                    sprintf('cannot exceed %d items', self::MAX_ERRORS_COUNT)
+                    sprintf('cannot exceed %d items', self::MAX_ERRORS_COUNT),
                 );
             }
 
@@ -113,7 +113,7 @@ final class ResponseData extends AbstractData
             if (count($extensions) > self::MAX_EXTENSIONS_COUNT) {
                 throw InvalidFieldValueException::forField(
                     'extensions',
-                    sprintf('cannot exceed %d items', self::MAX_EXTENSIONS_COUNT)
+                    sprintf('cannot exceed %d items', self::MAX_EXTENSIONS_COUNT),
                 );
             }
 
@@ -125,9 +125,11 @@ final class ResponseData extends AbstractData
         }
 
         // Validate meta depth
-        if ($meta !== null) {
-            $this->validateArrayDepth($meta, self::MAX_META_DEPTH, 'meta');
+        if ($meta === null) {
+            return;
         }
+
+        $this->validateArrayDepth($meta, self::MAX_META_DEPTH, 'meta');
     }
 
     /**
@@ -138,9 +140,8 @@ final class ResponseData extends AbstractData
      *
      * @param array<string, mixed> $data Response data array to hydrate from
      *
-     * @return self Response instance with validated and hydrated nested objects
-     *
      * @throws InvalidArgumentException If required fields are missing or invalid
+     * @return self                     Response instance with validated and hydrated nested objects
      */
     public static function createFromArray(array $data): self
     {
@@ -155,6 +156,7 @@ final class ResponseData extends AbstractData
 
         // Build protocol data
         $protocolData = $data['protocol'];
+
         if (!is_array($protocolData)) {
             throw InvalidFieldTypeException::forField('protocol', 'array', $protocolData);
         }
@@ -171,11 +173,12 @@ final class ResponseData extends AbstractData
 
         // Build errors array
         $errors = null;
+
         if (isset($data['errors']) && is_array($data['errors'])) {
             if (count($data['errors']) > self::MAX_ERRORS_COUNT) {
                 throw InvalidFieldValueException::forField(
                     'errors',
-                    sprintf('cannot exceed %d items', self::MAX_ERRORS_COUNT)
+                    sprintf('cannot exceed %d items', self::MAX_ERRORS_COUNT),
                 );
             }
 
@@ -193,11 +196,12 @@ final class ResponseData extends AbstractData
 
         // Build extensions array
         $extensions = null;
+
         if (isset($data['extensions']) && is_array($data['extensions'])) {
             if (count($data['extensions']) > self::MAX_EXTENSIONS_COUNT) {
                 throw InvalidFieldValueException::forField(
                     'extensions',
-                    sprintf('cannot exceed %d items', self::MAX_EXTENSIONS_COUNT)
+                    sprintf('cannot exceed %d items', self::MAX_EXTENSIONS_COUNT),
                 );
             }
 
@@ -215,6 +219,7 @@ final class ResponseData extends AbstractData
 
         // Build meta array with depth validation
         $meta = null;
+
         if (isset($data['meta']) && is_array($data['meta'])) {
             self::validateArrayDepthStatic($data['meta'], self::MAX_META_DEPTH, 'meta');
             $meta = $data['meta'];
@@ -432,9 +437,8 @@ final class ResponseData extends AbstractData
      * @param null|array<ExtensionData> $extensions Optional extension response data
      * @param null|array<string, mixed> $meta       Optional metadata
      *
-     * @return self Response instance with validated parameters
-     *
      * @throws InvalidArgumentException If parameters are invalid or violate constraints
+     * @return self                     Response instance with validated parameters
      */
     public static function createFrom(
         string $id,
@@ -568,58 +572,6 @@ final class ResponseData extends AbstractData
     }
 
     /**
-     * Validate array depth to prevent stack overflow attacks.
-     *
-     * @param array<string, mixed> $array     The array to validate
-     * @param int                  $maxDepth  Maximum allowed depth
-     * @param string               $fieldName Field name for error messages
-     * @param int                  $current   Current depth (internal use)
-     *
-     * @throws InvalidArgumentException If array exceeds maximum depth
-     */
-    private function validateArrayDepth(array $array, int $maxDepth, string $fieldName, int $current = 0): void
-    {
-        if ($current >= $maxDepth) {
-            throw InvalidFieldValueException::forField(
-                $fieldName,
-                sprintf('exceeds maximum depth of %d', $maxDepth)
-            );
-        }
-
-        foreach ($array as $value) {
-            if (is_array($value)) {
-                $this->validateArrayDepth($value, $maxDepth, $fieldName, $current + 1);
-            }
-        }
-    }
-
-    /**
-     * Static version of validateArrayDepth for use in static factory methods.
-     *
-     * @param array<string, mixed> $array     The array to validate
-     * @param int                  $maxDepth  Maximum allowed depth
-     * @param string               $fieldName Field name for error messages
-     * @param int                  $current   Current depth (internal use)
-     *
-     * @throws InvalidArgumentException If array exceeds maximum depth
-     */
-    private static function validateArrayDepthStatic(array $array, int $maxDepth, string $fieldName, int $current = 0): void
-    {
-        if ($current >= $maxDepth) {
-            throw InvalidFieldValueException::forField(
-                $fieldName,
-                sprintf('exceeds maximum depth of %d', $maxDepth)
-            );
-        }
-
-        foreach ($array as $value) {
-            if (is_array($value)) {
-                self::validateArrayDepthStatic($value, $maxDepth, $fieldName, $current + 1);
-            }
-        }
-    }
-
-    /**
      * Convert the response data to an array representation.
      *
      * Per Forrst protocol specification:
@@ -658,5 +610,61 @@ final class ResponseData extends AbstractData
         }
 
         return $response;
+    }
+
+    /**
+     * Static version of validateArrayDepth for use in static factory methods.
+     *
+     * @param array<string, mixed> $array     The array to validate
+     * @param int                  $maxDepth  Maximum allowed depth
+     * @param string               $fieldName Field name for error messages
+     * @param int                  $current   Current depth (internal use)
+     *
+     * @throws InvalidArgumentException If array exceeds maximum depth
+     */
+    private static function validateArrayDepthStatic(array $array, int $maxDepth, string $fieldName, int $current = 0): void
+    {
+        if ($current >= $maxDepth) {
+            throw InvalidFieldValueException::forField(
+                $fieldName,
+                sprintf('exceeds maximum depth of %d', $maxDepth),
+            );
+        }
+
+        foreach ($array as $value) {
+            if (!is_array($value)) {
+                continue;
+            }
+
+            self::validateArrayDepthStatic($value, $maxDepth, $fieldName, $current + 1);
+        }
+    }
+
+    /**
+     * Validate array depth to prevent stack overflow attacks.
+     *
+     * @param array<string, mixed> $array     The array to validate
+     * @param int                  $maxDepth  Maximum allowed depth
+     * @param string               $fieldName Field name for error messages
+     * @param int                  $current   Current depth (internal use)
+     *
+     * @throws InvalidArgumentException If array exceeds maximum depth
+     */
+    private function validateArrayDepth(array $array, int $maxDepth, string $fieldName, int $current = 0): void
+    {
+        if ($current >= $maxDepth) {
+            throw InvalidFieldValueException::forField(
+                $fieldName,
+                sprintf('exceeds maximum depth of %d', $maxDepth),
+            );
+        }
+
+        foreach ($array as $value) {
+            if (!is_array($value)) {
+                continue;
+            }
+
+            $this->validateArrayDepth($value, $maxDepth, $fieldName, $current + 1);
+        }
     }
 }

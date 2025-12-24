@@ -15,6 +15,21 @@ use Cline\Forrst\Exceptions\InvalidUrlException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 use Spatie\LaravelData\Data;
 
+use const FILTER_VALIDATE_URL;
+
+use function array_diff;
+use function array_keys;
+use function filter_var;
+use function gettype;
+use function is_int;
+use function is_string;
+use function json_encode;
+use function mb_substr_count;
+use function preg_match;
+use function preg_match_all;
+use function preg_replace;
+use function sprintf;
+
 /**
  * Server endpoint information for discovery documents.
  *
@@ -71,31 +86,33 @@ final class DiscoveryServerData extends Data
     /**
      * Validate RFC 6570 URI template syntax.
      *
-     * @throws InvalidUrlException
      * @throws InvalidFieldValueException
+     * @throws InvalidUrlException
      */
     private function validateUrlTemplate(string $url): void
     {
         // Check for basic template syntax errors
-        if (substr_count($url, '{') !== substr_count($url, '}')) {
+        if (mb_substr_count($url, '{') !== mb_substr_count($url, '}')) {
             throw InvalidUrlException::invalidFormat('url');
         }
 
         // Extract and validate variable names
         preg_match_all('/\{([^}]+)\}/', $url, $matches);
+
         foreach ($matches[1] as $varName) {
             // RFC 6570: variable names must be [A-Za-z0-9_]+ (no hyphens, dots, etc.)
             if (!preg_match('/^\w+$/', $varName)) {
                 throw InvalidFieldValueException::forField(
-                    'url.variable.' . $varName,
-                    sprintf("Invalid variable name '%s' in URI template. ", $varName) .
-                    'Variable names must contain only letters, numbers, and underscores.'
+                    'url.variable.'.$varName,
+                    sprintf("Invalid variable name '%s' in URI template. ", $varName).
+                    'Variable names must contain only letters, numbers, and underscores.',
                 );
             }
         }
 
         // Validate URL structure (basic sanity check)
         $testUrl = preg_replace('/\{[^}]+\}/', 'test', $url);
+
         if (!filter_var($testUrl, FILTER_VALIDATE_URL)) {
             throw InvalidUrlException::invalidFormat('url');
         }
@@ -104,10 +121,10 @@ final class DiscoveryServerData extends Data
     /**
      * Ensure all URL template variables are defined in $variables array.
      *
-     * @param array<string, ServerVariableData>|null $variables
+     * @param null|array<string, ServerVariableData> $variables
      *
-     * @throws MissingRequiredFieldException
      * @throws InvalidFieldValueException
+     * @throws MissingRequiredFieldException
      */
     private function validateVariableConsistency(string $url, ?array $variables): void
     {
@@ -128,7 +145,7 @@ final class DiscoveryServerData extends Data
         if ($undefinedVars !== []) {
             throw InvalidFieldValueException::forField(
                 'variables',
-                'URL template references undefined variables: ' . json_encode($undefinedVars)
+                'URL template references undefined variables: '.json_encode($undefinedVars),
             );
         }
     }
@@ -136,8 +153,8 @@ final class DiscoveryServerData extends Data
     /**
      * Validate array structure for variables and extensions.
      *
-     * @param array<string, ServerVariableData>|null          $variables
-     * @param array<int, ServerExtensionDeclarationData>|null $extensions
+     * @param null|array<string, ServerVariableData>          $variables
+     * @param null|array<int, ServerExtensionDeclarationData> $extensions
      *
      * @throws InvalidFieldTypeException
      * @throws InvalidFieldValueException
@@ -150,37 +167,39 @@ final class DiscoveryServerData extends Data
                 if (!is_string($key)) {
                     throw InvalidFieldValueException::forField(
                         'variables',
-                        'Variables array must be keyed by variable name (string), got: ' . gettype($key)
+                        'Variables array must be keyed by variable name (string), got: '.gettype($key),
                     );
                 }
 
                 if (!$value instanceof ServerVariableData) {
                     throw InvalidFieldTypeException::forField(
-                        'variables.' . $key,
+                        'variables.'.$key,
                         'ServerVariableData',
-                        $value
+                        $value,
                     );
                 }
             }
         }
 
         // Validate extensions array structure
-        if ($extensions !== null) {
-            foreach ($extensions as $index => $value) {
-                if (!is_int($index)) {
-                    throw InvalidFieldValueException::forField(
-                        'extensions',
-                        'Extensions array must be indexed by integers, got: ' . gettype($index)
-                    );
-                }
+        if ($extensions === null) {
+            return;
+        }
 
-                if (!$value instanceof ServerExtensionDeclarationData) {
-                    throw InvalidFieldTypeException::forField(
-                        sprintf('extensions[%d]', $index),
-                        'ServerExtensionDeclarationData',
-                        $value
-                    );
-                }
+        foreach ($extensions as $index => $value) {
+            if (!is_int($index)) {
+                throw InvalidFieldValueException::forField(
+                    'extensions',
+                    'Extensions array must be indexed by integers, got: '.gettype($index),
+                );
+            }
+
+            if (!$value instanceof ServerExtensionDeclarationData) {
+                throw InvalidFieldTypeException::forField(
+                    sprintf('extensions[%d]', $index),
+                    'ServerExtensionDeclarationData',
+                    $value,
+                );
             }
         }
     }

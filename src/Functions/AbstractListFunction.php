@@ -9,13 +9,18 @@
 
 namespace Cline\Forrst\Functions;
 
-use Illuminate\Database\Eloquent\Builder;
 use Cline\Forrst\Contracts\ResourceInterface;
 use Cline\Forrst\Data\DocumentData;
 use Cline\Forrst\Discovery\ArgumentData;
 use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
+use Illuminate\Database\Eloquent\Builder;
+use InvalidArgumentException;
 use Override;
+
+use function class_exists;
+use function is_subclass_of;
+use function sprintf;
 
 /**
  * Base class for Forrst list functions with standardized cursor pagination.
@@ -78,7 +83,7 @@ abstract class AbstractListFunction extends AbstractFunction
             'none' => $this->collection($query->get()),
             default => throw InvalidFieldValueException::forField(
                 'pagination strategy',
-                \sprintf(
+                sprintf(
                     'Invalid pagination strategy "%s". Must be one of: cursor, offset, simple, none',
                     $this->getPaginationStrategy(),
                 ),
@@ -86,122 +91,6 @@ abstract class AbstractListFunction extends AbstractFunction
         };
 
         return $this->afterPagination($result);
-    }
-
-    /**
-     * Apply custom query modifications before pagination.
-     *
-     * Override this method to add custom scopes, eager loading, or filters
-     * that should always apply to this list function regardless of request parameters.
-     *
-     * Example use cases:
-     * - Always filter to published/active records
-     * - Apply tenant-specific filtering
-     * - Add time-based filters (e.g., published_at <= now())
-     * - Optimize with additional eager loading
-     *
-     * @param Builder $query The query builder to modify
-     *
-     * @return Builder The modified query builder
-     */
-    protected function beforePagination(Builder $query): Builder
-    {
-        return $query;
-    }
-
-    /**
-     * Post-process the paginated result before returning.
-     *
-     * Override this to add custom metadata, inject additional data,
-     * or transform the result structure.
-     *
-     * Example use cases:
-     * - Add aggregated statistics to metadata
-     * - Inject computed totals or counts
-     * - Add custom pagination metadata
-     * - Transform result structure for specific client needs
-     *
-     * @param DocumentData $result The paginated result
-     *
-     * @return DocumentData The modified result
-     */
-    protected function afterPagination(DocumentData $result): DocumentData
-    {
-        return $result;
-    }
-
-    /**
-     * Get and validate the resource class.
-     *
-     * Validates that the resource class returned by getResourceClass() exists and
-     * implements ResourceInterface. This provides early error detection with clear
-     * messages when subclasses misconfigure their resource class.
-     *
-     * @throws \InvalidArgumentException When resource class is invalid or doesn't implement ResourceInterface
-     *
-     * @return class-string<ResourceInterface> The validated resource class name
-     */
-    final protected function getValidatedResourceClass(): string
-    {
-        $resourceClass = $this->getResourceClass();
-
-        // Validate it's actually a class
-        if (!\class_exists($resourceClass)) {
-            throw InvalidFieldTypeException::forField(
-                'resource class',
-                'existing class',
-                \sprintf('"%s" does not exist in %s', $resourceClass, static::class),
-            );
-        }
-
-        // Validate it implements ResourceInterface
-        if (!\is_subclass_of($resourceClass, ResourceInterface::class)) {
-            throw InvalidFieldTypeException::forField(
-                'resource class',
-                \sprintf('must implement %s', ResourceInterface::class),
-                \sprintf('"%s" in %s', $resourceClass, static::class),
-            );
-        }
-
-        return $resourceClass;
-    }
-
-    /**
-     * Get the pagination strategy to use for this list function.
-     *
-     * Available strategies:
-     * - 'cursor': Cursor-based pagination (default, best for real-time feeds)
-     * - 'offset': Offset-based pagination (best for traditional page numbers)
-     * - 'simple': Simple next/prev pagination (best for large datasets)
-     * - 'none': Return all results without pagination (use cautiously)
-     *
-     * Override this method to change the pagination strategy for specific list functions.
-     *
-     * @return string The pagination strategy identifier
-     */
-    protected function getPaginationStrategy(): string
-    {
-        return 'cursor';
-    }
-
-    /**
-     * Get the default pagination limit when not specified in request.
-     *
-     * @return int Default limit (must be between 1 and maximum allowed)
-     */
-    protected function getDefaultLimit(): int
-    {
-        return 25;
-    }
-
-    /**
-     * Get the maximum allowed pagination limit.
-     *
-     * @return int Maximum limit
-     */
-    protected function getMaximumLimit(): int
-    {
-        return 100;
     }
 
     /**
@@ -257,9 +146,123 @@ abstract class AbstractListFunction extends AbstractFunction
         }
 
         // Common query arguments
-        $arguments = [...$arguments, ...$this->getQueryArguments(), ...$this->getCustomArguments()];
+        return [...$arguments, ...$this->getQueryArguments(), ...$this->getCustomArguments()];
+    }
 
-        return $arguments;
+    /**
+     * Apply custom query modifications before pagination.
+     *
+     * Override this method to add custom scopes, eager loading, or filters
+     * that should always apply to this list function regardless of request parameters.
+     *
+     * Example use cases:
+     * - Always filter to published/active records
+     * - Apply tenant-specific filtering
+     * - Add time-based filters (e.g., published_at <= now())
+     * - Optimize with additional eager loading
+     *
+     * @param Builder $query The query builder to modify
+     *
+     * @return Builder The modified query builder
+     */
+    protected function beforePagination(Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * Post-process the paginated result before returning.
+     *
+     * Override this to add custom metadata, inject additional data,
+     * or transform the result structure.
+     *
+     * Example use cases:
+     * - Add aggregated statistics to metadata
+     * - Inject computed totals or counts
+     * - Add custom pagination metadata
+     * - Transform result structure for specific client needs
+     *
+     * @param DocumentData $result The paginated result
+     *
+     * @return DocumentData The modified result
+     */
+    protected function afterPagination(DocumentData $result): DocumentData
+    {
+        return $result;
+    }
+
+    /**
+     * Get and validate the resource class.
+     *
+     * Validates that the resource class returned by getResourceClass() exists and
+     * implements ResourceInterface. This provides early error detection with clear
+     * messages when subclasses misconfigure their resource class.
+     *
+     * @throws InvalidArgumentException When resource class is invalid or doesn't implement ResourceInterface
+     *
+     * @return class-string<ResourceInterface> The validated resource class name
+     */
+    final protected function getValidatedResourceClass(): string
+    {
+        $resourceClass = $this->getResourceClass();
+
+        // Validate it's actually a class
+        if (!class_exists($resourceClass)) {
+            throw InvalidFieldTypeException::forField(
+                'resource class',
+                'existing class',
+                sprintf('"%s" does not exist in %s', $resourceClass, static::class),
+            );
+        }
+
+        // Validate it implements ResourceInterface
+        if (!is_subclass_of($resourceClass, ResourceInterface::class)) {
+            throw InvalidFieldTypeException::forField(
+                'resource class',
+                sprintf('must implement %s', ResourceInterface::class),
+                sprintf('"%s" in %s', $resourceClass, static::class),
+            );
+        }
+
+        return $resourceClass;
+    }
+
+    /**
+     * Get the pagination strategy to use for this list function.
+     *
+     * Available strategies:
+     * - 'cursor': Cursor-based pagination (default, best for real-time feeds)
+     * - 'offset': Offset-based pagination (best for traditional page numbers)
+     * - 'simple': Simple next/prev pagination (best for large datasets)
+     * - 'none': Return all results without pagination (use cautiously)
+     *
+     * Override this method to change the pagination strategy for specific list functions.
+     *
+     * @return string The pagination strategy identifier
+     */
+    protected function getPaginationStrategy(): string
+    {
+        return 'cursor';
+    }
+
+    /**
+     * Get the default pagination limit when not specified in request.
+     *
+     * @return int Default limit (must be between 1 and maximum allowed)
+     */
+    protected function getDefaultLimit(): int
+    {
+        return 25;
+    }
+
+    /**
+     * Get the maximum allowed pagination limit.
+     *
+     * @return int Maximum limit
+     */
+    protected function getMaximumLimit(): int
+    {
+        return 100;
     }
 
     /**

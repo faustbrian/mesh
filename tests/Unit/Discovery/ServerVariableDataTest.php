@@ -288,7 +288,7 @@ describe('ServerVariableData', function (): void {
                 enum: $enum,
             ))->toThrow(
                 InvalidArgumentException::class,
-                "Default value 'invalid' must be one of the enum values: production, staging, development"
+                "Default value 'invalid' must be one of the enum values: production, staging, development",
             );
         });
 

@@ -11,6 +11,9 @@ namespace Cline\Forrst\Exceptions;
 
 use RuntimeException;
 
+use function get_debug_type;
+use function sprintf;
+
 /**
  * Exception thrown when an extension has invalid event handler configuration.
  *

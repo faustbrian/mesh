@@ -31,6 +31,7 @@ use function is_string;
  *
  * Retry semantics are handled by the RetryExtension, not in the error object.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/errors
  */
 final class ErrorData extends AbstractData

@@ -14,7 +14,17 @@ use Cline\Forrst\Exceptions\HtmlNotAllowedException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 use Cline\Forrst\Exceptions\WhitespaceOnlyException;
+use DateTimeImmutable;
+use Exception;
+use InvalidArgumentException;
 use Spatie\LaravelData\Data;
+
+use function array_any;
+use function mb_strlen;
+use function mb_trim;
+use function preg_match;
+use function sprintf;
+use function strip_tags;
 
 /**
  * Deprecation metadata for API elements being phased out.
@@ -33,18 +43,18 @@ final class DeprecatedData extends Data
     /**
      * Create a new deprecation information instance.
      *
-     * @param null|string $reason A human-readable explanation of why this element is deprecated.
-     *                            Typically includes guidance on what to use instead, such as
-     *                            "Use createUser() instead" or "Replaced by v2 authentication".
-     *                            Helps developers migrate to supported alternatives.
-     * @param null|\DateTimeImmutable $sunset The date when this deprecated element will be removed from the API.
-     *                                        Provides a timeline for migration planning. Null indicates no specific
-     *                                        removal date has been set, though the element should still not be used in new code.
-     * @throws \InvalidArgumentException if sunset date is in the past or validation fails
+     * @param  null|string              $reason A human-readable explanation of why this element is deprecated.
+     *                                          Typically includes guidance on what to use instead, such as
+     *                                          "Use createUser() instead" or "Replaced by v2 authentication".
+     *                                          Helps developers migrate to supported alternatives.
+     * @param  null|DateTimeImmutable   $sunset The date when this deprecated element will be removed from the API.
+     *                                          Provides a timeline for migration planning. Null indicates no specific
+     *                                          removal date has been set, though the element should still not be used in new code.
+     * @throws InvalidArgumentException if sunset date is in the past or validation fails
      */
     public function __construct(
         public readonly ?string $reason = null,
-        public readonly ?\DateTimeImmutable $sunset = null,
+        public readonly ?DateTimeImmutable $sunset = null,
     ) {
         $this->validateDeprecation();
     }
@@ -52,9 +62,9 @@ final class DeprecatedData extends Data
     /**
      * Create deprecation data with string sunset date.
      *
-     * @param null|string $reason Deprecation reason
-     * @param null|string $sunsetDate ISO 8601 date string (e.g., "2025-12-31")
-     * @throws \InvalidArgumentException if date format is invalid
+     * @param  null|string              $reason     Deprecation reason
+     * @param  null|string              $sunsetDate ISO 8601 date string (e.g., "2025-12-31")
+     * @throws InvalidArgumentException if date format is invalid
      */
     public static function create(?string $reason = null, ?string $sunsetDate = null): self
     {
@@ -62,113 +72,16 @@ final class DeprecatedData extends Data
 
         if ($sunsetDate !== null) {
             try {
-                $sunset = new \DateTimeImmutable($sunsetDate);
-            } catch (\Exception) {
+                $sunset = new DateTimeImmutable($sunsetDate);
+            } catch (Exception) {
                 throw InvalidFieldValueException::forField(
                     'sunset',
-                    sprintf('Invalid date format "%s". Expected ISO 8601 format (e.g., "2025-12-31")', $sunsetDate)
+                    sprintf('Invalid date format "%s". Expected ISO 8601 format (e.g., "2025-12-31")', $sunsetDate),
                 );
             }
         }
 
         return new self(reason: $reason, sunset: $sunset);
-    }
-
-    /**
-     * Validate deprecation data.
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function validateDeprecation(): void
-    {
-        if ($this->reason !== null) {
-            $this->validateReason();
-        }
-
-        if ($this->sunset instanceof \DateTimeImmutable) {
-            $this->validateSunset();
-        }
-
-        $this->validateAtLeastOneFieldPresent();
-    }
-
-    /**
-     * Validate the reason field.
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function validateReason(): void
-    {
-        $trimmedReason = trim((string) $this->reason);
-
-        if ($trimmedReason === '') {
-            throw WhitespaceOnlyException::forField('reason');
-        }
-
-        if (mb_strlen($trimmedReason) < 10) {
-            throw InvalidFieldValueException::forField(
-                'reason',
-                'Deprecation reason must be at least 10 characters to provide meaningful context'
-            );
-        }
-
-        if (mb_strlen($trimmedReason) > 1000) {
-            throw InvalidFieldValueException::forField(
-                'reason',
-                sprintf('Deprecation reason cannot exceed 1000 characters, got %d', mb_strlen($trimmedReason))
-            );
-        }
-
-        // Prevent HTML injection
-        if ($trimmedReason !== strip_tags($trimmedReason)) {
-            throw HtmlNotAllowedException::forField('reason');
-        }
-
-        // Check for suspicious patterns
-        $suspiciousPatterns = [
-            '/<script/i',
-            '/javascript:/i',
-            '/on\w+\s*=/i', // Event handlers like onclick=
-            '/<iframe/i',
-        ];
-
-        foreach ($suspiciousPatterns as $pattern) {
-            if (preg_match($pattern, $trimmedReason)) {
-                throw InvalidFieldValueException::forField('reason', 'Contains potentially malicious content');
-            }
-        }
-    }
-
-    /**
-     * Validate the sunset field.
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function validateSunset(): void
-    {
-        $now = CarbonImmutable::now();
-
-        if ($this->sunset < $now) {
-            throw InvalidFieldValueException::forField(
-                'sunset',
-                sprintf(
-                    'Sunset date "%s" is in the past. Deprecated elements with past sunset dates should be removed.',
-                    $this->sunset->format('Y-m-d')
-                )
-            );
-        }
-    }
-
-    /**
-     * Validate that at least one field is present.
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function validateAtLeastOneFieldPresent(): void
-    {
-        if ($this->reason === null && !$this->sunset instanceof \DateTimeImmutable) {
-            throw MissingRequiredFieldException::forField('reason or sunset');
-        }
     }
 
     /**
@@ -184,7 +97,7 @@ final class DeprecatedData extends Data
      */
     public function hasSunsetPassed(): bool
     {
-        if (!$this->sunset instanceof \DateTimeImmutable) {
+        if (!$this->sunset instanceof DateTimeImmutable) {
             return false;
         }
 
@@ -198,7 +111,7 @@ final class DeprecatedData extends Data
      */
     public function getDaysUntilSunset(): ?int
     {
-        if (!$this->sunset instanceof \DateTimeImmutable) {
+        if (!$this->sunset instanceof DateTimeImmutable) {
             return null;
         }
 
@@ -240,7 +153,8 @@ final class DeprecatedData extends Data
             '/see\s+\w+/i',
             '/instead\s+of/i',
         ];
-        return array_any($patterns, fn($pattern): int|false => preg_match($pattern, $this->reason));
+
+        return array_any($patterns, fn ($pattern): int|false => preg_match($pattern, $this->reason));
     }
 
     /**
@@ -253,17 +167,114 @@ final class DeprecatedData extends Data
         $message = sprintf('DEPRECATED: %s is deprecated', $elementName);
 
         if ($this->reason !== null) {
-            $message .= '. ' . $this->reason;
+            $message .= '. '.$this->reason;
         }
 
-        if ($this->sunset instanceof \DateTimeImmutable) {
+        if ($this->sunset instanceof DateTimeImmutable) {
             $message .= sprintf(
                 ' and will be removed on %s (%d days remaining)',
                 $this->getSunsetString(),
-                $this->getDaysUntilSunset()
+                $this->getDaysUntilSunset(),
             );
         }
 
         return $message;
+    }
+
+    /**
+     * Validate deprecation data.
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateDeprecation(): void
+    {
+        if ($this->reason !== null) {
+            $this->validateReason();
+        }
+
+        if ($this->sunset instanceof DateTimeImmutable) {
+            $this->validateSunset();
+        }
+
+        $this->validateAtLeastOneFieldPresent();
+    }
+
+    /**
+     * Validate the reason field.
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateReason(): void
+    {
+        $trimmedReason = mb_trim((string) $this->reason);
+
+        if ($trimmedReason === '') {
+            throw WhitespaceOnlyException::forField('reason');
+        }
+
+        if (mb_strlen($trimmedReason) < 10) {
+            throw InvalidFieldValueException::forField(
+                'reason',
+                'Deprecation reason must be at least 10 characters to provide meaningful context',
+            );
+        }
+
+        if (mb_strlen($trimmedReason) > 1_000) {
+            throw InvalidFieldValueException::forField(
+                'reason',
+                sprintf('Deprecation reason cannot exceed 1000 characters, got %d', mb_strlen($trimmedReason)),
+            );
+        }
+
+        // Prevent HTML injection
+        if ($trimmedReason !== strip_tags($trimmedReason)) {
+            throw HtmlNotAllowedException::forField('reason');
+        }
+
+        // Check for suspicious patterns
+        $suspiciousPatterns = [
+            '/<script/i',
+            '/javascript:/i',
+            '/on\w+\s*=/i', // Event handlers like onclick=
+            '/<iframe/i',
+        ];
+
+        foreach ($suspiciousPatterns as $pattern) {
+            if (preg_match($pattern, $trimmedReason)) {
+                throw InvalidFieldValueException::forField('reason', 'Contains potentially malicious content');
+            }
+        }
+    }
+
+    /**
+     * Validate the sunset field.
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateSunset(): void
+    {
+        $now = CarbonImmutable::now();
+
+        if ($this->sunset < $now) {
+            throw InvalidFieldValueException::forField(
+                'sunset',
+                sprintf(
+                    'Sunset date "%s" is in the past. Deprecated elements with past sunset dates should be removed.',
+                    $this->sunset->format('Y-m-d'),
+                ),
+            );
+        }
+    }
+
+    /**
+     * Validate that at least one field is present.
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateAtLeastOneFieldPresent(): void
+    {
+        if ($this->reason === null && !$this->sunset instanceof DateTimeImmutable) {
+            throw MissingRequiredFieldException::forField('reason or sunset');
+        }
     }
 }

@@ -11,7 +11,16 @@ namespace Cline\Forrst\Discovery;
 
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\InvalidUrlException;
+use InvalidArgumentException;
 use Spatie\LaravelData\Data;
+
+use const E_USER_WARNING;
+use const FILTER_VALIDATE_URL;
+
+use function filter_var;
+use function sprintf;
+use function str_starts_with;
+use function trigger_error;
 
 /**
  * Example definition for discovery documents.
@@ -72,7 +81,7 @@ final class ExampleData extends Data
     /**
      * Validates mutual exclusivity constraints between fields.
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function validateMutualExclusivity(): void
     {
@@ -80,7 +89,7 @@ final class ExampleData extends Data
         if ($this->value !== null && $this->externalValue !== null) {
             throw InvalidFieldValueException::forField(
                 'value',
-                'Cannot specify both "value" and "externalValue"—they are mutually exclusive'
+                'Cannot specify both "value" and "externalValue"—they are mutually exclusive',
             );
         }
 
@@ -88,7 +97,7 @@ final class ExampleData extends Data
         if ($this->result !== null && $this->error !== null) {
             throw InvalidFieldValueException::forField(
                 'result',
-                'Cannot specify both "result" and "error"—use separate examples for success/error cases'
+                'Cannot specify both "result" and "error"—use separate examples for success/error cases',
             );
         }
     }
@@ -96,29 +105,33 @@ final class ExampleData extends Data
     /**
      * Validates that externalValue contains a valid URL.
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function validateExternalValue(): void
     {
-        if ($this->externalValue !== null) {
-            if (filter_var($this->externalValue, \FILTER_VALIDATE_URL) === false) {
-                throw InvalidUrlException::invalidFormat('externalValue');
-            }
-
-            // Warn if not using HTTPS for security
-            if (str_starts_with($this->externalValue, 'http://')) {
-                trigger_error(
-                    sprintf("Warning: externalValue should use HTTPS for security: '%s'", $this->externalValue),
-                    \E_USER_WARNING
-                );
-            }
+        if ($this->externalValue === null) {
+            return;
         }
+
+        if (filter_var($this->externalValue, FILTER_VALIDATE_URL) === false) {
+            throw InvalidUrlException::invalidFormat('externalValue');
+        }
+
+        // Warn if not using HTTPS for security
+        if (!str_starts_with($this->externalValue, 'http://')) {
+            return;
+        }
+
+        trigger_error(
+            sprintf("Warning: externalValue should use HTTPS for security: '%s'", $this->externalValue),
+            E_USER_WARNING,
+        );
     }
 
     /**
      * Validates that value and function fields are not mixed.
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function validateUsagePattern(): void
     {
@@ -128,7 +141,7 @@ final class ExampleData extends Data
         if ($hasValueFields && $hasFunctionFields) {
             throw InvalidFieldValueException::forField(
                 'value',
-                'Cannot mix value example fields (value/externalValue) with function example fields (arguments/result/error)'
+                'Cannot mix value example fields (value/externalValue) with function example fields (arguments/result/error)',
             );
         }
     }

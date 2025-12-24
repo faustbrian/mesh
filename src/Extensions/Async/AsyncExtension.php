@@ -31,7 +31,14 @@ use Cline\Forrst\Extensions\Async\Functions\OperationListFunction;
 use Cline\Forrst\Extensions\Async\Functions\OperationStatusFunction;
 use Cline\Forrst\Extensions\ExtensionUrn;
 use Cline\Forrst\Functions\FunctionUrn;
+use InvalidArgumentException;
 use Override;
+use RuntimeException;
+
+use const FILTER_FLAG_NO_PRIV_RANGE;
+use const FILTER_FLAG_NO_RES_RANGE;
+use const FILTER_VALIDATE_IP;
+use const JSON_THROW_ON_ERROR;
 
 use function array_merge;
 use function bin2hex;
@@ -41,21 +48,15 @@ use function in_array;
 use function is_string;
 use function json_encode;
 use function max;
+use function mb_strlen;
+use function mb_strtolower;
+use function mb_substr;
 use function min;
 use function now;
 use function parse_url;
 use function random_bytes;
 use function sprintf;
 use function str_starts_with;
-use function strlen;
-use function strtolower;
-use function substr;
-
-use const JSON_THROW_ON_ERROR;
-
-use const FILTER_FLAG_NO_PRIV_RANGE;
-use const FILTER_FLAG_NO_RES_RANGE;
-use const FILTER_VALIDATE_IP;
 
 /**
  * Async operations extension handler.
@@ -109,12 +110,12 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
     /**
      * Maximum allowed callback URL length to prevent DoS.
      */
-    private const int MAX_CALLBACK_URL_LENGTH = 2048;
+    private const int MAX_CALLBACK_URL_LENGTH = 2_048;
 
     /**
      * Maximum metadata size in bytes (64KB) to prevent storage bloat and DoS.
      */
-    private const int MAX_METADATA_SIZE_BYTES = 65536;
+    private const int MAX_METADATA_SIZE_BYTES = 65_536;
 
     /**
      * Number of random bytes for operation ID (96 bits of entropy).
@@ -140,7 +141,7 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * After this duration, operations can be safely purged from storage.
      * Prevents unlimited storage growth and ensures compliance with data retention policies.
      */
-    private const int DEFAULT_OPERATION_TTL_SECONDS = 86400;
+    private const int DEFAULT_OPERATION_TTL_SECONDS = 86_400;
 
     /**
      * Maximum allowed TTL for operations in seconds (7 days).
@@ -148,7 +149,7 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * Limits how long operations can be retained to prevent storage bloat
      * and ensure timely cleanup of stale data.
      */
-    private const int MAX_OPERATION_TTL_SECONDS = 604800;
+    private const int MAX_OPERATION_TTL_SECONDS = 604_800;
 
     /**
      * Minimum allowed TTL for operations in seconds (1 minute).
@@ -234,9 +235,8 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      *
      * @param null|array<string, mixed> $options Extension options from request
      *
-     * @return null|string Callback URL or null if not specified
-     *
-     * @throws \InvalidArgumentException If callback URL is invalid or blocked
+     * @throws InvalidArgumentException If callback URL is invalid or blocked
+     * @return null|string              Callback URL or null if not specified
      */
     public function getCallbackUrl(?array $options): ?string
     {
@@ -251,7 +251,7 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
         }
 
         // Validate max URL length (prevent DoS)
-        if (strlen($callbackUrl) > self::MAX_CALLBACK_URL_LENGTH) {
+        if (mb_strlen($callbackUrl) > self::MAX_CALLBACK_URL_LENGTH) {
             throw FieldExceedsMaxLengthException::forField('callback_url', self::MAX_CALLBACK_URL_LENGTH);
         }
 
@@ -273,7 +273,7 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
         // Block internal/private IPs (SSRF protection)
         $host = $parts['host'] ?? '';
 
-        if (in_array(strtolower($host), self::BLOCKED_CALLBACK_HOSTS, true)) {
+        if (in_array(mb_strtolower($host), self::BLOCKED_CALLBACK_HOSTS, true)) {
             throw InvalidFieldValueException::forField(
                 'callback_url',
                 sprintf('Host is not allowed: %s', $host),
@@ -309,10 +309,9 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param null|int                  $ttlSeconds   Time-to-live in seconds (clamped to min/max bounds)
      * @param null|string               $ownerId      Owner ID for access control (required for multi-user systems)
      *
+     * @throws InvalidArgumentException                                If metadata size exceeds maximum allowed (64KB)
+     * @throws OperationQuotaExceededException                         If user has too many active operations
      * @return array{response: ResponseData, operation: OperationData} Tuple of response and operation
-     *
-     * @throws OperationQuotaExceededException If user has too many active operations
-     * @throws \InvalidArgumentException       If metadata size exceeds maximum allowed (64KB)
      */
     public function createAsyncOperation(
         RequestObjectData $request,
@@ -340,7 +339,7 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
         // Validate metadata size
         if ($metadata !== null) {
             $metadataJson = json_encode($metadata, JSON_THROW_ON_ERROR);
-            $metadataSize = strlen($metadataJson);
+            $metadataSize = mb_strlen($metadataJson);
 
             if ($metadataSize > self::MAX_METADATA_SIZE_BYTES) {
                 throw InvalidFieldValueException::forField(
@@ -403,43 +402,6 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
     }
 
     /**
-     * Validate operation ID format.
-     *
-     * Ensures the operation ID has the correct length, prefix, and contains
-     * only valid hexadecimal characters. This prevents injection attacks and
-     * invalid lookups.
-     *
-     * @param string $operationId Operation identifier to validate
-     *
-     * @throws \InvalidArgumentException If operation ID format is invalid
-     */
-    private function validateOperationId(string $operationId): void
-    {
-        if (strlen($operationId) !== self::OPERATION_ID_LENGTH) {
-            throw InvalidFieldValueException::forField(
-                'operation_id',
-                sprintf('Invalid length: expected %d, got %d', self::OPERATION_ID_LENGTH, strlen($operationId)),
-            );
-        }
-
-        if (!str_starts_with($operationId, self::OPERATION_ID_PREFIX)) {
-            throw InvalidFieldValueException::forField(
-                'operation_id',
-                sprintf('Invalid prefix: expected "%s"', self::OPERATION_ID_PREFIX),
-            );
-        }
-
-        $hex = substr($operationId, strlen(self::OPERATION_ID_PREFIX));
-
-        if (!ctype_xdigit($hex)) {
-            throw InvalidFieldValueException::forField(
-                'operation_id',
-                'Must contain only hexadecimal characters after prefix',
-            );
-        }
-    }
-
-    /**
      * Transition operation to processing status.
      *
      * Background workers should call this when beginning execution to signal
@@ -448,9 +410,9 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param string     $operationId Unique operation identifier
      * @param null|float $progress    Optional initial progress value (0.0 to 1.0)
      *
-     * @throws \InvalidArgumentException If operation ID format is invalid
-     * @throws OperationNotFoundException If operation doesn't exist
+     * @throws InvalidArgumentException       If operation ID format is invalid
      * @throws InvalidOperationStateException If operation cannot be marked as processing
+     * @throws OperationNotFoundException     If operation doesn't exist
      */
     public function markProcessing(string $operationId, ?float $progress = null): void
     {
@@ -509,9 +471,9 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param string $operationId Unique operation identifier
      * @param mixed  $result      Function execution result to return to client
      *
-     * @throws \InvalidArgumentException If operation ID format is invalid
-     * @throws OperationNotFoundException If operation doesn't exist
+     * @throws InvalidArgumentException       If operation ID format is invalid
      * @throws InvalidOperationStateException If operation cannot be completed
+     * @throws OperationNotFoundException     If operation doesn't exist
      */
     public function complete(string $operationId, mixed $result): void
     {
@@ -565,9 +527,9 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param string                $operationId Unique operation identifier
      * @param array<int, ErrorData> $errors      Error details describing the failure
      *
-     * @throws \InvalidArgumentException If operation ID format is invalid
-     * @throws OperationNotFoundException If operation doesn't exist
+     * @throws InvalidArgumentException       If operation ID format is invalid
      * @throws InvalidOperationStateException If operation cannot be failed
+     * @throws OperationNotFoundException     If operation doesn't exist
      */
     public function fail(string $operationId, array $errors): void
     {
@@ -630,9 +592,9 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param float       $progress    Progress value between 0.0 (started) and 1.0 (complete)
      * @param null|string $message     Optional human-readable status message
      *
-     * @throws \InvalidArgumentException If operation ID format is invalid, progress decreases, or message exceeds maximum length
-     * @throws OperationNotFoundException If operation doesn't exist
+     * @throws InvalidArgumentException       If operation ID format is invalid, progress decreases, or message exceeds maximum length
      * @throws InvalidOperationStateException If operation cannot have progress updated
+     * @throws OperationNotFoundException     If operation doesn't exist
      */
     public function updateProgress(string $operationId, float $progress, ?string $message = null): void
     {
@@ -670,8 +632,8 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
         $metadata = $operation->metadata ?? [];
 
         if ($message !== null) {
-            if (strlen($message) > 1000) {
-                throw FieldExceedsMaxLengthException::forField('message', 1000);
+            if (mb_strlen($message) > 1_000) {
+                throw FieldExceedsMaxLengthException::forField('message', 1_000);
             }
 
             $metadata['progress_message'] = $message;
@@ -696,15 +658,51 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
     }
 
     /**
+     * Validate operation ID format.
+     *
+     * Ensures the operation ID has the correct length, prefix, and contains
+     * only valid hexadecimal characters. This prevents injection attacks and
+     * invalid lookups.
+     *
+     * @param string $operationId Operation identifier to validate
+     *
+     * @throws InvalidArgumentException If operation ID format is invalid
+     */
+    private function validateOperationId(string $operationId): void
+    {
+        if (mb_strlen($operationId) !== self::OPERATION_ID_LENGTH) {
+            throw InvalidFieldValueException::forField(
+                'operation_id',
+                sprintf('Invalid length: expected %d, got %d', self::OPERATION_ID_LENGTH, mb_strlen($operationId)),
+            );
+        }
+
+        if (!str_starts_with($operationId, self::OPERATION_ID_PREFIX)) {
+            throw InvalidFieldValueException::forField(
+                'operation_id',
+                sprintf('Invalid prefix: expected "%s"', self::OPERATION_ID_PREFIX),
+            );
+        }
+
+        $hex = mb_substr($operationId, mb_strlen(self::OPERATION_ID_PREFIX));
+
+        if (!ctype_xdigit($hex)) {
+            throw InvalidFieldValueException::forField(
+                'operation_id',
+                'Must contain only hexadecimal characters after prefix',
+            );
+        }
+    }
+
+    /**
      * Generate cryptographically unique operation ID.
      *
      * Uses 12 random bytes (96 bits) encoded as hex, providing sufficient
      * uniqueness for distributed operation tracking without coordination.
      * Checks for collisions and retries if necessary.
      *
-     * @return string Operation identifier with 'op_' prefix
-     *
-     * @throws \RuntimeException If unable to generate unique ID after maximum attempts
+     * @throws RuntimeException If unable to generate unique ID after maximum attempts
+     * @return string           Operation identifier with 'op_' prefix
      */
     private function generateOperationId(): string
     {

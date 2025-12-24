@@ -50,7 +50,7 @@ final class Server extends Facade
      *
      * @return string The ServerInterface class name used as the container binding key
      */
-    #[Override]
+    #[Override()]
     protected static function getFacadeAccessor(): string
     {
         return ServerInterface::class;

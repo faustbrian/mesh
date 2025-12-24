@@ -27,9 +27,14 @@ use Cline\Forrst\Extensions\AbstractExtension;
 use Cline\Forrst\Extensions\Cancellation\Functions\CancelFunction;
 use Cline\Forrst\Extensions\ExtensionUrn;
 use Illuminate\Support\Facades\Cache;
+use InvalidArgumentException;
 use Override;
+use Throwable;
 
+use function error_log;
 use function is_string;
+use function mb_strlen;
+use function preg_match;
 
 /**
  * Cancellation extension handler.
@@ -73,7 +78,7 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
      *                      typical request processing time to prevent premature cleanup.
      *                      Maximum allowed: 3600 seconds (1 hour).
      *
-     * @throws \InvalidArgumentException If TTL exceeds maximum or is negative
+     * @throws InvalidArgumentException If TTL exceeds maximum or is negative
      */
     public function __construct(
         private int $tokenTtl = self::DEFAULT_TTL,
@@ -160,7 +165,7 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
 
         try {
             $validToken = $this->validateToken($token);
-        } catch (\InvalidArgumentException $invalidArgumentException) {
+        } catch (InvalidArgumentException $invalidArgumentException) {
             $event->setResponse(ResponseData::error(
                 new ErrorData(
                     code: ErrorCode::InvalidArguments,
@@ -176,7 +181,7 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
         // Register the token as active (not cancelled)
         try {
             Cache::put(self::CACHE_PREFIX.$validToken, 'active', $this->tokenTtl);
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             // Log the error
             error_log('Failed to register cancellation token: '.$throwable->getMessage());
 
@@ -253,9 +258,11 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
 
         $token = $extension->options['token'] ?? null;
 
-        if (is_string($token) && $token !== '') {
-            $this->cleanup($token);
+        if (!is_string($token) || $token === '') {
+            return;
         }
+
+        $this->cleanup($token);
     }
 
     /**
@@ -289,42 +296,12 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
             Cache::put($key, 'cancelled', $this->tokenTtl);
 
             return true;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             // Log the error
             error_log('Failed to cancel request token: '.$throwable->getMessage());
 
             return false;
         }
-    }
-
-    /**
-     * Validate cancellation token format.
-     *
-     * @param string $token Token to validate
-     *
-     * @throws \InvalidArgumentException If token is invalid
-     *
-     * @return string Validated token
-     */
-    private function validateToken(string $token): string
-    {
-        if ($token === '') {
-            throw EmptyFieldException::forField('token');
-        }
-
-        if (\strlen($token) > 100) {
-            throw FieldExceedsMaxLengthException::forField('token', 100);
-        }
-
-        // Only allow alphanumeric, dash, underscore (UUID-like format recommended)
-        if (!\preg_match('/^[a-zA-Z0-9\-_]+$/', $token)) {
-            throw InvalidFieldValueException::forField(
-                'token',
-                'Only alphanumeric, dash, and underscore characters allowed',
-            );
-        }
-
-        return $token;
     }
 
     /**
@@ -338,7 +315,7 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
     {
         try {
             return Cache::get(self::CACHE_PREFIX.$token) === 'cancelled';
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             error_log('Failed to check cancellation status: '.$throwable->getMessage());
 
             return false;
@@ -358,7 +335,7 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
     {
         try {
             return Cache::get(self::CACHE_PREFIX.$token) === 'active';
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             error_log('Failed to check token active status: '.$throwable->getMessage());
 
             return false;
@@ -377,9 +354,39 @@ final class CancellationExtension extends AbstractExtension implements ProvidesF
     {
         try {
             Cache::forget(self::CACHE_PREFIX.$token);
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             // Log but don't throw - cleanup is best effort
             error_log('Failed to cleanup cancellation token: '.$throwable->getMessage());
         }
+    }
+
+    /**
+     * Validate cancellation token format.
+     *
+     * @param string $token Token to validate
+     *
+     * @throws InvalidArgumentException If token is invalid
+     *
+     * @return string Validated token
+     */
+    private function validateToken(string $token): string
+    {
+        if ($token === '') {
+            throw EmptyFieldException::forField('token');
+        }
+
+        if (mb_strlen($token) > 100) {
+            throw FieldExceedsMaxLengthException::forField('token', 100);
+        }
+
+        // Only allow alphanumeric, dash, underscore (UUID-like format recommended)
+        if (!preg_match('/^[a-zA-Z0-9\-_]+$/', $token)) {
+            throw InvalidFieldValueException::forField(
+                'token',
+                'Only alphanumeric, dash, and underscore characters allowed',
+            );
+        }
+
+        return $token;
     }
 }

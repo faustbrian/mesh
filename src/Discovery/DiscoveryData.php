@@ -15,6 +15,14 @@ use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Spatie\LaravelData\Data;
 
+use function array_count_values;
+use function array_filter;
+use function array_keys;
+use function array_map;
+use function implode;
+use function preg_match;
+use function sprintf;
+
 /**
  * Forrst Discovery Document.
  *
@@ -98,7 +106,7 @@ final class DiscoveryData extends Data
                 throw InvalidFieldTypeException::forField(
                     sprintf('functions[%d]', $index),
                     'FunctionDescriptorData',
-                    $function
+                    $function,
                 );
             }
         }
@@ -110,7 +118,7 @@ final class DiscoveryData extends Data
         if ($duplicates !== []) {
             throw InvalidFieldValueException::forField(
                 'functions',
-                'Duplicate function names found: ' . implode(', ', array_keys($duplicates))
+                'Duplicate function names found: '.implode(', ', array_keys($duplicates)),
             );
         }
     }
@@ -131,7 +139,7 @@ final class DiscoveryData extends Data
                 throw InvalidFieldTypeException::forField(
                     sprintf('servers[%d]', $index),
                     'DiscoveryServerData',
-                    $server
+                    $server,
                 );
             }
         }
@@ -164,7 +172,7 @@ final class DiscoveryData extends Data
         if (!preg_match($pattern, $version)) {
             throw InvalidFieldValueException::forField(
                 $fieldName,
-                sprintf('Version "%s" must follow semantic versioning (e.g., "1.0.0", "2.1.0-beta.1")', $version)
+                sprintf('Version "%s" must follow semantic versioning (e.g., "1.0.0", "2.1.0-beta.1")', $version),
             );
         }
     }

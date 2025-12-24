@@ -24,6 +24,7 @@ use function sprintf;
  * this replay record. Includes the replay ID and optional completion timestamp
  * for client-side tracking and error reporting.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/extensions/replay Replay extension specification
  * @see https://docs.cline.sh/forrst/errors Error handling specification
  */

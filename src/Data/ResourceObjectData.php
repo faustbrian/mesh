@@ -13,6 +13,9 @@ use Cline\Forrst\Exceptions\EmptyFieldException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 
+use function is_array;
+use function preg_match;
+
 /**
  * JSON:API compliant resource object structure.
  *
@@ -68,7 +71,7 @@ final class ResourceObjectData extends AbstractData
         if (!preg_match('/^[a-z][a-z0-9_-]*$/', $type)) {
             throw InvalidFieldValueException::forField(
                 'type',
-                'must be lowercase and contain only letters, numbers, hyphens, or underscores'
+                'must be lowercase and contain only letters, numbers, hyphens, or underscores',
             );
         }
     }
@@ -76,9 +79,9 @@ final class ResourceObjectData extends AbstractData
     /**
      * Create a resource object data instance from an array.
      *
-     * @param array<string, mixed> $data The array data containing resource object information
-     * @return self Configured ResourceObjectData instance
+     * @param  array<string, mixed>          $data The array data containing resource object information
      * @throws MissingRequiredFieldException If required fields are missing
+     * @return self                          Configured ResourceObjectData instance
      */
     public static function createFromArray(array $data): self
     {
@@ -94,12 +97,12 @@ final class ResourceObjectData extends AbstractData
     /**
      * Create a resource object data instance from explicit parameters.
      *
-     * @param string $type The resource type identifier
-     * @param string $id The resource unique identifier
-     * @param array<string, mixed> $attributes The resource attributes
-     * @param null|array<string, mixed> $relationships Optional relationships
-     * @param null|array<string, mixed> $meta Optional meta-information
-     * @return self Configured ResourceObjectData instance
+     * @param  string                    $type          The resource type identifier
+     * @param  string                    $id            The resource unique identifier
+     * @param  array<string, mixed>      $attributes    The resource attributes
+     * @param  null|array<string, mixed> $relationships Optional relationships
+     * @param  null|array<string, mixed> $meta          Optional meta-information
+     * @return self                      Configured ResourceObjectData instance
      */
     public static function createFrom(
         string $type,
@@ -150,8 +153,8 @@ final class ResourceObjectData extends AbstractData
     /**
      * Check if a specific attribute exists.
      *
-     * @param string $key The attribute key
-     * @return bool True if the attribute exists
+     * @param  string $key The attribute key
+     * @return bool   True if the attribute exists
      */
     public function hasAttribute(string $key): bool
     {
@@ -161,9 +164,9 @@ final class ResourceObjectData extends AbstractData
     /**
      * Get a specific attribute value with optional default.
      *
-     * @param string $key The attribute key
-     * @param mixed $default The default value if not found
-     * @return mixed The attribute value or default
+     * @param  string $key     The attribute key
+     * @param  mixed  $default The default value if not found
+     * @return mixed  The attribute value or default
      */
     public function getAttribute(string $key, mixed $default = null): mixed
     {
@@ -173,8 +176,8 @@ final class ResourceObjectData extends AbstractData
     /**
      * Check if a specific relationship exists.
      *
-     * @param string $key The relationship key
-     * @return bool True if the relationship exists
+     * @param  string $key The relationship key
+     * @return bool   True if the relationship exists
      */
     public function hasRelationship(string $key): bool
     {
@@ -184,9 +187,9 @@ final class ResourceObjectData extends AbstractData
     /**
      * Get a specific relationship with optional default.
      *
-     * @param string $key The relationship key
-     * @param mixed $default The default value if not found
-     * @return mixed The relationship or default
+     * @param  string $key     The relationship key
+     * @param  mixed  $default The default value if not found
+     * @return mixed  The relationship or default
      */
     public function getRelationship(string $key, mixed $default = null): mixed
     {
@@ -196,8 +199,8 @@ final class ResourceObjectData extends AbstractData
     /**
      * Check if a specific meta field exists.
      *
-     * @param string $key The meta key
-     * @return bool True if the meta field exists
+     * @param  string $key The meta key
+     * @return bool   True if the meta field exists
      */
     public function hasMetaKey(string $key): bool
     {
@@ -207,9 +210,9 @@ final class ResourceObjectData extends AbstractData
     /**
      * Get a specific meta value with optional default.
      *
-     * @param string $key The meta key
-     * @param mixed $default The default value if not found
-     * @return mixed The meta value or default
+     * @param  string $key     The meta key
+     * @param  mixed  $default The default value if not found
+     * @return mixed  The meta value or default
      */
     public function getMeta(string $key, mixed $default = null): mixed
     {

@@ -12,6 +12,9 @@ namespace Cline\Forrst\Data\Errors;
 use Cline\Forrst\Data\AbstractData;
 use Override;
 
+use function is_int;
+use function is_string;
+
 /**
  * Represents the source location of an error in a Forrst request.
  *

@@ -9,8 +9,8 @@
 
 namespace Cline\Forrst\Contracts;
 
-use Cline\Forrst\Exceptions\InvalidConfigurationException;
 use Cline\Forrst\Discovery\SimulationScenarioData;
+use Cline\Forrst\Exceptions\InvalidConfigurationException;
 
 /**
  * Forrst simulatable function contract interface.
@@ -81,9 +81,8 @@ interface SimulatableInterface extends FunctionInterface
      *
      * MUST return a name that exists in getSimulationScenarios().
      *
-     * @return string Default scenario name (e.g., "default", "success")
-     *
      * @throws InvalidConfigurationException If default scenario doesn't exist
+     * @return string                        Default scenario name (e.g., "default", "success")
      */
     public function getDefaultScenario(): string;
 

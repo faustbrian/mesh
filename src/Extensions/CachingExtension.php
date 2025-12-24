@@ -16,7 +16,11 @@ use Cline\Forrst\Data\ResponseData;
 use Cline\Forrst\Exceptions\NegativeValueException;
 use DateTimeInterface;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use JsonException;
 use Override;
+use Throwable;
+
+use const JSON_THROW_ON_ERROR;
 
 use function assert;
 use function hash;
@@ -29,6 +33,7 @@ use function is_string;
 use function json_encode;
 use function mb_substr;
 use function mb_trim;
+use function min;
 use function preg_replace;
 use function sprintf;
 
@@ -207,9 +212,8 @@ final class CachingExtension extends AbstractExtension
      *
      * @param mixed $value Response value to hash (will be JSON-encoded)
      *
-     * @return string Quoted ETag string suitable for cache validation
-     *
-     * @throws \JsonException If value cannot be JSON-encoded
+     * @throws JsonException If value cannot be JSON-encoded
+     * @return string        Quoted ETag string suitable for cache validation
      */
     public function generateEtag(mixed $value): string
     {
@@ -357,7 +361,7 @@ final class CachingExtension extends AbstractExtension
 
         try {
             return ResponseData::from($cachedData);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Delete corrupted entry on deserialization failure
             $this->cache->forget($cacheKey);
 
@@ -405,9 +409,8 @@ final class CachingExtension extends AbstractExtension
      *
      * @param RequestObjectData $request Request to generate key for
      *
-     * @return string Unique cache key for this request
-     *
-     * @throws \JsonException If arguments cannot be JSON-encoded
+     * @throws JsonException If arguments cannot be JSON-encoded
+     * @return string        Unique cache key for this request
      */
     public function buildCacheKey(RequestObjectData $request): string
     {

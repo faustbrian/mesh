@@ -13,6 +13,14 @@ use Cline\Forrst\Exceptions\EmptyFieldException;
 use Cline\Forrst\Exceptions\FieldExceedsMaxLengthException;
 use Spatie\LaravelData\Data;
 
+use const E_USER_WARNING;
+
+use function mb_strlen;
+use function mb_trim;
+use function preg_match;
+use function sprintf;
+use function trigger_error;
+
 /**
  * Logical grouping tag for organizing functions in the discovery document.
  *
@@ -48,7 +56,7 @@ final class TagData extends Data
      *                                            guides, tutorials, or architectural documentation that explains
      *                                            the tagged functions in greater depth.
      *
-     * @throws EmptyFieldException If tag name is empty
+     * @throws EmptyFieldException            If tag name is empty
      * @throws FieldExceedsMaxLengthException If tag name exceeds maximum length
      */
     public function __construct(
@@ -58,7 +66,8 @@ final class TagData extends Data
         public readonly ?ExternalDocsData $externalDocs = null,
     ) {
         // Validate name
-        $trimmedName = trim($name);
+        $trimmedName = mb_trim($name);
+
         if ($trimmedName === '') {
             throw EmptyFieldException::forField('name');
         }
@@ -70,20 +79,22 @@ final class TagData extends Data
         // Recommend kebab-case or snake_case for consistency
         if (!preg_match('/^[a-z][a-z0-9_-]*$/', $trimmedName)) {
             trigger_error(
-                sprintf("Warning: Tag name '%s' should use lowercase kebab-case or snake_case ", $trimmedName) .
+                sprintf("Warning: Tag name '%s' should use lowercase kebab-case or snake_case ", $trimmedName).
                 "(e.g., 'user-management', 'billing', 'analytics')",
-                E_USER_WARNING
+                E_USER_WARNING,
             );
         }
 
         $this->name = $trimmedName;
 
         // Validate summary length
-        if ($this->summary !== null && mb_strlen($this->summary) > 60) {
-            trigger_error(
-                'Warning: Tag summary should be brief (under 60 characters). Got ' . mb_strlen($this->summary),
-                E_USER_WARNING
-            );
+        if ($this->summary === null || mb_strlen($this->summary) <= 60) {
+            return;
         }
+
+        trigger_error(
+            'Warning: Tag summary should be brief (under 60 characters). Got '.mb_strlen($this->summary),
+            E_USER_WARNING,
+        );
     }
 }

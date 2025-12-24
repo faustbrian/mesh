@@ -13,9 +13,19 @@ use Cline\Forrst\Data\AbstractData;
 use Cline\Forrst\Exceptions\EmptyArrayException;
 use Cline\Forrst\Exceptions\InvalidConfigurationException;
 use Cline\Forrst\Exceptions\InvalidFieldTypeException;
+use InvalidArgumentException;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\Validation\Present;
 use Spatie\LaravelData\DataCollection;
+
+use function base_path;
+use function class_exists;
+use function config;
+use function is_string;
+use function realpath;
+use function sprintf;
+use function str_contains;
+use function str_starts_with;
 
 /**
  * Main configuration data for the Forrst package.
@@ -30,6 +40,7 @@ use Spatie\LaravelData\DataCollection;
  * and what endpoints are available. Multiple servers can be configured to
  * provide different API versions or isolated function sets.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/
  */
 final class ConfigurationData extends AbstractData
@@ -71,8 +82,8 @@ final class ConfigurationData extends AbstractData
     /**
      * Create configuration from array data.
      *
-     * @param array<string, mixed> $data Configuration array
-     * @return self Configured instance
+     * @param  array<string, mixed> $data Configuration array
+     * @return self                 Configured instance
      */
     public static function createFromArray(array $data): self
     {
@@ -82,7 +93,7 @@ final class ConfigurationData extends AbstractData
             resources: $data['resources'] ?? [],
             servers: DataCollection::create(
                 ServerData::class,
-                $data['servers'] ?? []
+                $data['servers'] ?? [],
             ),
         );
     }
@@ -90,19 +101,20 @@ final class ConfigurationData extends AbstractData
     /**
      * Create configuration from config file.
      *
-     * @param string $configKey The config key (e.g., 'rpc')
-     * @return self Configured instance
+     * @param  string $configKey The config key (e.g., 'rpc')
+     * @return self   Configured instance
      */
     public static function createFromConfig(string $configKey = 'rpc'): self
     {
         $config = config($configKey, []);
+
         return self::createFromArray($config);
     }
 
     /**
      * Validate configuration data.
      *
-     * @throws \InvalidArgumentException When configuration is invalid
+     * @throws InvalidArgumentException When configuration is invalid
      */
     private function validateConfiguration(): void
     {
@@ -152,6 +164,7 @@ final class ConfigurationData extends AbstractData
 
             // Normalize and validate path exists
             $realPath = realpath($path);
+
             if ($realPath === false) {
                 throw InvalidConfigurationException::forKey(
                     $key,
@@ -161,6 +174,7 @@ final class ConfigurationData extends AbstractData
 
             // Ensure path is within application root
             $appPath = base_path();
+
             if (!str_starts_with($realPath, $appPath)) {
                 throw InvalidConfigurationException::forKey(
                     $key,

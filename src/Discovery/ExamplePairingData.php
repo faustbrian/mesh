@@ -15,6 +15,12 @@ use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 use Spatie\LaravelData\Data;
 
+use function array_key_exists;
+use function is_array;
+use function is_string;
+use function preg_match;
+use function sprintf;
+
 /**
  * Request-response pair demonstrating a complete function invocation.
  *
@@ -57,9 +63,11 @@ final class ExamplePairingData extends Data
     ) {
         $this->validateParams($params);
 
-        if ($result !== null) {
-            $this->validateResult($result);
+        if ($result === null) {
+            return;
         }
+
+        $this->validateResult($result);
     }
 
     /**
@@ -79,11 +87,11 @@ final class ExamplePairingData extends Data
         }
 
         foreach ($params as $index => $param) {
-            if (!\is_array($param)) {
+            if (!is_array($param)) {
                 throw InvalidFieldTypeException::forField(
                     sprintf('params[%d]', $index),
                     'array',
-                    $param
+                    $param,
                 );
             }
 
@@ -91,23 +99,23 @@ final class ExamplePairingData extends Data
                 throw MissingRequiredFieldException::forField(sprintf('params[%d].name', $index));
             }
 
-            if (!\array_key_exists('value', $param)) {
+            if (!array_key_exists('value', $param)) {
                 throw MissingRequiredFieldException::forField(sprintf('params[%d].value', $index));
             }
 
-            if (!\is_string($param['name'])) {
+            if (!is_string($param['name'])) {
                 throw InvalidFieldTypeException::forField(
                     sprintf('params[%d].name', $index),
                     'string',
-                    $param['name']
+                    $param['name'],
                 );
             }
 
             // Validate parameter name follows conventions
-            if (!\preg_match('/^[a-z]\w*$/', $param['name'])) {
+            if (!preg_match('/^[a-z]\w*$/', $param['name'])) {
                 throw InvalidFieldValueException::forField(
                     sprintf('params[%d].name', $index),
-                    sprintf("Parameter name '%s' must follow camelCase/snake_case convention", $param['name'])
+                    sprintf("Parameter name '%s' must follow camelCase/snake_case convention", $param['name']),
                 );
             }
         }
@@ -127,15 +135,15 @@ final class ExamplePairingData extends Data
             throw MissingRequiredFieldException::forField('result.name');
         }
 
-        if (!\array_key_exists('value', $result)) {
+        if (!array_key_exists('value', $result)) {
             throw MissingRequiredFieldException::forField('result.value');
         }
 
-        if (!\is_string($result['name'])) {
+        if (!is_string($result['name'])) {
             throw InvalidFieldTypeException::forField(
                 'result.name',
                 'string',
-                $result['name']
+                $result['name'],
             );
         }
     }

@@ -9,9 +9,9 @@
 
 namespace Cline\Forrst;
 
-use Illuminate\Support\Str;
 use Cline\Forrst\Data\ProtocolData;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 
 use function array_filter;

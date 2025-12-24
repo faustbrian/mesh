@@ -11,6 +11,10 @@ namespace Cline\Forrst\Exceptions;
 
 use Cline\Forrst\Enums\ErrorCode;
 
+use function app;
+use function mb_strlen;
+use function mb_substr;
+
 /**
  * Exception thrown when a cancellation token is unknown or has expired.
  *
@@ -67,10 +71,10 @@ final class CancellationTokenNotFoundException extends NotFoundException
      */
     private static function sanitizeToken(string $token): string
     {
-        if (strlen($token) <= 8) {
+        if (mb_strlen($token) <= 8) {
             return '***';
         }
 
-        return substr($token, 0, 4) . '***' . substr($token, -4);
+        return mb_substr($token, 0, 4).'***'.mb_substr($token, -4);
     }
 }

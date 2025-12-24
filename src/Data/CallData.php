@@ -11,6 +11,9 @@ namespace Cline\Forrst\Data;
 
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 
+use function count;
+use function is_array;
+
 /**
  * Represents the call object within a Forrst protocol request.
  *
@@ -22,6 +25,7 @@ use Cline\Forrst\Exceptions\MissingRequiredFieldException;
  * (e.g., "users.create", "orders.list"). Version allows for per-function API
  * versioning independent of the server version.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/protocol
  */
 final class CallData extends AbstractData
@@ -51,9 +55,9 @@ final class CallData extends AbstractData
     /**
      * Create a call data instance from an array.
      *
-     * @param array<string, mixed> $data The array data containing call information
-     * @return self Configured CallData instance
+     * @param  array<string, mixed>          $data The array data containing call information
      * @throws MissingRequiredFieldException If function name is missing
+     * @return self                          Configured CallData instance
      */
     public static function createFromArray(array $data): self
     {
@@ -67,10 +71,10 @@ final class CallData extends AbstractData
     /**
      * Create a call data instance from explicit parameters.
      *
-     * @param string $function The function name
-     * @param null|array<string, mixed> $arguments Optional arguments
-     * @param null|string $version Optional version
-     * @return self Configured CallData instance
+     * @param  string                    $function  The function name
+     * @param  null|array<string, mixed> $arguments Optional arguments
+     * @param  null|string               $version   Optional version
+     * @return self                      Configured CallData instance
      */
     public static function createFrom(
         string $function,
@@ -107,8 +111,8 @@ final class CallData extends AbstractData
     /**
      * Check if a specific argument exists.
      *
-     * @param string $key The argument key
-     * @return bool True if the argument exists
+     * @param  string $key The argument key
+     * @return bool   True if the argument exists
      */
     public function hasArgument(string $key): bool
     {
@@ -118,9 +122,9 @@ final class CallData extends AbstractData
     /**
      * Get a specific argument value with optional default.
      *
-     * @param string $key The argument key
-     * @param mixed $default The default value if not found
-     * @return mixed The argument value or default
+     * @param  string $key     The argument key
+     * @param  mixed  $default The default value if not found
+     * @return mixed  The argument value or default
      */
     public function getArgument(string $key, mixed $default = null): mixed
     {

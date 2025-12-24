@@ -11,7 +11,12 @@ namespace Cline\Forrst\Discovery;
 
 use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\UnknownSchemaTypeException;
+use InvalidArgumentException;
 use Spatie\LaravelData\Data;
+
+use function get_debug_type;
+use function in_array;
+use function sprintf;
 
 /**
  * Function argument definition for API discovery documentation.
@@ -170,7 +175,7 @@ final class ArgumentData extends Data
     /**
      * Validate that the default value matches the schema type.
      *
-     * @throws \InvalidArgumentException if default value doesn't match schema type
+     * @throws InvalidArgumentException if default value doesn't match schema type
      */
     private function validateDefault(): void
     {
@@ -200,11 +205,11 @@ final class ArgumentData extends Data
             throw UnknownSchemaTypeException::forType($schemaType);
         }
 
-        if (!\in_array($actualType, $typeMap[$schemaType], true)) {
+        if (!in_array($actualType, $typeMap[$schemaType], true)) {
             throw InvalidFieldTypeException::forField(
                 sprintf("default (for argument '%s')", $this->name),
                 $schemaType,
-                $this->default
+                $this->default,
             );
         }
     }

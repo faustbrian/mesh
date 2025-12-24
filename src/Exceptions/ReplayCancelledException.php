@@ -23,6 +23,7 @@ use function sprintf;
  * cannot be processed. The exception includes the replay ID and optional
  * cancellation timestamp for client-side error tracking and audit purposes.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/extensions/replay Replay extension specification
  * @see https://docs.cline.sh/forrst/errors Error handling specification
  */

@@ -29,11 +29,11 @@ final class LockForceReleaseDescriptor implements DescriptorInterface
             ->urn(FunctionUrn::LocksForceRelease)
             ->summary('Force release a lock without ownership check (admin only)')
             ->description(
-                'Administratively releases a lock without verifying ownership. ' .
-                'This is a privileged operation that should be restricted to ' .
-                'administrative users or automated cleanup processes. ' .
-                'Regular applications should use forrst.locks.release instead. ' .
-                'WARNING: Improper use can cause data corruption in critical sections.'
+                'Administratively releases a lock without verifying ownership. '.
+                'This is a privileged operation that should be restricted to '.
+                'administrative users or automated cleanup processes. '.
+                'Regular applications should use forrst.locks.release instead. '.
+                'WARNING: Improper use can cause data corruption in critical sections.',
             )
             ->argument(
                 name: 'key',

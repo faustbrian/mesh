@@ -14,6 +14,17 @@ use Cline\Forrst\Data\AbstractData;
 use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
+use InvalidArgumentException;
+
+use function app;
+use function base_path;
+use function class_exists;
+use function is_string;
+use function preg_match;
+use function realpath;
+use function sprintf;
+use function str_contains;
+use function str_starts_with;
 
 /**
  * Configuration data for a single Forrst server instance.
@@ -27,34 +38,11 @@ use Cline\Forrst\Exceptions\MissingRequiredFieldException;
  * version, and function registry. This allows applications to run multiple
  * versions side-by-side or separate public and admin APIs.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/
  */
 final class ServerData extends AbstractData
 {
-    /**
-     * Create a server configuration instance from an array.
-     *
-     * Factory method for creating ServerData instances from configuration arrays.
-     * Validates required fields and provides sensible defaults for optional fields.
-     *
-     * @param array<string, mixed> $data Configuration data array
-     *
-     * @return self New ServerData instance
-     *
-     * @throws \InvalidArgumentException If required fields are missing
-     */
-    public static function createFromArray(array $data): self
-    {
-        return new self(
-            name: $data['name'] ?? throw MissingRequiredFieldException::forField('name'),
-            path: $data['path'] ?? throw MissingRequiredFieldException::forField('path'),
-            route: $data['route'] ?? throw MissingRequiredFieldException::forField('route'),
-            version: $data['version'] ?? '1.0.0',
-            middleware: $data['middleware'] ?? [],
-            functions: $data['functions'] ?? null,
-        );
-    }
-
     /**
      * Create a new server configuration instance.
      *
@@ -91,6 +79,29 @@ final class ServerData extends AbstractData
     }
 
     /**
+     * Create a server configuration instance from an array.
+     *
+     * Factory method for creating ServerData instances from configuration arrays.
+     * Validates required fields and provides sensible defaults for optional fields.
+     *
+     * @param array<string, mixed> $data Configuration data array
+     *
+     * @throws InvalidArgumentException If required fields are missing
+     * @return self                     New ServerData instance
+     */
+    public static function createFromArray(array $data): self
+    {
+        return new self(
+            name: $data['name'] ?? throw MissingRequiredFieldException::forField('name'),
+            path: $data['path'] ?? throw MissingRequiredFieldException::forField('path'),
+            route: $data['route'] ?? throw MissingRequiredFieldException::forField('route'),
+            version: $data['version'] ?? '1.0.0',
+            middleware: $data['middleware'] ?? [],
+            functions: $data['functions'] ?? null,
+        );
+    }
+
+    /**
      * Validate the server path to prevent directory traversal attacks.
      *
      * Ensures the path does not contain directory traversal sequences and
@@ -98,7 +109,7 @@ final class ServerData extends AbstractData
      *
      * @param string $path The path to validate
      *
-     * @throws \InvalidArgumentException If path contains traversal sequences or invalid format
+     * @throws InvalidArgumentException If path contains traversal sequences or invalid format
      */
     private function validatePath(string $path): void
     {
@@ -119,22 +130,26 @@ final class ServerData extends AbstractData
         }
 
         // If filesystem path, verify it exists and is within app
-        if (str_starts_with($path, '/')) {
-            $realPath = realpath($path);
-            if ($realPath === false) {
-                throw InvalidFieldValueException::forField(
-                    'path',
-                    sprintf('Path does not exist: "%s"', $path),
-                );
-            }
+        if (!str_starts_with($path, '/')) {
+            return;
+        }
 
-            $appPath = base_path();
-            if (!str_starts_with($realPath, $appPath)) {
-                throw InvalidFieldValueException::forField(
-                    'path',
-                    sprintf('Path is outside application root: "%s"', $path),
-                );
-            }
+        $realPath = realpath($path);
+
+        if ($realPath === false) {
+            throw InvalidFieldValueException::forField(
+                'path',
+                sprintf('Path does not exist: "%s"', $path),
+            );
+        }
+
+        $appPath = base_path();
+
+        if (!str_starts_with($realPath, $appPath)) {
+            throw InvalidFieldValueException::forField(
+                'path',
+                sprintf('Path is outside application root: "%s"', $path),
+            );
         }
     }
 
@@ -146,7 +161,7 @@ final class ServerData extends AbstractData
      *
      * @param string $route The route to validate
      *
-     * @throws \InvalidArgumentException If route format is invalid
+     * @throws InvalidArgumentException If route format is invalid
      */
     private function validateRoute(string $route): void
     {
@@ -173,7 +188,7 @@ final class ServerData extends AbstractData
      *
      * @param array<int, string> $middleware The middleware array to validate
      *
-     * @throws \InvalidArgumentException If middleware contains invalid entries or non-existent classes
+     * @throws InvalidArgumentException If middleware contains invalid entries or non-existent classes
      */
     private function validateMiddleware(array $middleware): void
     {

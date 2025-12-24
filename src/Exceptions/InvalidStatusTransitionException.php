@@ -32,8 +32,8 @@ final class InvalidStatusTransitionException extends RuntimeException implements
                 'Invalid status transition from %s to %s. %s',
                 $from,
                 $to,
-                $reason
-            )
+                $reason,
+            ),
         );
     }
 }

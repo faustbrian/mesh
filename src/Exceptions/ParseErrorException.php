@@ -20,6 +20,7 @@ use Cline\Forrst\Enums\ErrorCode;
  * invalid escape sequences. This error is thrown before request validation occurs,
  * as the payload structure itself is unparseable.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/errors Error handling specification
  * @see https://docs.cline.sh/forrst/protocol Protocol specification
  */

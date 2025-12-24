@@ -10,12 +10,12 @@
 namespace Cline\Forrst\Resources;
 
 use Cline\Forrst\Data\RequestObjectData;
+use Cline\Forrst\Exceptions\InvalidModelException;
 use Cline\Forrst\QueryBuilders\QueryBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Override;
-use Cline\Forrst\Exceptions\InvalidModelException;
 
 use function array_keys;
 use function class_basename;

@@ -11,6 +11,8 @@ namespace Cline\Forrst\Enums;
 
 use Cline\Forrst\Exceptions\InvalidStatusTransitionException;
 
+use function in_array;
+
 /**
  * Lifecycle status values for replay operations in the Forrst replay extension.
  *
@@ -166,7 +168,6 @@ enum ReplayStatus: string
                 self::Cancelled,
                 self::Expired,
             ], true),
-
             self::Processing => in_array($newStatus, [
                 self::Completed,
                 self::Failed,
@@ -174,7 +175,6 @@ enum ReplayStatus: string
                 self::Expired,
                 self::Processed,
             ], true),
-
             // Terminal states already handled above
             default => false,
         };
@@ -201,7 +201,7 @@ enum ReplayStatus: string
                 $newStatus->value,
                 $this->isTerminal()
                     ? 'Terminal states cannot transition.'
-                    : 'This transition is not allowed by the replay lifecycle.'
+                    : 'This transition is not allowed by the replay lifecycle.',
             );
         }
 
@@ -229,7 +229,6 @@ enum ReplayStatus: string
                 self::Cancelled,
                 self::Expired,
             ],
-
             self::Processing => [
                 self::Completed,
                 self::Failed,
@@ -237,7 +236,6 @@ enum ReplayStatus: string
                 self::Expired,
                 self::Processed,
             ],
-
             default => [],
         };
     }

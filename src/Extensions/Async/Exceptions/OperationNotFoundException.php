@@ -22,6 +22,4 @@ use RuntimeException;
  *
  * @author Brian Faust <brian@cline.sh>
  */
-final class OperationNotFoundException extends RuntimeException
-{
-}
+final class OperationNotFoundException extends RuntimeException {}

@@ -16,6 +16,13 @@ use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\InvalidFunctionNameException;
 use Spatie\LaravelData\Data;
 
+use function implode;
+use function in_array;
+use function is_array;
+use function mb_trim;
+use function preg_match;
+use function sprintf;
+
 /**
  * Function descriptor for discovery documents.
  *
@@ -126,27 +133,27 @@ final class FunctionDescriptorData extends Data
         public readonly ?FunctionExtensionsData $extensions = null,
     ) {
         // Validate name (URN format)
-        if (trim($name) === '') {
+        if (mb_trim($name) === '') {
             throw EmptyFieldException::forField('name');
         }
 
         if (!preg_match('/^urn:[a-z][a-z0-9-]*:forrst:fn:[a-z][a-z0-9:.]*$/i', $name)) {
             throw InvalidFunctionNameException::forName(
                 $name,
-                "Expected format: 'urn:namespace:forrst:fn:function:name'"
+                "Expected format: 'urn:namespace:forrst:fn:function:name'",
             );
         }
 
         // Validate semantic version
-        $semverPattern = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)' .
-            '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)' .
-            '(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'  .
+        $semverPattern = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'.
+            '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)'.
+            '(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'.
             '(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/';
 
         if (!preg_match($semverPattern, $version)) {
             throw InvalidFieldValueException::forField(
                 'version',
-                sprintf("Invalid semantic version: '%s'. Must follow semver format (e.g., '1.0.0')", $version)
+                sprintf("Invalid semantic version: '%s'. Must follow semver format (e.g., '1.0.0')", $version),
             );
         }
 
@@ -156,7 +163,7 @@ final class FunctionDescriptorData extends Data
                 throw InvalidFieldTypeException::forField(
                     sprintf('arguments[%d]', $index),
                     ArgumentData::class,
-                    $argument
+                    $argument,
                 );
             }
         }
@@ -173,11 +180,11 @@ final class FunctionDescriptorData extends Data
         // tags arrays must contain proper types
         if ($this->tags !== null) {
             foreach ($this->tags as $index => $tag) {
-                if (!\is_array($tag) && !$tag instanceof TagData) {
+                if (!is_array($tag) && !$tag instanceof TagData) {
                     throw InvalidFieldTypeException::forField(
                         sprintf('tags[%d]', $index),
-                        'array or ' . TagData::class,
-                        $tag
+                        'array or '.TagData::class,
+                        $tag,
                     );
                 }
             }
@@ -186,11 +193,11 @@ final class FunctionDescriptorData extends Data
         // errors arrays must contain proper types
         if ($this->errors !== null) {
             foreach ($this->errors as $index => $error) {
-                if (!\is_array($error) && !$error instanceof ErrorDefinitionData) {
+                if (!is_array($error) && !$error instanceof ErrorDefinitionData) {
                     throw InvalidFieldTypeException::forField(
                         sprintf('errors[%d]', $index),
-                        'array or ' . ErrorDefinitionData::class,
-                        $error
+                        'array or '.ErrorDefinitionData::class,
+                        $error,
                     );
                 }
             }
@@ -199,26 +206,29 @@ final class FunctionDescriptorData extends Data
         // links arrays must contain proper types
         if ($this->links !== null) {
             foreach ($this->links as $index => $link) {
-                if (!\is_array($link) && !$link instanceof LinkData) {
+                if (!is_array($link) && !$link instanceof LinkData) {
                     throw InvalidFieldTypeException::forField(
                         sprintf('links[%d]', $index),
-                        'array or ' . LinkData::class,
-                        $link
+                        'array or '.LinkData::class,
+                        $link,
                     );
                 }
             }
         }
 
         // sideEffects must use standard values
-        if ($this->sideEffects !== null) {
-            $validEffects = ['create', 'update', 'delete', 'read'];
-            foreach ($this->sideEffects as $effect) {
-                if (!\in_array($effect, $validEffects, true)) {
-                    throw InvalidFieldValueException::forField(
-                        'sideEffects',
-                        sprintf("Invalid value: '%s'. Must be one of: ", $effect) . implode(', ', $validEffects)
-                    );
-                }
+        if ($this->sideEffects === null) {
+            return;
+        }
+
+        $validEffects = ['create', 'update', 'delete', 'read'];
+
+        foreach ($this->sideEffects as $effect) {
+            if (!in_array($effect, $validEffects, true)) {
+                throw InvalidFieldValueException::forField(
+                    'sideEffects',
+                    sprintf("Invalid value: '%s'. Must be one of: ", $effect).implode(', ', $validEffects),
+                );
             }
         }
     }

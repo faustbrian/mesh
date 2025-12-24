@@ -13,6 +13,9 @@ use Cline\Forrst\Data\RequestObjectData;
 use Cline\Forrst\Functions\AbstractFunction;
 use Override;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class CalculatorV1 extends AbstractFunction
 {
     #[Override()]

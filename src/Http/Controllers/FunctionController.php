@@ -32,7 +32,11 @@ use const JSON_UNESCAPED_SLASHES;
 
 use function connection_aborted;
 use function flush;
+use function get_debug_type;
+use function is_array;
+use function is_object;
 use function json_encode;
+use function method_exists;
 use function ob_end_flush;
 use function ob_flush;
 use function ob_get_level;

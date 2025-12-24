@@ -10,6 +10,7 @@
 namespace Cline\Forrst\Protocols;
 
 use Cline\Forrst\Contracts\ProtocolInterface;
+use InvalidArgumentException;
 use JsonException;
 
 use const JSON_THROW_ON_ERROR;
@@ -123,7 +124,7 @@ final readonly class ForrstProtocol implements ProtocolInterface
      *
      * @param array<string, mixed> $data Data to validate
      *
-     * @throws \InvalidArgumentException If data is invalid
+     * @throws InvalidArgumentException If data is invalid
      */
     public function validate(array $data): void
     {

@@ -16,8 +16,10 @@ use Cline\Forrst\Exceptions\FieldOutOfRangeException;
 use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Extensions\Async\Descriptors\OperationListDescriptor;
 use Cline\Forrst\Functions\AbstractFunction;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Throwable;
 
 use function array_map;
 use function count;
@@ -54,7 +56,7 @@ final class OperationListFunction extends AbstractFunction
      * Operations are scoped to the authenticated user. Users can only list
      * operations they own, preventing cross-user data exposure.
      *
-     * @throws \InvalidArgumentException If any argument is invalid
+     * @throws InvalidArgumentException If any argument is invalid
      *
      * @return array{operations: array<int, array<string, mixed>>, next_cursor?: string} Paginated operations
      */
@@ -128,7 +130,7 @@ final class OperationListFunction extends AbstractFunction
             $id = $user->getAuthIdentifier();
 
             return $id !== null ? (string) $id : null;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // No authenticated user - allow anonymous access for system operations
             return null;
         }

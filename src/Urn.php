@@ -15,8 +15,11 @@ use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\InvalidUrnFormatException;
 
 use function implode;
+use function mb_strlen;
 use function preg_match;
+use function sprintf;
 use function str_contains;
+use function ucfirst;
 
 /**
  * URN builder for Forrst identifiers.
@@ -121,7 +124,7 @@ final class Urn
     public static function parse(string $urn): array
     {
         // Prevent ReDoS attacks
-        if (strlen($urn) > 255) {
+        if (mb_strlen($urn) > 255) {
             throw InvalidUrnFormatException::create($urn);
         }
 
@@ -157,7 +160,7 @@ final class Urn
     public static function isValid(string $urn): bool
     {
         // Prevent ReDoS attacks
-        if (strlen($urn) > 255) {
+        if (mb_strlen($urn) > 255) {
             return false;
         }
 
@@ -174,7 +177,7 @@ final class Urn
     public static function isCore(string $urn): bool
     {
         // Add length check for consistency
-        if (strlen($urn) > 255) {
+        if (mb_strlen($urn) > 255) {
             return false;
         }
 
@@ -204,9 +207,9 @@ final class Urn
      * @param string $name Name to validate
      * @param string $type Type of component (for error message)
      *
-     * @throws EmptyFieldException               If name is empty
-     * @throws FieldExceedsMaxLengthException    If name exceeds max length
-     * @throws InvalidFieldValueException        If name format is invalid
+     * @throws EmptyFieldException            If name is empty
+     * @throws FieldExceedsMaxLengthException If name exceeds max length
+     * @throws InvalidFieldValueException     If name format is invalid
      */
     private static function validateName(string $name, string $type): void
     {
@@ -214,7 +217,7 @@ final class Urn
             throw EmptyFieldException::forField(sprintf('%s name', ucfirst($type)));
         }
 
-        if (strlen($name) > 100) {
+        if (mb_strlen($name) > 100) {
             throw FieldExceedsMaxLengthException::forField(sprintf('%s name', ucfirst($type)), 100);
         }
 
@@ -224,8 +227,8 @@ final class Urn
                 sprintf('%s name', ucfirst($type)),
                 sprintf(
                     'name "%s" must start with a letter and contain only lowercase letters, numbers, hyphens, and colons',
-                    $name
-                )
+                    $name,
+                ),
             );
         }
     }
@@ -235,9 +238,9 @@ final class Urn
      *
      * @param string $vendor Vendor identifier
      *
-     * @throws EmptyFieldException               If vendor is empty
-     * @throws FieldExceedsMaxLengthException    If vendor exceeds max length
-     * @throws InvalidFieldValueException        If vendor format is invalid
+     * @throws EmptyFieldException            If vendor is empty
+     * @throws FieldExceedsMaxLengthException If vendor exceeds max length
+     * @throws InvalidFieldValueException     If vendor format is invalid
      */
     private static function validateVendor(string $vendor): void
     {
@@ -245,7 +248,7 @@ final class Urn
             throw EmptyFieldException::forField('Vendor');
         }
 
-        if (strlen($vendor) > 50) {
+        if (mb_strlen($vendor) > 50) {
             throw FieldExceedsMaxLengthException::forField('Vendor', 50);
         }
 
@@ -254,8 +257,8 @@ final class Urn
                 'Vendor',
                 sprintf(
                     '"%s" must start with a letter and contain only lowercase letters, numbers, and hyphens',
-                    $vendor
-                )
+                    $vendor,
+                ),
             );
         }
     }

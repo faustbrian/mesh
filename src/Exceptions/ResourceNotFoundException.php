@@ -21,6 +21,7 @@ use Cline\Forrst\Enums\ErrorCode;
  * code INTERNAL_ERROR, providing structured error information to the client while
  * maintaining protocol compliance.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/resource-objects Resource objects specification
  * @see https://docs.cline.sh/forrst/errors Error handling specification
  */

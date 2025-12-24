@@ -24,6 +24,7 @@ namespace Cline\Forrst\Data;
  *
  * Terminal states cannot transition to other states.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/extensions/async
  */
 enum OperationStatus: string

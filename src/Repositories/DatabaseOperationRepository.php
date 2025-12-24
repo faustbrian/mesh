@@ -13,6 +13,7 @@ use Cline\Forrst\Contracts\OperationRepositoryInterface;
 use Cline\Forrst\Data\OperationData;
 use Cline\Forrst\Exceptions\ForbiddenException;
 use Cline\Forrst\Models\Operation;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 use function array_map;
@@ -301,9 +302,8 @@ final readonly class DatabaseOperationRepository implements OperationRepositoryI
      * @param int           $expectedVersion The lock_version expected in storage (currently ignored)
      * @param null|string   $userId          User ID for access control
      *
-     * @return bool True if save succeeded
-     *
      * @throws ForbiddenException If userId doesn't match existing operation's owner
+     * @return bool               True if save succeeded
      */
     public function saveIfVersionMatches(
         OperationData $operation,
@@ -336,12 +336,12 @@ final readonly class DatabaseOperationRepository implements OperationRepositoryI
     /**
      * Delete operations that expired before the given timestamp.
      *
-     * @param \DateTimeInterface $before Delete operations with expires_at before this time
-     * @param int                $limit  Maximum number of operations to delete per call
+     * @param DateTimeInterface $before Delete operations with expires_at before this time
+     * @param int               $limit  Maximum number of operations to delete per call
      *
      * @return int Number of operations deleted
      */
-    public function deleteExpiredBefore(\DateTimeInterface $before, int $limit = 1000): int
+    public function deleteExpiredBefore(DateTimeInterface $before, int $limit = 1_000): int
     {
         return Operation::query()
             ->whereNotNull('expires_at')

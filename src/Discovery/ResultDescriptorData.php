@@ -14,6 +14,10 @@ use Cline\Forrst\Exceptions\InvalidResultSchemaException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 use Spatie\LaravelData\Data;
 
+use function in_array;
+use function preg_match;
+use function sprintf;
+
 /**
  * RPC method return value type definition.
  *
@@ -54,8 +58,8 @@ final class ResultDescriptorData extends Data
         if ($this->resource !== null && $this->schema !== null) {
             throw InvalidFieldValueException::forField(
                 'resource/schema',
-                'Cannot specify both "resource" and "schema". Use resource for resource objects ' .
-                'or schema for custom return types, but not both.'
+                'Cannot specify both "resource" and "schema". Use resource for resource objects '.
+                'or schema for custom return types, but not both.',
             );
         }
 
@@ -68,37 +72,42 @@ final class ResultDescriptorData extends Data
         if ($this->resource !== null && !preg_match('/^[a-z][a-z0-9_]*$/', $this->resource)) {
             throw InvalidFieldValueException::forField(
                 'resource',
-                sprintf("Invalid resource name: '%s'. Must be snake_case lowercase (e.g., 'user', 'order_item')", $this->resource)
+                sprintf("Invalid resource name: '%s'. Must be snake_case lowercase (e.g., 'user', 'order_item')", $this->resource),
             );
         }
 
         // Validate JSON Schema structure if provided
-        if ($this->schema !== null) {
-            $this->validateJsonSchema($this->schema);
+        if ($this->schema === null) {
+            return;
         }
+
+        $this->validateJsonSchema($this->schema);
     }
 
     /**
      * Validate JSON Schema structure.
      *
-     * @param array<string, mixed> $schema
+     * @param  array<string, mixed>         $schema
      * @throws InvalidResultSchemaException
      */
     private function validateJsonSchema(array $schema): void
     {
         if (!isset($schema['type']) && !isset($schema['$ref'])) {
             throw InvalidResultSchemaException::forSchema(
-                'JSON Schema must include "type" or "$ref" property'
+                'JSON Schema must include "type" or "$ref" property',
             );
         }
 
-        if (isset($schema['type'])) {
-            $validTypes = ['null', 'boolean', 'object', 'array', 'number', 'string', 'integer'];
-            if (!in_array($schema['type'], $validTypes, true)) {
-                throw InvalidResultSchemaException::forSchema(
-                    sprintf("Invalid JSON Schema type: '%s'", $schema['type'])
-                );
-            }
+        if (!isset($schema['type'])) {
+            return;
+        }
+
+        $validTypes = ['null', 'boolean', 'object', 'array', 'number', 'string', 'integer'];
+
+        if (!in_array($schema['type'], $validTypes, true)) {
+            throw InvalidResultSchemaException::forSchema(
+                sprintf("Invalid JSON Schema type: '%s'", $schema['type']),
+            );
         }
     }
 }

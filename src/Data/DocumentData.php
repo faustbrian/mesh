@@ -10,6 +10,10 @@
 namespace Cline\Forrst\Data;
 
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
+use InvalidArgumentException;
+
+use function count;
+use function is_array;
 
 /**
  * Document wrapper for Forrst responses following JSON:API patterns.
@@ -27,6 +31,7 @@ use Cline\Forrst\Exceptions\MissingRequiredFieldException;
  * deduplicated by type and id, while relationships contain only resource
  * identifiers for linkage.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/document-structure
  * @see https://jsonapi.org/format/#document-top-level
  * @see https://jsonapi.org/format/#document-compound-documents
@@ -70,18 +75,18 @@ final class DocumentData extends AbstractData
      * recommended way to create DocumentData instances from external sources
      * such as JSON payloads or database results.
      *
-     * @param  array<string, mixed> $data Raw array containing document fields
-     * @return self New DocumentData instance
+     * @param array<string, mixed> $data Raw array containing document fields
      *
-     * @throws \InvalidArgumentException If required 'data' field is missing
+     * @throws InvalidArgumentException If required 'data' field is missing
+     * @return self                     New DocumentData instance
      */
     public static function createFromArray(array $data): self
     {
         return new self(
             data: $data['data'] ?? throw MissingRequiredFieldException::forField('data'),
-            included: isset($data['included']) && \is_array($data['included']) ? $data['included'] : null,
-            errors: isset($data['errors']) && \is_array($data['errors']) ? $data['errors'] : null,
-            meta: isset($data['meta']) && \is_array($data['meta']) ? $data['meta'] : null,
+            included: isset($data['included']) && is_array($data['included']) ? $data['included'] : null,
+            errors: isset($data['errors']) && is_array($data['errors']) ? $data['errors'] : null,
+            meta: isset($data['meta']) && is_array($data['meta']) ? $data['meta'] : null,
         );
     }
 
@@ -95,7 +100,7 @@ final class DocumentData extends AbstractData
      * @param  array<string, mixed>                  $data     The successful response payload
      * @param  null|array<int, array<string, mixed>> $included Optional related resources
      * @param  null|array<string, mixed>             $meta     Optional metadata
-     * @return self New DocumentData instance for success response
+     * @return self                                  New DocumentData instance for success response
      */
     public static function success(
         array $data,
@@ -119,7 +124,7 @@ final class DocumentData extends AbstractData
      *
      * @param  array<int, mixed>         $errors Array of error objects
      * @param  null|array<string, mixed> $meta   Optional metadata
-     * @return self New DocumentData instance for error response
+     * @return self                      New DocumentData instance for error response
      */
     public static function error(
         array $errors,
@@ -170,7 +175,7 @@ final class DocumentData extends AbstractData
      */
     public function getErrorCount(): int
     {
-        return $this->errors !== null ? \count($this->errors) : 0;
+        return $this->errors !== null ? count($this->errors) : 0;
     }
 
     /**
@@ -180,6 +185,6 @@ final class DocumentData extends AbstractData
      */
     public function getIncludedCount(): int
     {
-        return $this->included !== null ? \count($this->included) : 0;
+        return $this->included !== null ? count($this->included) : 0;
     }
 }

@@ -15,6 +15,8 @@ use Illuminate\Console\Command;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+use function sprintf;
+
 /**
  * Console command to clean up expired async operations.
  *

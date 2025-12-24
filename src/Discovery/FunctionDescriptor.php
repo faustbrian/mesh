@@ -15,6 +15,11 @@ use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\InvalidInputSchemaException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 use Cline\Forrst\Exceptions\UnknownSchemaTypeException;
+use InvalidArgumentException;
+
+use function in_array;
+use function preg_match;
+use function sprintf;
 
 /**
  * Fluent builder for function discovery descriptors.
@@ -88,7 +93,7 @@ final class FunctionDescriptor
      *
      * @param BackedEnum|string $urn Function URN or URN enum (e.g., "urn:acme:forrst:fn:orders:create")
      *
-     * @throws \InvalidArgumentException If URN format invalid
+     * @throws InvalidArgumentException If URN format invalid
      */
     public function urn(BackedEnum|string $urn): self
     {
@@ -98,7 +103,7 @@ final class FunctionDescriptor
         if (!preg_match('/^urn:[a-z][a-z0-9-]*:forrst:fn:[a-z][a-z0-9:.]*$/i', $urnString)) {
             throw InvalidFieldValueException::forField(
                 'urn',
-                sprintf("Invalid format: '%s'. Expected format: 'urn:namespace:forrst:fn:function:name' (e.g., 'urn:acme:forrst:fn:users:get')", $urnString)
+                sprintf("Invalid format: '%s'. Expected format: 'urn:namespace:forrst:fn:function:name' (e.g., 'urn:acme:forrst:fn:users:get')", $urnString),
             );
         }
 
@@ -112,20 +117,20 @@ final class FunctionDescriptor
      *
      * @param string $version Semantic version (e.g., "1.0.0", "2.0.0-beta.1")
      *
-     * @throws \InvalidArgumentException If version invalid
+     * @throws InvalidArgumentException If version invalid
      */
     public function version(string $version): self
     {
         // Validate semantic versioning format
-        $semverPattern = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)' .
-            '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)' .
-            '(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'  .
+        $semverPattern = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'.
+            '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)'.
+            '(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'.
             '(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/';
 
         if (!preg_match($semverPattern, $version)) {
             throw InvalidFieldValueException::forField(
                 'version',
-                sprintf("Invalid semantic version: '%s'. Must follow semver format (e.g., '1.0.0', '2.1.0-beta.1', '3.0.0+build.123'). See: https://semver.org/", $version)
+                sprintf("Invalid semantic version: '%s'. Must follow semver format (e.g., '1.0.0', '2.1.0-beta.1', '3.0.0+build.123'). See: https://semver.org/", $version),
             );
         }
 
@@ -180,7 +185,7 @@ final class FunctionDescriptor
      * @param null|DeprecatedData    $deprecated  Deprecation info
      * @param null|array<int, mixed> $examples    Example values
      *
-     * @throws \InvalidArgumentException If schema is invalid
+     * @throws InvalidArgumentException If schema is invalid
      */
     public function argument(
         string $name,
@@ -580,23 +585,25 @@ final class FunctionDescriptor
      *
      * @param array<string, mixed> $schema
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function validateJsonSchema(array $schema): void
     {
         if (!isset($schema['type']) && !isset($schema['$ref'])) {
             throw InvalidInputSchemaException::forField(
                 'schema',
-                'JSON Schema must include "type" or "$ref" property'
+                'JSON Schema must include "type" or "$ref" property',
             );
         }
 
-        if (isset($schema['type'])) {
-            $validTypes = ['null', 'boolean', 'object', 'array', 'number', 'string', 'integer'];
+        if (!isset($schema['type'])) {
+            return;
+        }
 
-            if (!in_array($schema['type'], $validTypes, true)) {
-                throw UnknownSchemaTypeException::forType($schema['type']);
-            }
+        $validTypes = ['null', 'boolean', 'object', 'array', 'number', 'string', 'integer'];
+
+        if (!in_array($schema['type'], $validTypes, true)) {
+            throw UnknownSchemaTypeException::forType($schema['type']);
         }
     }
 }

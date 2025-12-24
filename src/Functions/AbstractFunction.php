@@ -39,6 +39,14 @@ use Override;
 use ReflectionClass;
 
 use function class_basename;
+use function config;
+use function gettype;
+use function is_callable;
+use function is_string;
+use function is_subclass_of;
+use function method_exists;
+use function preg_replace;
+use function sprintf;
 
 /**
  * Base class for all Forrst function implementations.
@@ -84,24 +92,6 @@ abstract class AbstractFunction implements FunctionInterface
     private bool $descriptorResolved = false;
 
     /**
-     * Delegate to descriptor or return default value.
-     *
-     * @template T
-     *
-     * @param  callable(FunctionDescriptor): T  $getter
-     * @param  T  $default
-     * @return T
-     */
-    private function fromDescriptorOr(callable $getter, mixed $default): mixed
-    {
-        $descriptor = $this->resolveDescriptor();
-
-        return $descriptor instanceof FunctionDescriptor
-            ? $getter($descriptor)
-            : $default;
-    }
-
-    /**
      * Get the URN (Uniform Resource Name) for this function.
      *
      * Reads from the #[Descriptor] attribute if present, otherwise generates
@@ -117,10 +107,10 @@ abstract class AbstractFunction implements FunctionInterface
             function (): string {
                 $vendor = config('rpc.vendor', 'app');
 
-                if (! \is_string($vendor)) {
+                if (!is_string($vendor)) {
                     throw InvalidFieldValueException::forField(
                         'rpc.vendor',
-                        'Configuration key "rpc.vendor" must be a string, '.\gettype($vendor).' provided',
+                        'Configuration key "rpc.vendor" must be a string, '.gettype($vendor).' provided',
                     );
                 }
 
@@ -402,7 +392,7 @@ abstract class AbstractFunction implements FunctionInterface
      * Called before function execution to provide access to request arguments
      * and metadata throughout the function's lifecycle.
      *
-     * @param  RequestObjectData  $requestObject  The Forrst request data
+     * @param RequestObjectData $requestObject The Forrst request data
      */
     #[Override()]
     public function setRequest(RequestObjectData $requestObject): void
@@ -425,6 +415,26 @@ abstract class AbstractFunction implements FunctionInterface
         }
 
         return $this->requestObject;
+    }
+
+    /**
+     * Delegate to descriptor or return default value.
+     *
+     * @template T
+     *
+     * @param  callable(FunctionDescriptor): T $getter
+     * @param  T                               $default
+     * @return T
+     */
+    private function fromDescriptorOr(callable $getter, mixed $default): mixed
+    {
+        $descriptor = $this->resolveDescriptor();
+
+        if ($descriptor instanceof FunctionDescriptor) {
+            return $getter($descriptor);
+        }
+
+        return is_callable($default) ? $default() : $default;
     }
 
     /**
@@ -456,7 +466,7 @@ abstract class AbstractFunction implements FunctionInterface
         $descriptorClass = $attribute->class;
 
         // Validate the descriptor class implements the correct interface
-        if (! is_subclass_of($descriptorClass, DescriptorInterface::class)) {
+        if (!is_subclass_of($descriptorClass, DescriptorInterface::class)) {
             throw InvalidFieldTypeException::forField(
                 'descriptor class',
                 sprintf('must implement %s', DescriptorInterface::class),
@@ -465,7 +475,7 @@ abstract class AbstractFunction implements FunctionInterface
         }
 
         // Validate create() method exists
-        if (! method_exists($descriptorClass, 'create')) {
+        if (!method_exists($descriptorClass, 'create')) {
             throw MissingMethodImplementationException::forMethod(
                 $descriptorClass,
                 'create',

@@ -35,15 +35,22 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Container\Attributes\Singleton;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use JsonException;
 use Throwable;
 
+use const JSON_THROW_ON_ERROR;
+
 use function array_is_list;
+use function config;
 use function dispatch_sync;
 use function event;
 use function hrtime;
 use function is_array;
 use function is_string;
+use function json_decode;
+use function mb_strlen;
 use function round;
+use function sprintf;
 use function throw_if;
 
 /**
@@ -130,8 +137,8 @@ final readonly class RequestHandler
 
         // Validate request size if string
         if (is_string($request)) {
-            $maxSize = config('rpc.max_request_size', 1024 * 1024);
-            $size = strlen($request);
+            $maxSize = config('rpc.max_request_size', 1_024 * 1_024);
+            $size = mb_strlen($request);
 
             if ($maxSize > 0 && $size > $maxSize) {
                 return RequestResultData::from([
@@ -393,7 +400,7 @@ final readonly class RequestHandler
             if (is_array($decoded) && isset($decoded['id']) && is_string($decoded['id'])) {
                 return $decoded['id'];
             }
-        } catch (\JsonException) {
+        } catch (JsonException) {
             // JSON decode failed - return generated ID
         }
 

@@ -12,6 +12,9 @@ namespace Cline\Forrst\Discovery;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Spatie\LaravelData\Data;
 
+use function preg_match;
+use function sprintf;
+
 /**
  * Extension declaration for server endpoints in discovery documents.
  *
@@ -44,21 +47,21 @@ final class ServerExtensionDeclarationData extends Data
         if (!preg_match('/^urn:forrst:ext:[a-z][a-z0-9-]*$/', $this->urn)) {
             throw InvalidFieldValueException::forField(
                 'urn',
-                sprintf("Invalid extension URN: '%s'. ", $this->urn) .
-                "Expected format: 'urn:forrst:ext:extensionname' (e.g., 'urn:forrst:ext:async')"
+                sprintf("Invalid extension URN: '%s'. ", $this->urn).
+                "Expected format: 'urn:forrst:ext:extensionname' (e.g., 'urn:forrst:ext:async')",
             );
         }
 
         // Validate semantic version
-        $semverPattern = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)' .
-            '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)' .
-            '(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'  .
+        $semverPattern = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'.
+            '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)'.
+            '(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'.
             '(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/';
 
         if (!preg_match($semverPattern, $this->version)) {
             throw InvalidFieldValueException::forField(
                 'version',
-                sprintf("Invalid semantic version: '%s'. Must follow semver format", $this->version)
+                sprintf("Invalid semantic version: '%s'. Must follow semver format", $this->version),
             );
         }
     }

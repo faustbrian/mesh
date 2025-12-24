@@ -18,10 +18,10 @@ use Cline\Forrst\Events\SendingResponse;
 use Cline\Forrst\Exceptions\InvalidExtensionConfigurationException;
 use Cline\Forrst\Facades\Server;
 use Illuminate\Container\Attributes\Singleton;
-use ReflectionMethod;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use ReflectionMethod;
 use Throwable;
 
 use function is_int;

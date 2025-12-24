@@ -13,6 +13,9 @@ use Cline\Forrst\Exceptions\EmptyFieldException;
 use Cline\Forrst\Exceptions\FieldExceedsMaxLengthException;
 use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 
+use function is_string;
+use function mb_strlen;
+
 /**
  * JSON:API compliant resource identifier for relationship linkage.
  *
@@ -47,7 +50,7 @@ final class ResourceIdentifierData extends AbstractData
      *                     the primary key value cast as a string. Must be unique within the
      *                     resource type namespace.
      *
-     * @throws EmptyFieldException If type or id are empty
+     * @throws EmptyFieldException            If type or id are empty
      * @throws FieldExceedsMaxLengthException If type or id exceed maximum length
      */
     public function __construct(
@@ -58,7 +61,7 @@ final class ResourceIdentifierData extends AbstractData
             throw EmptyFieldException::forField('type');
         }
 
-        if (strlen($type) > self::MAX_TYPE_LENGTH) {
+        if (mb_strlen($type) > self::MAX_TYPE_LENGTH) {
             throw FieldExceedsMaxLengthException::forField('type', self::MAX_TYPE_LENGTH);
         }
 
@@ -66,7 +69,7 @@ final class ResourceIdentifierData extends AbstractData
             throw EmptyFieldException::forField('id');
         }
 
-        if (strlen($id) > self::MAX_ID_LENGTH) {
+        if (mb_strlen($id) > self::MAX_ID_LENGTH) {
             throw FieldExceedsMaxLengthException::forField('id', self::MAX_ID_LENGTH);
         }
     }
@@ -79,8 +82,8 @@ final class ResourceIdentifierData extends AbstractData
      *
      * @param array<string, mixed> $data Array containing type and id fields
      *
-     * @return self Resource identifier instance
      * @throws InvalidFieldTypeException If type or id are missing or not strings
+     * @return self                      Resource identifier instance
      */
     public static function createFromArray(array $data): self
     {

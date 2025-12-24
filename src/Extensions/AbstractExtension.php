@@ -13,6 +13,9 @@ use Cline\Forrst\Contracts\ExtensionInterface;
 use Cline\Forrst\Exceptions\EmptyFieldException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 
+use function array_merge;
+use function str_starts_with;
+
 /**
  * Base implementation for Forrst extension handlers.
  *
@@ -32,16 +35,6 @@ use Cline\Forrst\Exceptions\InvalidFieldValueException;
  */
 abstract class AbstractExtension implements ExtensionInterface
 {
-    /**
-     * Get the unique URN identifier for this extension.
-     *
-     * Subclasses must implement this to return their unique identifier used
-     * in extension discovery and request routing.
-     *
-     * @return string Extension URN (e.g., 'forrst.ext.async')
-     */
-    abstract public function getUrn(): string;
-
     /**
      * Determine if extension runs on all requests.
      *
@@ -85,28 +78,14 @@ abstract class AbstractExtension implements ExtensionInterface
     }
 
     /**
-     * Get additional capability metadata.
-     *
-     * Subclasses can override this to provide documentation URLs, version info,
-     * or other metadata for inclusion in capability responses.
-     *
-     * @return array<string, mixed> Additional metadata
-     */
-    protected function getCapabilityMetadata(): array
-    {
-        return [];
-    }
-
-    /**
      * Export extension capabilities for discovery.
      *
      * Returns the extension's URN for inclusion in server capabilities responses.
      * Subclasses can override getCapabilityMetadata() to include additional information.
      *
+     * @throws EmptyFieldException                        If URN is empty
+     * @throws InvalidFieldValueException                 If URN has invalid format
      * @return array{urn: string, documentation?: string} Capability information
-     *
-     * @throws EmptyFieldException If URN is empty
-     * @throws InvalidFieldValueException If URN has invalid format
      */
     final public function toCapabilities(): array
     {
@@ -122,7 +101,30 @@ abstract class AbstractExtension implements ExtensionInterface
 
         return array_merge(
             ['urn' => $urn],
-            $this->getCapabilityMetadata()
+            $this->getCapabilityMetadata(),
         );
+    }
+
+    /**
+     * Get the unique URN identifier for this extension.
+     *
+     * Subclasses must implement this to return their unique identifier used
+     * in extension discovery and request routing.
+     *
+     * @return string Extension URN (e.g., 'forrst.ext.async')
+     */
+    abstract public function getUrn(): string;
+
+    /**
+     * Get additional capability metadata.
+     *
+     * Subclasses can override this to provide documentation URLs, version info,
+     * or other metadata for inclusion in capability responses.
+     *
+     * @return array<string, mixed> Additional metadata
+     */
+    protected function getCapabilityMetadata(): array
+    {
+        return [];
     }
 }

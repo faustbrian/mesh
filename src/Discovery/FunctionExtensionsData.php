@@ -14,6 +14,20 @@ use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Spatie\LaravelData\Data;
 
+use const E_USER_WARNING;
+
+use function array_diff;
+use function array_unique;
+use function array_values;
+use function count;
+use function is_string;
+use function json_encode;
+use function mb_strtolower;
+use function preg_match;
+use function sprintf;
+use function str_starts_with;
+use function trigger_error;
+
 /**
  * Per-function extension support configuration.
  *
@@ -57,86 +71,6 @@ final class FunctionExtensionsData extends Data
     }
 
     /**
-     * Ensure supported and excluded are mutually exclusive.
-     *
-     * @throws InvalidArgumentException
-     */
-    private function validateMutualExclusivity(): void
-    {
-        if ($this->supported !== null && $this->excluded !== null) {
-            throw InvalidFieldValueException::forField(
-                'extensions',
-                'Cannot specify both "supported" and "excluded"—they are mutually exclusive. Use "supported" for allowlist or "excluded" for blocklist, not both.'
-            );
-        }
-
-        // Validate arrays are not empty when specified
-        if ($this->supported !== null && $this->supported === []) {
-            throw EmptyFieldException::forField('supported');
-        }
-
-        if ($this->excluded !== null && $this->excluded === []) {
-            throw EmptyFieldException::forField('excluded');
-        }
-    }
-
-    /**
-     * Validate extension names follow expected format.
-     *
-     * @param array<int, string> $extensions
-     *
-     * @throws InvalidArgumentException
-     */
-    private function validateExtensionNames(array $extensions): void
-    {
-        foreach ($extensions as $index => $name) {
-            if (!\is_string($name)) {
-                throw InvalidFieldTypeException::forField(
-                    sprintf('extension[%d]', $index),
-                    'string',
-                    $name
-                );
-            }
-
-            // Extension names should follow kebab-case or URN format
-            if (!\preg_match('/^[a-z][a-z0-9-]*$/', $name) && !\str_starts_with($name, 'urn:')) {
-                throw InvalidFieldValueException::forField(
-                    sprintf('extension[%d]', $index),
-                    sprintf("Invalid extension name '%s'. Must be kebab-case (e.g., 'query', 'atomic-lock') or URN format (e.g., 'urn:forrst:ext:query')", $name)
-                );
-            }
-
-            // Warn about uppercase (common mistake)
-            if ($name !== \strtolower($name) && !\str_starts_with($name, 'urn:')) {
-                \trigger_error(
-                    sprintf("Warning: Extension name '%s' contains uppercase characters. ", $name)
-                    ."Extension names are case-sensitive and typically lowercase.",
-                    \E_USER_WARNING
-                );
-            }
-        }
-    }
-
-    /**
-     * Validate no duplicate extension names exist.
-     *
-     * @param array<int, string> $extensions
-     *
-     * @throws InvalidArgumentException
-     */
-    private function validateNoDuplicates(array $extensions, string $fieldName): void
-    {
-        $unique = \array_unique($extensions);
-        if (\count($unique) !== \count($extensions)) {
-            $duplicates = \array_diff($extensions, $unique);
-            throw InvalidFieldValueException::forField(
-                $fieldName,
-                "Contains duplicate extension names: " . \json_encode(\array_values($duplicates))
-            );
-        }
-    }
-
-    /**
      * Create allowlist configuration (only specified extensions supported).
      *
      * @param array<int, string> $extensions Extension names to allow
@@ -174,5 +108,89 @@ final class FunctionExtensionsData extends Data
     public static function inherit(): self
     {
         return new self();
+    }
+
+    /**
+     * Ensure supported and excluded are mutually exclusive.
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateMutualExclusivity(): void
+    {
+        if ($this->supported !== null && $this->excluded !== null) {
+            throw InvalidFieldValueException::forField(
+                'extensions',
+                'Cannot specify both "supported" and "excluded"—they are mutually exclusive. Use "supported" for allowlist or "excluded" for blocklist, not both.',
+            );
+        }
+
+        // Validate arrays are not empty when specified
+        if ($this->supported !== null && $this->supported === []) {
+            throw EmptyFieldException::forField('supported');
+        }
+
+        if ($this->excluded !== null && $this->excluded === []) {
+            throw EmptyFieldException::forField('excluded');
+        }
+    }
+
+    /**
+     * Validate extension names follow expected format.
+     *
+     * @param array<int, string> $extensions
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateExtensionNames(array $extensions): void
+    {
+        foreach ($extensions as $index => $name) {
+            if (!is_string($name)) {
+                throw InvalidFieldTypeException::forField(
+                    sprintf('extension[%d]', $index),
+                    'string',
+                    $name,
+                );
+            }
+
+            // Extension names should follow kebab-case or URN format
+            if (!preg_match('/^[a-z][a-z0-9-]*$/', $name) && !str_starts_with($name, 'urn:')) {
+                throw InvalidFieldValueException::forField(
+                    sprintf('extension[%d]', $index),
+                    sprintf("Invalid extension name '%s'. Must be kebab-case (e.g., 'query', 'atomic-lock') or URN format (e.g., 'urn:forrst:ext:query')", $name),
+                );
+            }
+
+            // Warn about uppercase (common mistake)
+            if ($name === mb_strtolower($name) || str_starts_with($name, 'urn:')) {
+                continue;
+            }
+
+            trigger_error(
+                sprintf("Warning: Extension name '%s' contains uppercase characters. ", $name)
+                .'Extension names are case-sensitive and typically lowercase.',
+                E_USER_WARNING,
+            );
+        }
+    }
+
+    /**
+     * Validate no duplicate extension names exist.
+     *
+     * @param array<int, string> $extensions
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateNoDuplicates(array $extensions, string $fieldName): void
+    {
+        $unique = array_unique($extensions);
+
+        if (count($unique) !== count($extensions)) {
+            $duplicates = array_diff($extensions, $unique);
+
+            throw InvalidFieldValueException::forField(
+                $fieldName,
+                'Contains duplicate extension names: '.json_encode(array_values($duplicates)),
+            );
+        }
     }
 }

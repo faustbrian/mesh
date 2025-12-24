@@ -13,6 +13,13 @@ use Cline\Forrst\Discovery\Resource\ResourceData;
 use Cline\Forrst\Exceptions\ComponentReferenceNotFoundException;
 use Spatie\LaravelData\Data;
 
+use function array_keys;
+use function array_merge;
+use function count;
+use function explode;
+use function mb_substr;
+use function str_starts_with;
+
 /**
  * Reusable component definitions for API discovery documentation.
  *
@@ -77,13 +84,13 @@ final class ComponentsData extends Data
      */
     public function hasReference(string $ref): bool
     {
-        if (!\str_starts_with($ref, '#/components/')) {
+        if (!str_starts_with($ref, '#/components/')) {
             return false;
         }
 
-        $parts = \explode('/', \substr($ref, 13)); // Remove '#/components/'
+        $parts = explode('/', mb_substr($ref, 13)); // Remove '#/components/'
 
-        if (\count($parts) !== 2) {
+        if (count($parts) !== 2) {
             return false;
         }
 
@@ -107,9 +114,8 @@ final class ComponentsData extends Data
      *
      * @param string $ref Component reference (e.g., "#/components/schemas/User")
      *
-     * @return mixed The resolved component data
-     *
      * @throws ComponentReferenceNotFoundException If reference doesn't exist
+     * @return mixed                               The resolved component data
      */
     public function resolveReference(string $ref): mixed
     {
@@ -117,7 +123,7 @@ final class ComponentsData extends Data
             throw ComponentReferenceNotFoundException::forRef($ref);
         }
 
-        $parts = \explode('/', \substr($ref, 13));
+        $parts = explode('/', mb_substr($ref, 13));
         [$componentType, $componentName] = $parts;
 
         return match ($componentType) {
@@ -142,50 +148,50 @@ final class ComponentsData extends Data
         $references = [];
 
         if ($this->schemas !== null) {
-            foreach (\array_keys($this->schemas) as $name) {
-                $references[] = '#/components/schemas/' . $name;
+            foreach (array_keys($this->schemas) as $name) {
+                $references[] = '#/components/schemas/'.$name;
             }
         }
 
         if ($this->contentDescriptors !== null) {
-            foreach (\array_keys($this->contentDescriptors) as $name) {
-                $references[] = '#/components/contentDescriptors/' . $name;
+            foreach (array_keys($this->contentDescriptors) as $name) {
+                $references[] = '#/components/contentDescriptors/'.$name;
             }
         }
 
         if ($this->errors !== null) {
-            foreach (\array_keys($this->errors) as $name) {
-                $references[] = '#/components/errors/' . $name;
+            foreach (array_keys($this->errors) as $name) {
+                $references[] = '#/components/errors/'.$name;
             }
         }
 
         if ($this->examples !== null) {
-            foreach (\array_keys($this->examples) as $name) {
-                $references[] = '#/components/examples/' . $name;
+            foreach (array_keys($this->examples) as $name) {
+                $references[] = '#/components/examples/'.$name;
             }
         }
 
         if ($this->examplePairings !== null) {
-            foreach (\array_keys($this->examplePairings) as $name) {
-                $references[] = '#/components/examplePairings/' . $name;
+            foreach (array_keys($this->examplePairings) as $name) {
+                $references[] = '#/components/examplePairings/'.$name;
             }
         }
 
         if ($this->links !== null) {
-            foreach (\array_keys($this->links) as $name) {
-                $references[] = '#/components/links/' . $name;
+            foreach (array_keys($this->links) as $name) {
+                $references[] = '#/components/links/'.$name;
             }
         }
 
         if ($this->tags !== null) {
-            foreach (\array_keys($this->tags) as $name) {
-                $references[] = '#/components/tags/' . $name;
+            foreach (array_keys($this->tags) as $name) {
+                $references[] = '#/components/tags/'.$name;
             }
         }
 
         if ($this->resources !== null) {
-            foreach (\array_keys($this->resources) as $name) {
-                $references[] = '#/components/resources/' . $name;
+            foreach (array_keys($this->resources) as $name) {
+                $references[] = '#/components/resources/'.$name;
             }
         }
 
@@ -195,7 +201,7 @@ final class ComponentsData extends Data
     /**
      * Add a schema component.
      *
-     * @param string                    $name   Schema identifier
+     * @param string               $name   Schema identifier
      * @param array<string, mixed> $schema JSON Schema definition
      *
      * @return self New instance with the schema added
@@ -295,21 +301,21 @@ final class ComponentsData extends Data
     /**
      * Merge another ComponentsData instance into this one.
      *
-     * @param ComponentsData $other Component data to merge
+     * @param self $other Component data to merge
      *
      * @return self New instance with merged components
      */
-    public function merge(ComponentsData $other): self
+    public function merge(self $other): self
     {
         return new self(
-            schemas: \array_merge($this->schemas ?? [], $other->schemas ?? []),
-            contentDescriptors: \array_merge($this->contentDescriptors ?? [], $other->contentDescriptors ?? []),
-            errors: \array_merge($this->errors ?? [], $other->errors ?? []),
-            examples: \array_merge($this->examples ?? [], $other->examples ?? []),
-            examplePairings: \array_merge($this->examplePairings ?? [], $other->examplePairings ?? []),
-            links: \array_merge($this->links ?? [], $other->links ?? []),
-            tags: \array_merge($this->tags ?? [], $other->tags ?? []),
-            resources: \array_merge($this->resources ?? [], $other->resources ?? []),
+            schemas: array_merge($this->schemas ?? [], $other->schemas ?? []),
+            contentDescriptors: array_merge($this->contentDescriptors ?? [], $other->contentDescriptors ?? []),
+            errors: array_merge($this->errors ?? [], $other->errors ?? []),
+            examples: array_merge($this->examples ?? [], $other->examples ?? []),
+            examplePairings: array_merge($this->examplePairings ?? [], $other->examplePairings ?? []),
+            links: array_merge($this->links ?? [], $other->links ?? []),
+            tags: array_merge($this->tags ?? [], $other->tags ?? []),
+            resources: array_merge($this->resources ?? [], $other->resources ?? []),
         );
     }
 }

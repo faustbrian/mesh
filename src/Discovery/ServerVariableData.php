@@ -15,6 +15,12 @@ use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Spatie\LaravelData\Data;
 
+use function implode;
+use function in_array;
+use function is_string;
+use function mb_trim;
+use function sprintf;
+
 /**
  * Server URL template variable for the Forrst discovery document.
  *
@@ -51,35 +57,37 @@ final class ServerVariableData extends Data
         public readonly ?string $description = null,
     ) {
         // Validate default is not empty
-        if (trim($this->default) === '') {
+        if (mb_trim($this->default) === '') {
             throw EmptyFieldException::forField('default');
         }
 
         // Validate enum list if provided
-        if ($this->enum !== null) {
-            if ($this->enum === []) {
-                throw EmptyArrayException::forField('enum');
-            }
+        if ($this->enum === null) {
+            return;
+        }
 
-            // Enum must contain only strings
-            foreach ($this->enum as $index => $value) {
-                if (!is_string($value)) {
-                    throw InvalidFieldTypeException::forField(
-                        sprintf('enum[%d]', $index),
-                        'string',
-                        $value
-                    );
-                }
-            }
+        if ($this->enum === []) {
+            throw EmptyArrayException::forField('enum');
+        }
 
-            // Default MUST be in enum list
-            if (!in_array($this->default, $this->enum, true)) {
-                throw InvalidFieldValueException::forField(
-                    'default',
-                    sprintf("Default value '%s' must be one of the enum values: ", $this->default) .
-                    implode(', ', $this->enum)
+        // Enum must contain only strings
+        foreach ($this->enum as $index => $value) {
+            if (!is_string($value)) {
+                throw InvalidFieldTypeException::forField(
+                    sprintf('enum[%d]', $index),
+                    'string',
+                    $value,
                 );
             }
+        }
+
+        // Default MUST be in enum list
+        if (!in_array($this->default, $this->enum, true)) {
+            throw InvalidFieldValueException::forField(
+                'default',
+                sprintf("Default value '%s' must be one of the enum values: ", $this->default).
+                implode(', ', $this->enum),
+            );
         }
     }
 }

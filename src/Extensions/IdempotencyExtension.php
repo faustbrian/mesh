@@ -23,7 +23,13 @@ use Cline\Forrst\Exceptions\MustBePositiveException;
 use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\Cache;
+use InvalidArgumentException;
+use JsonException;
 use Override;
+use RuntimeException;
+use Throwable;
+
+use const JSON_THROW_ON_ERROR;
 
 use function assert;
 use function hash;
@@ -32,7 +38,9 @@ use function is_int;
 use function is_numeric;
 use function is_string;
 use function json_encode;
+use function mb_strlen;
 use function now;
+use function preg_match;
 
 /**
  * Idempotency extension handler.
@@ -191,6 +199,7 @@ final class IdempotencyExtension extends AbstractExtension
 
             // Double-check cache after acquiring lock (handles race condition)
             $cached = $this->cache->get($cacheKey);
+
             if ($cached !== null) {
                 $lock->release();
                 assert(is_array($cached), 'Cached value must be an array');
@@ -208,7 +217,7 @@ final class IdempotencyExtension extends AbstractExtension
                 'cache_key' => $cacheKey,
                 'lock' => $lock, // Store lock to release later
             ];
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             $lock->release();
 
             throw $throwable;
@@ -298,40 +307,9 @@ final class IdempotencyExtension extends AbstractExtension
 
         try {
             return $this->validateIdempotencyKey($key);
-        } catch (\InvalidArgumentException) {
+        } catch (InvalidArgumentException) {
             return null;
         }
-    }
-
-    /**
-     * Validate the idempotency key format and characters.
-     *
-     * Ensures the key is not empty, within size limits, and contains only safe
-     * characters to prevent cache key injection, protocol injection, and DoS attacks.
-     *
-     * @param  string $key The idempotency key to validate
-     * @return string The validated key
-     *
-     * @throws EmptyFieldException If the key is empty
-     * @throws FieldExceedsMaxLengthException If the key is too long
-     * @throws InvalidFieldValueException If the key contains invalid characters
-     */
-    private function validateIdempotencyKey(string $key): string
-    {
-        if ($key === '') {
-            throw EmptyFieldException::forField('key');
-        }
-
-        if (mb_strlen($key) > 255) {
-            throw FieldExceedsMaxLengthException::forField('key', 255);
-        }
-
-        // Only allow safe characters to prevent injection attacks
-        if (!\preg_match('/^[a-zA-Z0-9\-_:.]+$/', $key)) {
-            throw InvalidFieldValueException::forField('key', 'contains invalid characters');
-        }
-
-        return $key;
     }
 
     /**
@@ -341,11 +319,11 @@ final class IdempotencyExtension extends AbstractExtension
      * second, minute, hour, and day units. Falls back to the default TTL if
      * not specified in the request options. Enforces maximum TTL limit.
      *
-     * @param  null|array<string, mixed> $options Extension options from request
-     * @return int                       TTL in seconds
+     * @param null|array<string, mixed> $options Extension options from request
      *
      * @throws InvalidFieldValueException If TTL exceeds maximum
-     * @throws MustBePositiveException If TTL is not positive
+     * @throws MustBePositiveException    If TTL is not positive
+     * @return int                        TTL in seconds
      */
     public function getTtl(?array $options): int
     {
@@ -380,6 +358,37 @@ final class IdempotencyExtension extends AbstractExtension
         }
 
         return $seconds;
+    }
+
+    /**
+     * Validate the idempotency key format and characters.
+     *
+     * Ensures the key is not empty, within size limits, and contains only safe
+     * characters to prevent cache key injection, protocol injection, and DoS attacks.
+     *
+     * @param string $key The idempotency key to validate
+     *
+     * @throws EmptyFieldException            If the key is empty
+     * @throws FieldExceedsMaxLengthException If the key is too long
+     * @throws InvalidFieldValueException     If the key contains invalid characters
+     * @return string                         The validated key
+     */
+    private function validateIdempotencyKey(string $key): string
+    {
+        if ($key === '') {
+            throw EmptyFieldException::forField('key');
+        }
+
+        if (mb_strlen($key) > 255) {
+            throw FieldExceedsMaxLengthException::forField('key', 255);
+        }
+
+        // Only allow safe characters to prevent injection attacks
+        if (!preg_match('/^[a-zA-Z0-9\-_:.]+$/', $key)) {
+            throw InvalidFieldValueException::forField('key', 'contains invalid characters');
+        }
+
+        return $key;
     }
 
     /**
@@ -525,16 +534,16 @@ final class IdempotencyExtension extends AbstractExtension
      * the same idempotency key is used with different arguments. Uses JSON
      * encoding for stable serialization and SHA256 for the hash.
      *
-     * @param  null|array<string, mixed> $arguments Request arguments to hash
-     * @return string                    SHA256 hash of the JSON-encoded arguments with algorithm prefix
+     * @param null|array<string, mixed> $arguments Request arguments to hash
      *
-     * @throws \RuntimeException If arguments are not JSON-serializable
+     * @throws RuntimeException If arguments are not JSON-serializable
+     * @return string           SHA256 hash of the JSON-encoded arguments with algorithm prefix
      */
     private function hashArguments(?array $arguments): string
     {
         try {
             $encoded = json_encode($arguments ?? [], JSON_THROW_ON_ERROR);
-        } catch (\JsonException $jsonException) {
+        } catch (JsonException $jsonException) {
             throw DataTransformationException::cannotTransform('arguments', 'hash', 'arguments are not JSON-serializable', $jsonException);
         }
 

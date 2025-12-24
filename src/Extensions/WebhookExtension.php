@@ -16,8 +16,11 @@ use Cline\Forrst\Events\RequestValidated;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Override;
 
+use function config;
+use function in_array;
 use function is_array;
 use function is_string;
+use function str_starts_with;
 
 /**
  * Webhook extension for Standard Webhooks-compliant event notifications.
@@ -49,29 +52,10 @@ final class WebhookExtension extends AbstractExtension
     }
 
     /**
-     * Get capability metadata for discovery responses.
-     *
-     * Advertises webhook extension capabilities to clients.
-     *
-     * @return array<string, mixed> Capability metadata
-     */
-    #[Override()]
-    protected function getCapabilityMetadata(): array
-    {
-        return [
-            'signature_versions' => ['v1', 'v1a'],
-            'max_retry_attempts' => 5,
-            'default_timeout' => 5,
-        ];
-    }
-
-    /**
      * Validate and store webhook registration during request processing.
      *
      * Validates the callback URL and signature version, then stores the webhook
      * configuration in request metadata for use by other extensions.
-     *
-     * @param RequestObjectData $request The incoming request object
      */
     public function onRequestValidated(RequestValidated $event): void
     {
@@ -91,14 +75,14 @@ final class WebhookExtension extends AbstractExtension
         if (!is_string($callbackUrl) || $callbackUrl === '') {
             throw InvalidFieldValueException::forField(
                 'extensions[webhook].options.callback_url',
-                'must be a non-empty string'
+                'must be a non-empty string',
             );
         }
 
         if (!str_starts_with($callbackUrl, 'https://')) {
             throw InvalidFieldValueException::forField(
                 'extensions[webhook].options.callback_url',
-                'must use HTTPS protocol'
+                'must use HTTPS protocol',
             );
         }
 
@@ -108,14 +92,14 @@ final class WebhookExtension extends AbstractExtension
         if ($signatureVersion !== null && !is_string($signatureVersion)) {
             throw InvalidFieldValueException::forField(
                 'extensions[webhook].options.signature_version',
-                'must be a string ("v1" or "v1a")'
+                'must be a string ("v1" or "v1a")',
             );
         }
 
         if ($signatureVersion !== null && !in_array($signatureVersion, ['v1', 'v1a'], true)) {
             throw InvalidFieldValueException::forField(
                 'extensions[webhook].options.signature_version',
-                'must be "v1" (HMAC-SHA256) or "v1a" (Ed25519)'
+                'must be "v1" (HMAC-SHA256) or "v1a" (Ed25519)',
             );
         }
 
@@ -125,7 +109,7 @@ final class WebhookExtension extends AbstractExtension
         if ($events !== null && !is_array($events)) {
             throw InvalidFieldValueException::forField(
                 'extensions[webhook].options.events',
-                'must be an array of event type strings'
+                'must be an array of event type strings',
             );
         }
 
@@ -154,7 +138,7 @@ final class WebhookExtension extends AbstractExtension
      */
     public function transformResponse(
         ResponseObjectData $response,
-        RequestObjectData $request
+        RequestObjectData $request,
     ): ResponseObjectData {
         $requestExtension = $this->findExtension($request);
 
@@ -178,10 +162,27 @@ final class WebhookExtension extends AbstractExtension
                 'callback_url' => $webhookConfig['callback_url'],
                 'signature_version' => $webhookConfig['signature_version'],
                 'events' => $webhookConfig['events'],
-            ]
+            ],
         );
 
         return $response->with(extensions: $responseExtensions);
+    }
+
+    /**
+     * Get capability metadata for discovery responses.
+     *
+     * Advertises webhook extension capabilities to clients.
+     *
+     * @return array<string, mixed> Capability metadata
+     */
+    #[Override()]
+    protected function getCapabilityMetadata(): array
+    {
+        return [
+            'signature_versions' => ['v1', 'v1a'],
+            'max_retry_attempts' => 5,
+            'default_timeout' => 5,
+        ];
     }
 
     /**

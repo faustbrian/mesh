@@ -41,6 +41,7 @@ use function str_repeat;
  * Redaction mode enum.
  *
  * Defines the redaction strategy for sensitive data in responses.
+ * @author Brian Faust <brian@cline.sh>
  */
 enum RedactionMode: string
 {

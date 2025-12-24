@@ -139,23 +139,6 @@ final class StreamExtension extends AbstractExtension
     }
 
     /**
-     * Convert extension to capabilities metadata for discovery responses.
-     *
-     * Provides SSE streaming capabilities including supported event types
-     * (data, progress, error, done) and content-type information for clients.
-     *
-     * @return array<string, mixed> Streaming capabilities metadata
-     */
-    #[Override()]
-    protected function getCapabilityMetadata(): array
-    {
-        return [
-            'content_type' => 'text/event-stream',
-            'events' => ['data', 'progress', 'error', 'done'],
-        ];
-    }
-
-    /**
      * Validate streaming capability during request validation phase.
      *
      * Checks if the client requested streaming via accept: true, then validates
@@ -231,5 +214,22 @@ final class StreamExtension extends AbstractExtension
 
         // Streaming is handled by FunctionController, not the normal flow
         // This event allows other extensions to process before streaming starts
+    }
+
+    /**
+     * Convert extension to capabilities metadata for discovery responses.
+     *
+     * Provides SSE streaming capabilities including supported event types
+     * (data, progress, error, done) and content-type information for clients.
+     *
+     * @return array<string, mixed> Streaming capabilities metadata
+     */
+    #[Override()]
+    protected function getCapabilityMetadata(): array
+    {
+        return [
+            'content_type' => 'text/event-stream',
+            'events' => ['data', 'progress', 'error', 'done'],
+        ];
     }
 }

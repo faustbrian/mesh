@@ -9,10 +9,9 @@
 
 namespace Cline\Forrst\Data;
 
+use Cline\Forrst\Exceptions\DataTransformationException;
 use Override;
 use Spatie\LaravelData\Data;
-
-use Cline\Forrst\Exceptions\DataTransformationException;
 
 use function is_array;
 use function sprintf;
@@ -55,6 +54,7 @@ use function sprintf;
  * }
  * ```
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/document-structure
  * @see https://jsonapi.org/format/#document-structure
  */
@@ -66,7 +66,7 @@ abstract class AbstractData extends Data
      * Prevents infinite recursion and stack overflow errors with deeply
      * nested data structures.
      */
-    private const MAX_RECURSION_DEPTH = 100;
+    private const int MAX_RECURSION_DEPTH = 100;
 
     /**
      * Convert the data object to an array with null values removed.
@@ -108,7 +108,7 @@ abstract class AbstractData extends Data
      *
      * @param  string $key   The array key
      * @param  mixed  $value The value to evaluate
-     * @return bool True if the value should be filtered out, false otherwise
+     * @return bool   True if the value should be filtered out, false otherwise
      */
     protected function shouldFilterValue(string $key, mixed $value): bool
     {
@@ -123,7 +123,7 @@ abstract class AbstractData extends Data
      *
      * @param  string $key   The array key
      * @param  mixed  $value The value to transform
-     * @return mixed The transformed value
+     * @return mixed  The transformed value
      */
     protected function transformValue(string $key, mixed $value): mixed
     {
@@ -145,11 +145,11 @@ abstract class AbstractData extends Data
      * a RuntimeException to prevent stack overflow. Consider flattening data
      * structures or implementing custom serialization for extreme nesting.
      *
-     * @param  array<string, mixed> $array Input array potentially containing null values
-     * @param  int                  $depth Current recursion depth
-     * @return array<string, mixed> Filtered array with null values removed
+     * @param array<string, mixed> $array Input array potentially containing null values
+     * @param int                  $depth Current recursion depth
      *
      * @throws DataTransformationException If maximum recursion depth is exceeded
+     * @return array<string, mixed>        Filtered array with null values removed
      */
     private function removeNullValuesRecursively(array $array, int $depth = 0): array
     {
@@ -157,7 +157,7 @@ abstract class AbstractData extends Data
             throw DataTransformationException::cannotTransform(
                 'array',
                 'filtered array',
-                sprintf('Maximum recursion depth of %d exceeded', self::MAX_RECURSION_DEPTH)
+                sprintf('Maximum recursion depth of %d exceeded', self::MAX_RECURSION_DEPTH),
             );
         }
 

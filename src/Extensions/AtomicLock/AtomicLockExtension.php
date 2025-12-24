@@ -39,13 +39,17 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Override;
+use Throwable;
 
 use function is_array;
 use function is_bool;
 use function is_int;
 use function is_numeric;
 use function is_string;
+use function mb_strlen;
 use function now;
+use function preg_match;
+use function str_contains;
 
 /**
  * Atomic lock extension handler.
@@ -192,11 +196,11 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
             }
 
             // Validate key format and length
-            if (\strlen($key) > self::MAX_KEY_LENGTH) {
+            if (mb_strlen($key) > self::MAX_KEY_LENGTH) {
                 throw FieldExceedsMaxLengthException::forField('key', self::MAX_KEY_LENGTH);
             }
 
-            if (!\preg_match(self::KEY_PATTERN, $key)) {
+            if (!preg_match(self::KEY_PATTERN, $key)) {
                 throw InvalidFieldValueException::forField(
                     'key',
                     'Only alphanumeric, dash, underscore, colon, and dot characters allowed',
@@ -204,7 +208,7 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
             }
 
             // Prevent key injection attacks
-            if (\str_contains($key, ':meta:')) {
+            if (str_contains($key, ':meta:')) {
                 throw InvalidFieldValueException::forField(
                     'key',
                     "Cannot contain ':meta:' sequence (reserved for internal use)",
@@ -264,16 +268,16 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
                 'acquired_at' => $acquiredAt,
                 'expires_at' => $expiresAt,
             ];
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             // Ensure context is null on any failure
             $this->context = null;
 
             // If we acquired a lock but failed afterward, release it
-            if (isset($lock) && isset($fullKey)) {
+            if (isset($lock, $fullKey)) {
                 try {
                     $lock->release();
                     $this->clearLockMetadata($fullKey);
-                } catch (\Throwable) {
+                } catch (Throwable) {
                     // Ignore release failures during exception handling
                 }
             }
@@ -313,7 +317,7 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
                 } else {
                     $this->clearLockMetadata($context['full_key']);
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Log but don't throw - we're in post-execution phase
                 Log::warning('Exception during auto-release of lock', [
                     'lock_key' => $context['full_key'],
@@ -479,9 +483,9 @@ final class AtomicLockExtension extends AbstractExtension implements ProvidesFun
     /**
      * Parse a duration object into seconds.
      *
-     * @param  array<string, mixed> $duration Duration with value and unit
+     * @param  array<string, mixed>           $duration Duration with value and unit
      * @throws LockTtlExceedsMaximumException If TTL exceeds maximum allowed
-     * @return int                  Duration in seconds
+     * @return int                            Duration in seconds
      */
     private function parseDuration(array $duration): int
     {

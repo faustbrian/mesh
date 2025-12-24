@@ -13,10 +13,13 @@ use Cline\Forrst\Data\ExtensionData;
 use Cline\Forrst\Data\ResponseData;
 use Cline\Forrst\Events\FunctionExecuted;
 use Cline\Forrst\Events\RequestValidated;
+use Deprecated;
 use Override;
 use Symfony\Component\Intl\Currencies;
 use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Timezones;
+
+use const E_USER_DEPRECATED;
 
 use function array_filter;
 use function array_pop;
@@ -27,6 +30,7 @@ use function implode;
 use function in_array;
 use function is_string;
 use function mb_strtoupper;
+use function trigger_error;
 
 /**
  * Locale extension handler.
@@ -195,15 +199,14 @@ final class LocaleExtension extends AbstractExtension
      * DEPRECATED: This method is not thread-safe. Access locale data from
      * request metadata instead: $request->meta['locale_resolved']['language']
      *
-     *
      * @return string RFC 5646 language tag (e.g., 'en', 'en-US')
      */
-    #[\Deprecated(message: 'Use request metadata directly for thread-safe access')]
+    #[Deprecated(message: 'Use request metadata directly for thread-safe access')]
     public function getLanguage(): string
     {
-        trigger_error(
+        @trigger_error(
             'LocaleExtension::getLanguage() is deprecated. Access $request->meta[\'locale_resolved\'][\'language\'] instead.',
-            \E_USER_DEPRECATED,
+            E_USER_DEPRECATED,
         );
 
         return self::DEFAULT_LANGUAGE;
@@ -215,15 +218,14 @@ final class LocaleExtension extends AbstractExtension
      * DEPRECATED: This method is not thread-safe. Access locale data from
      * request metadata instead: $request->meta['locale_resolved']['timezone']
      *
-     *
      * @return null|string IANA timezone identifier or null
      */
-    #[\Deprecated(message: 'Use request metadata directly for thread-safe access')]
+    #[Deprecated(message: 'Use request metadata directly for thread-safe access')]
     public function getTimezone(): ?string
     {
-        trigger_error(
+        @trigger_error(
             'LocaleExtension::getTimezone() is deprecated. Access $request->meta[\'locale_resolved\'][\'timezone\'] instead.',
-            \E_USER_DEPRECATED,
+            E_USER_DEPRECATED,
         );
 
         return null;
@@ -235,15 +237,14 @@ final class LocaleExtension extends AbstractExtension
      * DEPRECATED: This method is not thread-safe. Access locale data from
      * request metadata instead: $request->meta['locale_resolved']['currency']
      *
-     *
      * @return null|string ISO 4217 currency code or null
      */
-    #[\Deprecated(message: 'Use request metadata directly for thread-safe access')]
+    #[Deprecated(message: 'Use request metadata directly for thread-safe access')]
     public function getCurrency(): ?string
     {
-        trigger_error(
+        @trigger_error(
             'LocaleExtension::getCurrency() is deprecated. Access $request->meta[\'locale_resolved\'][\'currency\'] instead.',
-            \E_USER_DEPRECATED,
+            E_USER_DEPRECATED,
         );
 
         return null;
@@ -255,15 +256,14 @@ final class LocaleExtension extends AbstractExtension
      * DEPRECATED: This method is not thread-safe. Access locale data from
      * request metadata instead: $request->meta['locale_resolved']['fallback_used']
      *
-     *
      * @return bool True if fallback was used, false if exact match
      */
-    #[\Deprecated(message: 'Use request metadata directly for thread-safe access')]
+    #[Deprecated(message: 'Use request metadata directly for thread-safe access')]
     public function wasFallbackUsed(): bool
     {
-        trigger_error(
+        @trigger_error(
             'LocaleExtension::wasFallbackUsed() is deprecated. Access $request->meta[\'locale_resolved\'][\'fallback_used\'] instead.',
-            \E_USER_DEPRECATED,
+            E_USER_DEPRECATED,
         );
 
         return false;

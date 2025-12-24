@@ -21,9 +21,9 @@ use function is_array;
 use function is_int;
 use function is_numeric;
 use function is_string;
+use function mb_trim;
 use function preg_match;
 use function sprintf;
-use function trim;
 
 /**
  * Represents an async operation.
@@ -37,95 +37,75 @@ use function trim;
  * a state machine pattern where terminal states (completed, failed, cancelled)
  * cannot transition to other states.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/extensions/async
  */
 final class OperationData extends AbstractData
 {
     /**
-     * @var string
-     */
-    public $id;
-    /**
-     * @var string
-     */
-    public $function;
-    /**
-     * @var OperationStatus
-     */
-    public $status;
-    /**
-     * @var float|null
-     */
-    public $progress;
-    /**
-     * @var null|CarbonImmutable
-     */
-    public $startedAt;
-    /**
-     * @var null|CarbonImmutable
-     */
-    public $completedAt;
-    /**
-     * @var null|CarbonImmutable
-     */
-    public $cancelledAt;
-    /**
      * Create a new operation data instance.
      *
-     * @param string                     $id               Unique operation identifier (UUID or similar).
-     *                                                     Used to query operation status and retrieve
-     *                                                     results. Must be globally unique across all
-     *                                                     operations in the system.
-     * @param string                     $function         Function name that was invoked to create this
-     *                                                     operation. Uses the same dot notation as the
-     *                                                     call data (e.g., "orders.process").
-     * @param null|string                $version          Optional function version that was called.
-     *                                                     Records which API version initiated the operation.
-     * @param OperationStatus            $status           Current operation status in the lifecycle.
-     *                                                     Starts as Pending, transitions through Processing,
-     *                                                     and ends in Completed, Failed, or Cancelled.
-     * @param null|float                 $progress         Optional progress indicator as decimal 0.0-1.0.
-     *                                                     Allows clients to display progress bars or
-     *                                                     estimates. Null indicates progress unavailable.
-     * @param mixed                      $result           Operation result data when status is Completed.
-     *                                                     Null for non-completed operations. Structure
-     *                                                     matches the function's return type.
-     * @param null|array<int, ErrorData> $errors           Array of errors when status is Failed. Each
-     *                                                     error includes code, message, and details.
-     *                                                     Null for non-failed operations.
-     * @param null|CarbonImmutable       $startedAt        Timestamp when operation execution began.
-     *                                                     Null if operation is still pending.
-     * @param null|CarbonImmutable       $completedAt      Timestamp when operation finished successfully.
-     *                                                     Null unless status is Completed.
-     * @param null|CarbonImmutable       $cancelledAt      Timestamp when operation was cancelled.
-     *                                                     Null unless status is Cancelled.
-     * @param null|array<string, mixed>  $metadata         Optional additional operation metadata such as
-     *                                                     retry counts, queue position, or custom tracking
-     *                                                     information specific to the application.
-     * @param int                        $lockVersion      Optimistic locking version for concurrent access
-     *                                                     control. Incremented on each save. Used to detect
-     *                                                     concurrent modifications and prevent race conditions.
+     * @param string                     $id          Unique operation identifier (UUID or similar).
+     *                                                Used to query operation status and retrieve
+     *                                                results. Must be globally unique across all
+     *                                                operations in the system.
+     * @param string                     $function    Function name that was invoked to create this
+     *                                                operation. Uses the same dot notation as the
+     *                                                call data (e.g., "orders.process").
+     * @param null|string                $version     Optional function version that was called.
+     *                                                Records which API version initiated the operation.
+     * @param OperationStatus            $status      Current operation status in the lifecycle.
+     *                                                Starts as Pending, transitions through Processing,
+     *                                                and ends in Completed, Failed, or Cancelled.
+     * @param null|float                 $progress    Optional progress indicator as decimal 0.0-1.0.
+     *                                                Allows clients to display progress bars or
+     *                                                estimates. Null indicates progress unavailable.
+     * @param mixed                      $result      Operation result data when status is Completed.
+     *                                                Null for non-completed operations. Structure
+     *                                                matches the function's return type.
+     * @param null|array<int, ErrorData> $errors      Array of errors when status is Failed. Each
+     *                                                error includes code, message, and details.
+     *                                                Null for non-failed operations.
+     * @param null|CarbonImmutable       $startedAt   Timestamp when operation execution began.
+     *                                                Null if operation is still pending.
+     * @param null|CarbonImmutable       $completedAt Timestamp when operation finished successfully.
+     *                                                Null unless status is Completed.
+     * @param null|CarbonImmutable       $cancelledAt Timestamp when operation was cancelled.
+     *                                                Null unless status is Cancelled.
+     * @param null|array<string, mixed>  $metadata    Optional additional operation metadata such as
+     *                                                retry counts, queue position, or custom tracking
+     *                                                information specific to the application.
+     * @param int                        $lockVersion Optimistic locking version for concurrent access
+     *                                                control. Incremented on each save. Used to detect
+     *                                                concurrent modifications and prevent race conditions.
      */
     public function __construct(
-        string $id,
-        string $function,
+        /** @var string */
+        public readonly string $id,
+        /** @var string */
+        public readonly string $function,
         public readonly ?string $version = null,
-        OperationStatus $status = OperationStatus::Pending,
-        ?float $progress = null,
+        /** @var OperationStatus */
+        public readonly OperationStatus $status = OperationStatus::Pending,
+        /** @var null|float */
+        public readonly ?float $progress = null,
         public readonly mixed $result = null,
         public readonly ?array $errors = null,
-        ?CarbonImmutable $startedAt = null,
-        ?CarbonImmutable $completedAt = null,
-        ?CarbonImmutable $cancelledAt = null,
+        /** @var null|CarbonImmutable */
+        public readonly ?CarbonImmutable $startedAt = null,
+        /** @var null|CarbonImmutable */
+        public readonly ?CarbonImmutable $completedAt = null,
+        /** @var null|CarbonImmutable */
+        public readonly ?CarbonImmutable $cancelledAt = null,
         public readonly ?array $metadata = null,
         public readonly int $lockVersion = 1,
     ) {
         // Validate required fields
-        if (trim($id) === '') {
+        if (mb_trim($id) === '') {
             throw EmptyFieldException::forField('id');
         }
 
-        if (trim($function) === '') {
+        if (mb_trim($function) === '') {
             throw EmptyFieldException::forField('function');
         }
 
@@ -137,9 +117,6 @@ final class OperationData extends AbstractData
                 sprintf('Operation ID must be a valid UUID or ULID, got: %s', $id),
             );
         }
-
-        $this->id = $id;
-        $this->function = $function;
 
         // Validate progress bounds
         if ($progress !== null && ($progress < 0.0 || $progress > 1.0)) {
@@ -180,12 +157,6 @@ final class OperationData extends AbstractData
                 'Operation cancelledAt cannot be before startedAt',
             );
         }
-
-        $this->status = $status;
-        $this->progress = $progress;
-        $this->startedAt = $startedAt;
-        $this->completedAt = $completedAt;
-        $this->cancelledAt = $cancelledAt;
     }
 
     /**

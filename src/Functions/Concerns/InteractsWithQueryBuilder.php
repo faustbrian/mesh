@@ -15,6 +15,11 @@ use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\MissingMethodImplementationException;
 use Cline\Forrst\QueryBuilders\QueryBuilder;
 
+use function class_exists;
+use function is_subclass_of;
+use function method_exists;
+use function sprintf;
+
 /**
  * Query builder helper trait for Forrst functions.
  *
@@ -47,11 +52,11 @@ trait InteractsWithQueryBuilder
      * method with the current request object. The request object is automatically parsed
      * to extract and apply filters, sorts, field selections, and relationship inclusions.
      *
-     * @param  class-string<ResourceInterface> $class The resource class to query
-     * @return QueryBuilder                    QueryBuilder instance with request parameters applied
+     * @param class-string<ResourceInterface> $class The resource class to query
      *
-     * @throws InvalidFieldTypeException If the class does not exist or does not implement ResourceInterface
+     * @throws InvalidFieldTypeException            If the class does not exist or does not implement ResourceInterface
      * @throws MissingMethodImplementationException If the class does not have a static query() method
+     * @return QueryBuilder                         QueryBuilder instance with request parameters applied
      */
     protected function query(string $class): QueryBuilder
     {

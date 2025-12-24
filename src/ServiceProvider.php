@@ -30,8 +30,12 @@ use Throwable;
 use function assert;
 use function class_exists;
 use function config;
+use function config_path;
+use function file_exists;
+use function gettype;
 use function is_a;
 use function is_string;
+use function sprintf;
 
 /**
  * Laravel service provider for the Forrst package.
@@ -86,14 +90,14 @@ final class ServiceProvider extends PackageServiceProvider
             if (!is_string($protocolClass)) {
                 throw InvalidConfigurationException::forKey(
                     'rpc.protocol',
-                    sprintf('must be a class string, %s given', gettype($protocolClass))
+                    sprintf('must be a class string, %s given', gettype($protocolClass)),
                 );
             }
 
             if (!class_exists($protocolClass)) {
                 throw InvalidConfigurationException::forKey(
                     'rpc.protocol',
-                    sprintf('class %s does not exist', $protocolClass)
+                    sprintf('class %s does not exist', $protocolClass),
                 );
             }
 
@@ -102,14 +106,14 @@ final class ServiceProvider extends PackageServiceProvider
             } catch (Throwable $throwable) {
                 throw InvalidConfigurationException::forKey(
                     'rpc.protocol',
-                    sprintf('failed to instantiate class %s: %s', $protocolClass, $throwable->getMessage())
+                    sprintf('failed to instantiate class %s: %s', $protocolClass, $throwable->getMessage()),
                 );
             }
 
             if (!$protocol instanceof ProtocolInterface) {
                 throw InvalidConfigurationException::forKey(
                     'rpc.protocol',
-                    sprintf('class %s must implement %s', $protocolClass, ProtocolInterface::class)
+                    sprintf('class %s must implement %s', $protocolClass, ProtocolInterface::class),
                 );
             }
 
@@ -165,21 +169,21 @@ final class ServiceProvider extends PackageServiceProvider
                 if (!is_string($resource)) {
                     throw InvalidConfigurationException::forKey(
                         'rpc.resources',
-                        sprintf('resource for model %s must be a class string, %s given', $model, gettype($resource))
+                        sprintf('resource for model %s must be a class string, %s given', $model, gettype($resource)),
                     );
                 }
 
                 if (!class_exists($resource)) {
                     throw InvalidConfigurationException::forKey(
                         'rpc.resources',
-                        sprintf('resource class %s does not exist', $resource)
+                        sprintf('resource class %s does not exist', $resource),
                     );
                 }
 
                 if (!is_a($resource, ResourceInterface::class, true)) {
                     throw InvalidConfigurationException::forKey(
                         'rpc.resources',
-                        sprintf('resource class %s must implement %s', $resource, ResourceInterface::class)
+                        sprintf('resource class %s must implement %s', $resource, ResourceInterface::class),
                     );
                 }
 
@@ -198,14 +202,14 @@ final class ServiceProvider extends PackageServiceProvider
                 if (!is_string($functionsPath)) {
                     throw InvalidConfigurationException::forKey(
                         'rpc.paths.functions',
-                        sprintf('must be a string, %s given', gettype($functionsPath))
+                        sprintf('must be a string, %s given', gettype($functionsPath)),
                     );
                 }
 
                 if (!is_string($functionsNamespace)) {
                     throw InvalidConfigurationException::forKey(
                         'rpc.namespaces.functions',
-                        sprintf('must be a string, %s given', gettype($functionsNamespace))
+                        sprintf('must be a string, %s given', gettype($functionsNamespace)),
                     );
                 }
 

@@ -15,6 +15,23 @@ use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 use Spatie\LaravelData\Data;
 
+use const E_USER_WARNING;
+use const ENT_QUOTES;
+
+use function array_map;
+use function count;
+use function htmlspecialchars;
+use function implode;
+use function in_array;
+use function is_array;
+use function preg_match;
+use function preg_match_all;
+use function preg_replace_callback;
+use function range;
+use function sort;
+use function sprintf;
+use function trigger_error;
+
 /**
  * Error definition for function error documentation.
  *
@@ -86,14 +103,14 @@ final class ErrorDefinitionData extends Data
     /**
      * Create a new error definition.
      *
-     * @param BackedEnum|string         $code        Machine-readable error code identifier following SCREAMING_SNAKE_CASE
-     *                                               convention (e.g., ErrorCode::InvalidArgument, "RESOURCE_NOT_FOUND"). Used by
-     *                                               clients to programmatically identify and handle specific error conditions
-     *                                               without parsing human-readable messages.
-     * @param string                    $message     Human-readable error message template describing the error condition.
-     *                                               Use numbered placeholders {0}, {1}, {2} for dynamic values. DO NOT use
-     *                                               named placeholders like {fieldName} as they increase injection risk.
-     *                                               Always sanitize/escape values before substitution using formatMessage().
+     * @param BackedEnum|string $code    Machine-readable error code identifier following SCREAMING_SNAKE_CASE
+     *                                   convention (e.g., ErrorCode::InvalidArgument, "RESOURCE_NOT_FOUND"). Used by
+     *                                   clients to programmatically identify and handle specific error conditions
+     *                                   without parsing human-readable messages.
+     * @param string            $message Human-readable error message template describing the error condition.
+     *                                   Use numbered placeholders {0}, {1}, {2} for dynamic values. DO NOT use
+     *                                   named placeholders like {fieldName} as they increase injection risk.
+     *                                   Always sanitize/escape values before substitution using formatMessage().
      *
      *                                               Example: "Invalid value {0} for field {1}"
      *
@@ -122,9 +139,32 @@ final class ErrorDefinitionData extends Data
 
         $this->validateMessagePlaceholders($message);
 
-        if ($details !== null) {
-            $this->validateJsonSchema($details);
+        if ($details === null) {
+            return;
         }
+
+        $this->validateJsonSchema($details);
+    }
+
+    /**
+     * Safely substitute placeholder values with HTML escaping.
+     *
+     * @param array<int, scalar> $values Values to substitute into placeholders
+     *
+     * @return string Message with escaped values substituted
+     */
+    public function formatMessage(array $values): string
+    {
+        $escaped = array_map(
+            fn (bool|float|int|string $val): string => htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8'),
+            $values,
+        );
+
+        return preg_replace_callback(
+            '/\{(\d+)\}/',
+            fn ($matches) => $escaped[(int) $matches[1]] ?? $matches[0],
+            $this->message,
+        );
     }
 
     /**
@@ -137,7 +177,7 @@ final class ErrorDefinitionData extends Data
         if (!preg_match('/^[A-Z][A-Z0-9_]*$/', $code)) {
             throw InvalidFieldValueException::forField(
                 'code',
-                sprintf("Error code must follow SCREAMING_SNAKE_CASE convention. Got: '%s'", $code)
+                sprintf("Error code must follow SCREAMING_SNAKE_CASE convention. Got: '%s'", $code),
             );
         }
 
@@ -156,24 +196,27 @@ final class ErrorDefinitionData extends Data
             trigger_error(
                 'Warning: Error message uses named placeholders like {fieldName}. '
                 .'Consider using numbered placeholders {0}, {1} to prevent injection.',
-                E_USER_WARNING
+                E_USER_WARNING,
             );
         }
 
         // Validate numbered placeholders are sequential
         preg_match_all('/\{(\d+)\}/', $message, $matches);
-        if (isset($matches[1]) && $matches[1] !== []) {
-            $indices = array_map(intval(...), $matches[1]);
-            sort($indices);
-            $expected = range(0, \count($indices) - 1);
 
-            if ($indices !== $expected) {
-                throw InvalidFieldValueException::forField(
-                    'message',
-                    'Message placeholders must be sequential starting from {0}. '
-                    .'Found: '.implode(', ', array_map(fn (string $i): string => sprintf('{%s}', $i), $indices))
-                );
-            }
+        if (!isset($matches[1]) || $matches[1] === []) {
+            return;
+        }
+
+        $indices = array_map(intval(...), $matches[1]);
+        sort($indices);
+        $expected = range(0, count($indices) - 1);
+
+        if ($indices !== $expected) {
+            throw InvalidFieldValueException::forField(
+                'message',
+                'Message placeholders must be sequential starting from {0}. '
+                .'Found: '.implode(', ', array_map(fn (string $i): string => sprintf('{%s}', $i), $indices)),
+            );
         }
     }
 
@@ -181,7 +224,7 @@ final class ErrorDefinitionData extends Data
      * Validate details field contains valid JSON Schema.
      *
      * @param array<string, mixed> $details
-     * @param int                  $depth  Current nesting depth (for DoS prevention)
+     * @param int                  $depth   Current nesting depth (for DoS prevention)
      *
      * @throws InvalidFieldTypeException
      * @throws InvalidFieldValueException
@@ -192,7 +235,7 @@ final class ErrorDefinitionData extends Data
         if ($depth > 10) {
             throw InvalidFieldValueException::forField(
                 'details',
-                'JSON Schema nesting too deep (max 10 levels)'
+                'JSON Schema nesting too deep (max 10 levels)',
             );
         }
 
@@ -201,30 +244,31 @@ final class ErrorDefinitionData extends Data
         }
 
         $validTypes = ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'];
-        if (!\in_array($details['type'], $validTypes, true)) {
+
+        if (!in_array($details['type'], $validTypes, true)) {
             throw InvalidFieldValueException::forField(
                 'details.type',
                 sprintf("Invalid JSON Schema type '%s'. ", $details['type'])
-                .'Must be one of: '.implode(', ', $validTypes)
+                .'Must be one of: '.implode(', ', $validTypes),
             );
         }
 
         // If type is object, validate properties exist
         if ($details['type'] === 'object' && isset($details['properties'])) {
-            if (!\is_array($details['properties'])) {
+            if (!is_array($details['properties'])) {
                 throw InvalidFieldTypeException::forField(
                     'details.properties',
                     'array',
-                    $details['properties']
+                    $details['properties'],
                 );
             }
 
             // Recursively validate nested schemas
             foreach ($details['properties'] as $propName => $propSchema) {
-                if (!\is_array($propSchema) || !isset($propSchema['type'])) {
+                if (!is_array($propSchema) || !isset($propSchema['type'])) {
                     throw InvalidFieldValueException::forField(
-                        'details.properties.' . $propName,
-                        "Property must have a valid JSON Schema with 'type'"
+                        'details.properties.'.$propName,
+                        "Property must have a valid JSON Schema with 'type'",
                     );
                 }
 
@@ -233,36 +277,17 @@ final class ErrorDefinitionData extends Data
         }
 
         // If type is array, validate items exist
-        if ($details['type'] === 'array' && isset($details['items'])) {
-            if (!\is_array($details['items']) || !isset($details['items']['type'])) {
-                throw InvalidFieldValueException::forField(
-                    'details.items',
-                    'JSON Schema "items" must be a valid schema with "type"'
-                );
-            }
-
-            $this->validateJsonSchema($details['items'], $depth + 1);
+        if ($details['type'] !== 'array' || !isset($details['items'])) {
+            return;
         }
-    }
 
-    /**
-     * Safely substitute placeholder values with HTML escaping.
-     *
-     * @param array<int, scalar> $values Values to substitute into placeholders
-     *
-     * @return string Message with escaped values substituted
-     */
-    public function formatMessage(array $values): string
-    {
-        $escaped = array_map(
-            fn (bool|float|int|string $val): string => htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8'),
-            $values
-        );
+        if (!is_array($details['items']) || !isset($details['items']['type'])) {
+            throw InvalidFieldValueException::forField(
+                'details.items',
+                'JSON Schema "items" must be a valid schema with "type"',
+            );
+        }
 
-        return preg_replace_callback(
-            '/\{(\d+)\}/',
-            fn ($matches) => $escaped[(int) $matches[1]] ?? $matches[0],
-            $this->message
-        );
+        $this->validateJsonSchema($details['items'], $depth + 1);
     }
 }

@@ -14,6 +14,8 @@ use Cline\Forrst\Data\ResponseData;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Override;
 
+use function property_exists;
+
 /**
  * Event dispatched before response serialization.
  *
@@ -65,22 +67,6 @@ final class SendingResponse extends ExtensionEvent
     }
 
     /**
-     * Validate response meets final serialization requirements.
-     *
-     * This is the last opportunity to catch response issues before
-     * serialization. Validates structure, required fields, and size limits.
-     *
-     * @param ResponseData $response Response to validate
-     *
-     * @return bool True if response is valid for serialization
-     */
-    private function validateFinalResponse(ResponseData $response): bool
-    {
-        // Validate required fields exist
-        return !($response->result === null && (!property_exists($response, 'error') || $response->error === null));
-    }
-
-    /**
      * Set a new response without mutating the event's readonly properties.
      *
      * Validates the response before setting to ensure serialization will succeed.
@@ -100,5 +86,21 @@ final class SendingResponse extends ExtensionEvent
         }
 
         $this->currentResponse = $response;
+    }
+
+    /**
+     * Validate response meets final serialization requirements.
+     *
+     * This is the last opportunity to catch response issues before
+     * serialization. Validates structure, required fields, and size limits.
+     *
+     * @param ResponseData $response Response to validate
+     *
+     * @return bool True if response is valid for serialization
+     */
+    private function validateFinalResponse(ResponseData $response): bool
+    {
+        // Validate required fields exist
+        return !($response->result === null && (!property_exists($response, 'error') || $response->error === null));
     }
 }

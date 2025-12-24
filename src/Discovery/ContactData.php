@@ -18,6 +18,18 @@ use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 use Cline\Forrst\Exceptions\WhitespaceOnlyException;
 use Spatie\LaravelData\Data;
 
+use const FILTER_VALIDATE_EMAIL;
+use const FILTER_VALIDATE_URL;
+
+use function filter_var;
+use function in_array;
+use function mb_rtrim;
+use function mb_strlen;
+use function mb_strtolower;
+use function mb_trim;
+use function parse_url;
+use function strip_tags;
+
 /**
  * Contact information for the API service or team.
  *
@@ -30,6 +42,35 @@ use Spatie\LaravelData\Data;
  */
 final class ContactData extends Data
 {
+    /**
+     * Create a new contact information instance.
+     *
+     * @param null|string $name  The name of the contact person, team, or organization responsible
+     *                           for the API. Used for identification in documentation and support
+     *                           communications (e.g., "API Team", "John Smith").
+     * @param null|string $url   The URL to a web page, documentation site, or contact form where
+     *                           additional information can be found or support requests can be submitted.
+     *                           Must be a valid HTTP/HTTPS URL.
+     * @param null|string $email The email address for contacting the API team or responsible individual.
+     *                           Used for support inquiries, bug reports, and general communication.
+     *                           Should be a monitored email address.
+     *
+     * @throws FieldExceedsMaxLengthException if name or email exceeds max length
+     * @throws HtmlNotAllowedException        if name contains HTML tags
+     * @throws InvalidEmailException          if email format is invalid
+     * @throws InvalidProtocolException       if URL doesn't use HTTP/HTTPS or uses unsafe protocol
+     * @throws InvalidUrlException            if URL format is invalid
+     * @throws MissingRequiredFieldException  if no fields are provided
+     * @throws WhitespaceOnlyException        if name is empty or whitespace only
+     */
+    public function __construct(
+        public readonly ?string $name = null,
+        public readonly ?string $url = null,
+        public readonly ?string $email = null,
+    ) {
+        $this->validateContact();
+    }
+
     /**
      * Create contact data with normalized inputs.
      *
@@ -48,9 +89,9 @@ final class ContactData extends Data
         ?string $email = null,
     ): self {
         return new self(
-            name: $name !== null ? trim($name) : null,
-            url: $url !== null ? rtrim($url, '/') : null,
-            email: $email !== null ? strtolower(trim($email)) : null,
+            name: $name !== null ? mb_trim($name) : null,
+            url: $url !== null ? mb_rtrim($url, '/') : null,
+            email: $email !== null ? mb_strtolower(mb_trim($email)) : null,
         );
     }
 
@@ -100,44 +141,15 @@ final class ContactData extends Data
     }
 
     /**
-     * Create a new contact information instance.
-     *
-     * @param null|string $name  The name of the contact person, team, or organization responsible
-     *                           for the API. Used for identification in documentation and support
-     *                           communications (e.g., "API Team", "John Smith").
-     * @param null|string $url   The URL to a web page, documentation site, or contact form where
-     *                           additional information can be found or support requests can be submitted.
-     *                           Must be a valid HTTP/HTTPS URL.
-     * @param null|string $email The email address for contacting the API team or responsible individual.
-     *                           Used for support inquiries, bug reports, and general communication.
-     *                           Should be a monitored email address.
-     *
-     * @throws WhitespaceOnlyException if name is empty or whitespace only
-     * @throws FieldExceedsMaxLengthException if name or email exceeds max length
-     * @throws HtmlNotAllowedException if name contains HTML tags
-     * @throws InvalidUrlException if URL format is invalid
-     * @throws InvalidProtocolException if URL doesn't use HTTP/HTTPS or uses unsafe protocol
-     * @throws InvalidEmailException if email format is invalid
-     * @throws MissingRequiredFieldException if no fields are provided
-     */
-    public function __construct(
-        public readonly ?string $name = null,
-        public readonly ?string $url = null,
-        public readonly ?string $email = null,
-    ) {
-        $this->validateContact();
-    }
-
-    /**
      * Validate contact information fields.
      *
-     * @throws WhitespaceOnlyException
      * @throws FieldExceedsMaxLengthException
      * @throws HtmlNotAllowedException
-     * @throws InvalidUrlException
-     * @throws InvalidProtocolException
      * @throws InvalidEmailException
+     * @throws InvalidProtocolException
+     * @throws InvalidUrlException
      * @throws MissingRequiredFieldException
+     * @throws WhitespaceOnlyException
      */
     private function validateContact(): void
     {
@@ -159,13 +171,13 @@ final class ContactData extends Data
     /**
      * Validate the name field.
      *
-     * @throws WhitespaceOnlyException
      * @throws FieldExceedsMaxLengthException
      * @throws HtmlNotAllowedException
+     * @throws WhitespaceOnlyException
      */
     private function validateName(): void
     {
-        $trimmedName = trim((string) $this->name);
+        $trimmedName = mb_trim((string) $this->name);
 
         if ($trimmedName === '') {
             throw WhitespaceOnlyException::forField('name');
@@ -184,8 +196,8 @@ final class ContactData extends Data
     /**
      * Validate the URL field.
      *
-     * @throws InvalidUrlException
      * @throws InvalidProtocolException
+     * @throws InvalidUrlException
      */
     private function validateUrl(): void
     {
@@ -195,14 +207,14 @@ final class ContactData extends Data
 
         $parsedUrl = parse_url((string) $this->url);
 
-        if (!isset($parsedUrl['scheme']) || !\in_array($parsedUrl['scheme'], ['http', 'https'], true)) {
+        if (!isset($parsedUrl['scheme']) || !in_array($parsedUrl['scheme'], ['http', 'https'], true)) {
             throw InvalidProtocolException::forUrl('url');
         }
 
         // Prevent javascript: and data: URLs
-        $scheme = strtolower($parsedUrl['scheme']);
+        $scheme = mb_strtolower($parsedUrl['scheme']);
 
-        if (\in_array($scheme, ['javascript', 'data', 'vbscript', 'file'], true)) {
+        if (in_array($scheme, ['javascript', 'data', 'vbscript', 'file'], true)) {
             throw InvalidProtocolException::forUrl('url');
         }
     }
@@ -210,8 +222,8 @@ final class ContactData extends Data
     /**
      * Validate the email field.
      *
-     * @throws InvalidEmailException
      * @throws FieldExceedsMaxLengthException
+     * @throws InvalidEmailException
      */
     private function validateEmail(): void
     {

@@ -13,6 +13,7 @@ use Cline\Forrst\Data\ExtensionData;
 use Cline\Forrst\Data\RequestObjectData;
 use Cline\Forrst\Data\ResponseData;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
+use InvalidArgumentException;
 use Override;
 
 /**
@@ -110,9 +111,8 @@ final class DryRunExtension extends AbstractExtension
      * @param null|array<int, array<string, mixed>> $sideEffects       Operations that would be triggered
      * @param null|array{value: int, unit: string}  $estimatedDuration Estimated execution time
      *
-     * @return ResponseData Dry-run response with valid=true
-     *
-     * @throws \InvalidArgumentException If wouldAffect entries are missing required fields
+     * @throws InvalidArgumentException If wouldAffect entries are missing required fields
+     * @return ResponseData             Dry-run response with valid=true
      */
     public function buildValidResponse(
         RequestObjectData $request,

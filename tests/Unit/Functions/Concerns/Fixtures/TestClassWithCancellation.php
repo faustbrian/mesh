@@ -17,13 +17,14 @@ use Cline\Forrst\Functions\Concerns\InteractsWithCancellation;
  *
  * Note: Cannot be readonly since InteractsWithCancellation trait
  * has a mutable $cachedCancellationToken property.
+ * @author Brian Faust <brian@cline.sh>
  */
 final class TestClassWithCancellation
 {
     use InteractsWithCancellation;
 
     public function __construct(
-        public RequestObjectData $requestObject,
+        public readonly RequestObjectData $requestObject,
     ) {}
 
     public function exposeGetCancellationToken(): ?string

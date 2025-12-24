@@ -107,8 +107,11 @@ final class DeadlineExtension extends AbstractExtension
         }
 
         // Check if deadline has already passed
-        if ($deadline->isPast()) {
-            $event->setResponse(ResponseData::error(
+        if (!$deadline->isPast()) {
+            return;
+        }
+
+        $event->setResponse(ResponseData::error(
             new ErrorData(
                 code: ErrorCode::DeadlineExceeded,
                 message: 'Request deadline has already passed',
@@ -123,9 +126,8 @@ final class DeadlineExtension extends AbstractExtension
                     'deadline' => $deadline->toIso8601String(),
                 ]),
             ],
-            ));
-            $event->stopPropagation();
-        }
+        ));
+        $event->stopPropagation();
     }
 
     /**
@@ -241,9 +243,8 @@ final class DeadlineExtension extends AbstractExtension
      *
      * @param null|array<string, mixed> $options Extension options from request
      *
-     * @return null|CarbonImmutable Deadline timestamp or null if not specified
-     *
      * @throws DeadlineExceededException If deadline exceeds maximum allowed (1 hour)
+     * @return null|CarbonImmutable      Deadline timestamp or null if not specified
      */
     private function resolveDeadline(?array $options): ?CarbonImmutable
     {

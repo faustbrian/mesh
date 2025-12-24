@@ -15,6 +15,13 @@ use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 use Spatie\LaravelData\Data;
 
+use function array_diff;
+use function array_keys;
+use function implode;
+use function is_string;
+use function mb_trim;
+use function preg_match;
+
 /**
  * Predefined simulation scenario for sandbox/demo mode.
  *
@@ -67,7 +74,7 @@ final class SimulationScenarioData extends Data
         public readonly ?array $metadata = null,
     ) {
         // Validate scenario name
-        if (trim($name) === '') {
+        if (mb_trim($name) === '') {
             throw EmptyFieldException::forField('name');
         }
 
@@ -80,14 +87,16 @@ final class SimulationScenarioData extends Data
         if ($output !== null && $error !== null) {
             throw InvalidFieldValueException::forField(
                 'output/error',
-                'Cannot specify both "output" and "error". Success scenarios use output, error scenarios use error field.'
+                'Cannot specify both "output" and "error". Success scenarios use output, error scenarios use error field.',
             );
         }
 
         // Validate error structure if provided
-        if ($error !== null) {
-            $this->validateErrorStructure($error);
+        if ($error === null) {
+            return;
         }
+
+        $this->validateErrorStructure($error);
     }
 
     /**
@@ -156,8 +165,8 @@ final class SimulationScenarioData extends Data
      *
      * @param array<string, mixed> $error
      *
-     * @throws MissingRequiredFieldException
      * @throws InvalidFieldValueException
+     * @throws MissingRequiredFieldException
      */
     private function validateErrorStructure(array $error): void
     {
@@ -168,14 +177,14 @@ final class SimulationScenarioData extends Data
             throw MissingRequiredFieldException::forField(implode(', ', $missingFields));
         }
 
-        if (!\is_string($error['code']) || !preg_match('/^[A-Z][A-Z0-9_]*$/', $error['code'])) {
+        if (!is_string($error['code']) || !preg_match('/^[A-Z][A-Z0-9_]*$/', $error['code'])) {
             throw InvalidFieldValueException::forField(
                 'error.code',
-                'Error code must be SCREAMING_SNAKE_CASE string'
+                'Error code must be SCREAMING_SNAKE_CASE string',
             );
         }
 
-        if (!\is_string($error['message']) || trim($error['message']) === '') {
+        if (!is_string($error['message']) || mb_trim($error['message']) === '') {
             throw EmptyFieldException::forField('error.message');
         }
     }

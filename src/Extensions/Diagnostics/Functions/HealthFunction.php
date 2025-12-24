@@ -20,7 +20,16 @@ use Cline\Forrst\Extensions\Diagnostics\Descriptors\HealthDescriptor;
 use Cline\Forrst\Functions\AbstractFunction;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
+use Throwable;
+
+use function array_map;
+use function implode;
+use function in_array;
+use function microtime;
+use function preg_match;
+use function sprintf;
 
 /**
  * Comprehensive health check system function.
@@ -41,13 +50,15 @@ use Psr\Log\LoggerInterface;
 final class HealthFunction extends AbstractFunction
 {
     private const int HEALTH_CACHE_TTL = 10; // seconds
+
     private const int RATE_LIMIT_PER_MINUTE = 60;
+
     private const float HEALTH_CHECK_TIMEOUT = 5.0; // seconds
 
     /**
      * Create a new health function instance.
      *
-     * @param array<int, HealthCheckerInterface> $checkers               Array of registered health checker instances
+     * @param array<int, HealthCheckerInterface> $checkers              Array of registered health checker instances
      * @param bool                               $requireAuthForDetails Whether to require authentication for detailed health info
      * @param null|LoggerInterface               $logger                Logger instance for warnings and errors
      */
@@ -69,7 +80,7 @@ final class HealthFunction extends AbstractFunction
     {
         // Rate limit health checks
         $clientIp = $this->requestObject->getContext('client_ip', 'unknown');
-        $rateLimitKey = 'health_check:' . $clientIp;
+        $rateLimitKey = 'health_check:'.$clientIp;
 
         if (!RateLimiter::attempt($rateLimitKey, self::RATE_LIMIT_PER_MINUTE, fn (): bool => true, 60)) {
             $this->logger?->warning('Health check rate limit exceeded', [
@@ -118,7 +129,7 @@ final class HealthFunction extends AbstractFunction
         if (!$this->isAuthenticated() && $component === null) {
             $cacheKey = 'health_check:public';
 
-            return Cache::remember($cacheKey, self::HEALTH_CACHE_TTL, fn(): array => $this->performHealthChecks($includeDetails, null));
+            return Cache::remember($cacheKey, self::HEALTH_CACHE_TTL, fn (): array => $this->performHealthChecks($includeDetails, null));
         }
 
         // Always execute fresh checks for authenticated users or specific components
@@ -165,7 +176,7 @@ final class HealthFunction extends AbstractFunction
                 );
 
                 $worstStatus = $this->worstStatus($worstStatus, HealthStatus::from($result['status']));
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->logger?->error('Health checker failed', [
                     'checker' => $checker->getName(),
                     'error' => $e->getMessage(),
@@ -206,7 +217,7 @@ final class HealthFunction extends AbstractFunction
      *
      * @param string $component Component name to validate
      *
-     * @throws \InvalidArgumentException If component name is invalid or not registered
+     * @throws InvalidArgumentException If component name is invalid or not registered
      */
     private function validateComponentName(string $component): void
     {

@@ -21,17 +21,26 @@ use Cline\Forrst\Discovery\SimulationScenarioData;
 use Cline\Forrst\Discovery\TagData;
 use Cline\Forrst\Enums\ErrorCode;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 enum TestFunctionUrn: string
 {
     case TestFunction = 'urn:app:forrst:fn:test:function';
     case AnotherFunction = 'urn:app:forrst:fn:test:another';
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 enum TestErrorCode: string
 {
     case TestError = 'TEST_ERROR';
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 enum TestTag: string
 {
     case Testing = 'testing';

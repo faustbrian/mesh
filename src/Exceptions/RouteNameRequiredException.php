@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * protocol layer is reached. Returns HTTP 400 Bad Request to indicate a routing
  * configuration issue rather than a protocol-level error.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/protocol Protocol specification
  */
 final class RouteNameRequiredException extends BadRequestHttpException implements RpcException

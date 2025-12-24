@@ -11,6 +11,7 @@ namespace Cline\Forrst\Contracts;
 
 use Cline\Forrst\Extensions\ExtensionRegistry;
 use Cline\Forrst\Repositories\FunctionRepository;
+use InvalidArgumentException;
 
 /**
  * Forrst server contract interface.
@@ -106,7 +107,7 @@ interface ServerInterface
      *
      * Called during server registration to ensure proper setup.
      *
-     * @throws \InvalidArgumentException If configuration is invalid
+     * @throws InvalidArgumentException If configuration is invalid
      */
     public function validate(): void;
 }

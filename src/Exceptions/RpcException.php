@@ -9,7 +9,6 @@
 
 namespace Cline\Forrst\Exceptions;
 
-
 /**
  * Marker interface for all Forrst RPC exceptions.
  *

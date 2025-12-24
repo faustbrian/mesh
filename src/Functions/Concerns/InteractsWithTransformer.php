@@ -76,7 +76,7 @@ trait InteractsWithTransformer
      * DocumentData structure. Applies field selection and relationship loading based on
      * request parameters (fields, include).
      *
-     * @param  ResourceInterface|Model $item The model or resource to transform
+     * @param  Model|ResourceInterface $item The model or resource to transform
      * @return DocumentData            JSON API document containing the transformed item with metadata
      */
     protected function item(ResourceInterface|Model $item): DocumentData
@@ -107,7 +107,7 @@ trait InteractsWithTransformer
      * pagination enables efficient navigation through large datasets without offset
      * performance degradation.
      *
-     * @param  QueryBuilder|Builder<Model> $query The query to paginate and transform
+     * @param  Builder<Model>|QueryBuilder $query The query to paginate and transform
      * @return DocumentData                JSON API document with paginated results and cursor metadata
      */
     protected function cursorPaginate(QueryBuilder|Builder $query): DocumentData
@@ -122,7 +122,7 @@ trait InteractsWithTransformer
      * into a DocumentData structure with pagination metadata including current page,
      * total pages, per-page count, and navigation links.
      *
-     * @param  QueryBuilder|Builder<Model> $query The query to paginate and transform
+     * @param  Builder<Model>|QueryBuilder $query The query to paginate and transform
      * @return DocumentData                JSON API document with paginated results and page metadata
      */
     protected function paginate(QueryBuilder|Builder $query): DocumentData
@@ -137,7 +137,7 @@ trait InteractsWithTransformer
      * Provides only next/previous links without total page information. Ideal for large
      * datasets where count queries are expensive or unnecessary.
      *
-     * @param  QueryBuilder|Builder<Model> $query The query to paginate and transform
+     * @param  Builder<Model>|QueryBuilder $query The query to paginate and transform
      * @return DocumentData                JSON API document with paginated results and basic navigation links
      */
     protected function simplePaginate(QueryBuilder|Builder $query): DocumentData

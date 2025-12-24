@@ -9,6 +9,7 @@
 
 namespace Cline\Forrst\Contracts;
 
+use InvalidArgumentException;
 use JsonException;
 
 /**
@@ -92,7 +93,7 @@ interface ProtocolInterface
      *
      * @param array<string, mixed> $data Data to validate
      *
-     * @throws \InvalidArgumentException If data is invalid
+     * @throws InvalidArgumentException If data is invalid
      */
     public function validate(array $data): void;
 }

@@ -13,10 +13,16 @@ use Cline\Forrst\Contracts\ExtensionInterface;
 use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
+use InvalidArgumentException;
 
 use function array_keys;
 use function array_map;
 use function array_values;
+use function class_exists;
+use function is_callable;
+use function is_int;
+use function method_exists;
+use function sprintf;
 
 /**
  * Registry for Forrst extensions.
@@ -48,7 +54,7 @@ final class ExtensionRegistry
      *
      * @param ExtensionInterface $extension Extension instance to register
      *
-     * @throws \InvalidArgumentException If event subscription configuration is invalid
+     * @throws InvalidArgumentException If event subscription configuration is invalid
      */
     public function register(ExtensionInterface $extension): void
     {
@@ -66,6 +72,7 @@ final class ExtensionRegistry
 
             // Validate handler method exists and is callable
             $method = $config['method'];
+
             if (!method_exists($extension, $method)) {
                 throw InvalidFieldValueException::forField(
                     'method',

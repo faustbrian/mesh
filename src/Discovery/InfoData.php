@@ -16,6 +16,16 @@ use Cline\Forrst\Exceptions\InvalidSemanticVersionException;
 use Cline\Forrst\Exceptions\InvalidUrlException;
 use Spatie\LaravelData\Data;
 
+use const FILTER_VALIDATE_URL;
+
+use function filter_var;
+use function in_array;
+use function mb_strlen;
+use function mb_strtolower;
+use function mb_trim;
+use function parse_url;
+use function preg_match;
+
 /**
  * Service metadata for discovery documents.
  *
@@ -30,6 +40,10 @@ use Spatie\LaravelData\Data;
  */
 final class InfoData extends Data
 {
+    public readonly string $title;
+
+    public readonly string $version;
+
     /**
      * Create a new service information object.
      *
@@ -61,7 +75,8 @@ final class InfoData extends Data
         public readonly ?LicenseData $license = null,
     ) {
         // Validate title
-        $trimmedTitle = trim($title);
+        $trimmedTitle = mb_trim($title);
+
         if ($trimmedTitle === '') {
             throw EmptyFieldException::forField('title');
         }
@@ -73,9 +88,9 @@ final class InfoData extends Data
         $this->title = $trimmedTitle;
 
         // Validate semantic version
-        $semverPattern = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)' .
-            '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)' .
-            '(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'  .
+        $semverPattern = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'.
+            '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)'.
+            '(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?'.
             '(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/';
 
         if (!preg_match($semverPattern, $version)) {
@@ -90,19 +105,16 @@ final class InfoData extends Data
         }
 
         // Validate description length if provided
-        if ($description !== null && mb_strlen($description) > 5000) {
-            throw FieldExceedsMaxLengthException::forField('description', 5000);
+        if ($description !== null && mb_strlen($description) > 5_000) {
+            throw FieldExceedsMaxLengthException::forField('description', 5_000);
         }
     }
-
-    public readonly string $title;
-    public readonly string $version;
 
     /**
      * Validate URL format.
      *
-     * @throws InvalidUrlException
      * @throws InvalidProtocolException
+     * @throws InvalidUrlException
      */
     private function validateUrl(string $url): void
     {
@@ -112,7 +124,7 @@ final class InfoData extends Data
 
         $parsed = parse_url($url);
 
-        if (!isset($parsed['scheme']) || !in_array(strtolower($parsed['scheme']), ['http', 'https'], true)) {
+        if (!isset($parsed['scheme']) || !in_array(mb_strtolower($parsed['scheme']), ['http', 'https'], true)) {
             throw InvalidProtocolException::forUrl('termsOfService');
         }
     }

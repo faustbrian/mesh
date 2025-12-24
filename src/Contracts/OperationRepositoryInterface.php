@@ -11,6 +11,8 @@ namespace Cline\Forrst\Contracts;
 
 use Cline\Forrst\Data\OperationData;
 use Cline\Forrst\Exceptions\ForbiddenException;
+use DateTimeInterface;
+use InvalidArgumentException;
 
 /**
  * Forrst async operation repository contract interface.
@@ -74,9 +76,8 @@ interface OperationRepositoryInterface
      * @param int           $expectedVersion The lock_version expected in storage
      * @param null|string   $userId          User ID for access control
      *
-     * @return bool True if save succeeded (version matched), false if version mismatch
-     *
      * @throws ForbiddenException If userId doesn't match existing operation's owner
+     * @return bool               True if save succeeded (version matched), false if version mismatch
      */
     public function saveIfVersionMatches(
         OperationData $operation,
@@ -120,12 +121,12 @@ interface OperationRepositoryInterface
      *
      * RECOMMENDED: Run this as a scheduled job (e.g., hourly via cron).
      *
-     * @param \DateTimeInterface $before Delete operations with expires_at before this time
-     * @param int                $limit  Maximum number of operations to delete per call (default: 1000)
+     * @param DateTimeInterface $before Delete operations with expires_at before this time
+     * @param int               $limit  Maximum number of operations to delete per call (default: 1000)
      *
      * @return int Number of operations deleted
      */
-    public function deleteExpiredBefore(\DateTimeInterface $before, int $limit = 1000): int;
+    public function deleteExpiredBefore(DateTimeInterface $before, int $limit = 1_000): int;
 
     /**
      * List operations with optional filters and access control.
@@ -144,12 +145,11 @@ interface OperationRepositoryInterface
      * @param null|string $function Filter by function name
      * @param int         $limit    Maximum number of results to return (default: 50, max: 100)
      * @param null|string $cursor   Pagination cursor for fetching subsequent pages. Base64-encoded JSON
-     *                               with format: {"last_id": "uuid", "last_created_at": "2024-01-01T00:00:00Z"}
+     *                              with format: {"last_id": "uuid", "last_created_at": "2024-01-01T00:00:00Z"}
      * @param null|string $userId   Filter by user ID (null = all operations, requires admin permissions)
      *
+     * @throws InvalidArgumentException                                           If limit is less than 1 or greater than 100
      * @return array{operations: array<int, OperationData>, next_cursor: ?string} Operations and next page cursor
-     *
-     * @throws \InvalidArgumentException If limit is less than 1 or greater than 100
      */
     public function list(
         ?string $status = null,

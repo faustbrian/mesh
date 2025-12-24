@@ -22,6 +22,7 @@ use Illuminate\Validation\Validator;
  * Each error is converted into a JSON:API error object with JSON Pointer notation
  * indicating the exact request member that violated Forrst protocol requirements.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/errors Error handling specification
  * @see https://docs.cline.sh/forrst/protocol Protocol specification
  */

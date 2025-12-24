@@ -15,6 +15,15 @@ use Cline\Forrst\Exceptions\InvalidProtocolException;
 use Cline\Forrst\Exceptions\InvalidUrlException;
 use Spatie\LaravelData\Data;
 
+use const FILTER_VALIDATE_URL;
+
+use function filter_var;
+use function in_array;
+use function mb_strlen;
+use function mb_strtolower;
+use function mb_trim;
+use function parse_url;
+
 /**
  * License information for the service.
  *
@@ -41,17 +50,18 @@ final class LicenseData extends Data
      *                          legal terms and conditions. Enables developers to review detailed
      *                          licensing requirements before integration.
      *
-     * @throws EmptyFieldException If name is empty
+     * @throws EmptyFieldException            If name is empty
      * @throws FieldExceedsMaxLengthException If name exceeds 100 characters
-     * @throws InvalidUrlException If URL is provided but invalid
-     * @throws InvalidProtocolException If URL is not http/https
+     * @throws InvalidProtocolException       If URL is not http/https
+     * @throws InvalidUrlException            If URL is provided but invalid
      */
     public function __construct(
         public readonly string $name,
         public readonly ?string $url = null,
     ) {
         // Validate name
-        $trimmedName = trim($name);
+        $trimmedName = mb_trim($name);
+
         if ($trimmedName === '') {
             throw EmptyFieldException::forField('name');
         }
@@ -65,11 +75,14 @@ final class LicenseData extends Data
             throw InvalidUrlException::invalidFormat('url');
         }
 
-        if ($this->url !== null) {
-            $parsed = parse_url($this->url);
-            if (!isset($parsed['scheme']) || !in_array(strtolower($parsed['scheme']), ['http', 'https'], true)) {
-                throw InvalidProtocolException::forUrl('url');
-            }
+        if ($this->url === null) {
+            return;
+        }
+
+        $parsed = parse_url($this->url);
+
+        if (!isset($parsed['scheme']) || !in_array(mb_strtolower($parsed['scheme']), ['http', 'https'], true)) {
+            throw InvalidProtocolException::forUrl('url');
         }
     }
 }

@@ -13,6 +13,16 @@ use Cline\Forrst\Exceptions\InvalidProtocolException;
 use Cline\Forrst\Exceptions\InvalidUrlException;
 use Spatie\LaravelData\Data;
 
+use const E_USER_WARNING;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_SCHEME;
+
+use function filter_var;
+use function in_array;
+use function parse_url;
+use function sprintf;
+use function trigger_error;
+
 /**
  * Reference to external documentation.
  *
@@ -51,8 +61,8 @@ final class ExternalDocsData extends Data
     /**
      * Validate URL is well-formed and uses HTTP/HTTPS protocol.
      *
-     * @throws InvalidUrlException If URL is malformed
      * @throws InvalidProtocolException If URL uses invalid protocol
+     * @throws InvalidUrlException      If URL is malformed
      */
     private function validateUrl(string $url): void
     {
@@ -61,16 +71,19 @@ final class ExternalDocsData extends Data
         }
 
         $scheme = parse_url($url, PHP_URL_SCHEME);
+
         if (!in_array($scheme, ['http', 'https'], true)) {
             throw InvalidProtocolException::forUrl('url');
         }
 
         // Strongly recommend HTTPS for security
-        if ($scheme !== 'https') {
-            trigger_error(
-                sprintf("Warning: External documentation URL should use HTTPS for security: '%s'", $url),
-                E_USER_WARNING
-            );
+        if ($scheme === 'https') {
+            return;
         }
+
+        trigger_error(
+            sprintf("Warning: External documentation URL should use HTTPS for security: '%s'", $url),
+            E_USER_WARNING,
+        );
     }
 }

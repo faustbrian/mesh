@@ -17,9 +17,13 @@ use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\OperationNotFoundException;
 use Cline\Forrst\Extensions\Async\Descriptors\OperationStatusDescriptor;
 use Cline\Forrst\Functions\AbstractFunction;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Throwable;
+
 use function is_string;
+use function preg_match;
 
 /**
  * Async operation status check function.
@@ -103,7 +107,7 @@ final class OperationStatusFunction extends AbstractFunction
             $id = $user->getAuthIdentifier();
 
             return $id !== null ? (string) $id : null;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // No authenticated user - allow anonymous access for system operations
             return null;
         }
@@ -114,7 +118,7 @@ final class OperationStatusFunction extends AbstractFunction
      *
      * @param string $operationId Operation ID to validate
      *
-     * @throws \InvalidArgumentException If format is invalid
+     * @throws InvalidArgumentException If format is invalid
      */
     private function validateOperationId(string $operationId): void
     {

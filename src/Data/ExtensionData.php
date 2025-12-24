@@ -27,8 +27,9 @@ use function is_string;
  * while maintaining protocol compatibility. Clients declare support for extensions in
  * requests via options; servers acknowledge them in responses via data.
  *
- * @see https://docs.cline.sh/forrst/extensions/
  * @psalm-immutable
+ * @author Brian Faust <brian@cline.sh>
+ * @see https://docs.cline.sh/forrst/extensions/
  */
 final readonly class ExtensionData
 {
@@ -41,8 +42,8 @@ final readonly class ExtensionData
      * Create a new extension data instance.
      *
      * @param BackedEnum|string         $urn     Extension identifier URN using the format
-     *                                           "urn:forrst:ext:name" (e.g., ExtensionUrn::Async,
-     *                                           "urn:forrst:ext:retry"). The URN must be globally
+     *                                           "urn:vendor:forrst:ext:name" (e.g., ExtensionUrn::Async,
+     *                                           "urn:cline:forrst:ext:retry"). The URN must be globally
      *                                           unique and follow URN naming conventions.
      * @param null|array<string, mixed> $options Extension-specific configuration options sent
      *                                           in requests. Structure varies by extension type.

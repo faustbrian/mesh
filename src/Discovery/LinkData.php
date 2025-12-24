@@ -13,6 +13,16 @@ use Cline\Forrst\Exceptions\EmptyFieldException;
 use Cline\Forrst\Exceptions\FieldExceedsMaxLengthException;
 use Spatie\LaravelData\Data;
 
+use const E_USER_WARNING;
+
+use function is_string;
+use function mb_strlen;
+use function mb_trim;
+use function preg_match;
+use function sprintf;
+use function str_starts_with;
+use function trigger_error;
+
 /**
  * Design-time link describing a relationship between functions.
  *
@@ -57,7 +67,8 @@ final class LinkData extends Data
         public readonly ?DiscoveryServerData $server = null,
     ) {
         // Validate name
-        $trimmedName = trim($this->name);
+        $trimmedName = mb_trim($this->name);
+
         if ($trimmedName === '') {
             throw EmptyFieldException::forField('name');
         }
@@ -72,34 +83,38 @@ final class LinkData extends Data
         }
 
         // Validate function name format if provided
-        if ($this->function !== null && !preg_match('/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*$/', $this->function)) {
-            trigger_error(
-                sprintf("Warning: Function name '%s' should use dot notation (e.g., 'users.get', 'orders.create')", $this->function),
-                E_USER_WARNING
-            );
+        if ($this->function === null || preg_match('/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*$/', $this->function)) {
+            return;
         }
+
+        trigger_error(
+            sprintf("Warning: Function name '%s' should use dot notation (e.g., 'users.get', 'orders.create')", $this->function),
+            E_USER_WARNING,
+        );
     }
 
     /**
      * Validate params structure.
      *
-     * @param array<string, mixed> $params
+     * @param  array<string, mixed> $params
      * @throws EmptyFieldException
      */
     private function validateParams(array $params): void
     {
         foreach ($params as $paramName => $paramValue) {
-            if (!is_string($paramName) || trim($paramName) === '') {
+            if (!is_string($paramName) || mb_trim($paramName) === '') {
                 throw EmptyFieldException::forField('parameter name');
             }
 
             // Check for runtime expression syntax: $result.field
-            if (is_string($paramValue) && str_starts_with($paramValue, '$') && !preg_match('/^\$result\.[a-zA-Z_][a-zA-Z0-9_.]*$/', $paramValue)) {
-                trigger_error(
-                    sprintf("Warning: Parameter '%s' uses runtime expression but may have invalid syntax: '%s'", $paramName, $paramValue),
-                    E_USER_WARNING
-                );
+            if (!is_string($paramValue) || !str_starts_with($paramValue, '$') || preg_match('/^\$result\.[a-zA-Z_][a-zA-Z0-9_.]*$/', $paramValue)) {
+                continue;
             }
+
+            trigger_error(
+                sprintf("Warning: Parameter '%s' uses runtime expression but may have invalid syntax: '%s'", $paramName, $paramValue),
+                E_USER_WARNING,
+            );
         }
     }
 }

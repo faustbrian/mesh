@@ -24,6 +24,7 @@ use function str_starts_with;
  * and ensure protocol compliance. This is a configuration-time error, not a
  * runtime request error.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/protocol Protocol specification
  */
 final class ReservedNamespaceException extends RuntimeException implements RpcException

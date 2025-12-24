@@ -17,12 +17,16 @@ use Symfony\Component\Intl\Timezones;
 
 use function array_map;
 use function explode;
+use function get_debug_type;
 use function implode;
+use function is_object;
 use function is_string;
+use function mb_strlen;
 use function mb_substr;
+use function mb_trim;
 use function method_exists;
+use function sprintf;
 use function str_starts_with;
-use function strlen;
 use function throw_if;
 
 /**
@@ -66,7 +70,7 @@ final class RuleTransformer
      */
     public static function transform(string $field, array $rules): array
     {
-        if (trim($field) === '') {
+        if (mb_trim($field) === '') {
             throw EmptyFieldException::forField('field');
         }
 
@@ -74,7 +78,7 @@ final class RuleTransformer
             if (!is_string($rule) && !is_object($rule)) {
                 throw InvalidFieldValueException::forField(
                     'rule',
-                    sprintf('must be string or object, %s given', get_debug_type($rule))
+                    sprintf('must be string or object, %s given', get_debug_type($rule)),
                 );
             }
         }
@@ -905,11 +909,11 @@ final class RuleTransformer
      * Helper method to reduce duplication for date comparison rules
      * (after, after_or_equal, before, before_or_equal).
      *
-     * @param array<string, mixed> $schema    The schema being built (passed by reference)
-     * @param string               $field     The field name
-     * @param string               $rule      The full rule string (e.g., 'after:2024-01-01')
-     * @param string               $prefix    The rule prefix to strip (e.g., 'after:')
-     * @param string               $operator  The JSON Schema operator (e.g., 'exclusiveMinimum')
+     * @param array<string, mixed> $schema   The schema being built (passed by reference)
+     * @param string               $field    The field name
+     * @param string               $rule     The full rule string (e.g., 'after:2024-01-01')
+     * @param string               $prefix   The rule prefix to strip (e.g., 'after:')
+     * @param string               $operator The JSON Schema operator (e.g., 'exclusiveMinimum')
      */
     private static function applyDateComparison(
         array &$schema,
@@ -920,6 +924,6 @@ final class RuleTransformer
     ): void {
         $schema['properties'][$field]['type'] = 'string';
         $schema['properties'][$field]['format'] = 'date-time';
-        $schema['properties'][$field][$operator] = mb_substr($rule, strlen($prefix));
+        $schema['properties'][$field][$operator] = mb_substr($rule, mb_strlen($prefix));
     }
 }

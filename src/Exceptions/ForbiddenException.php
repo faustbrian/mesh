@@ -83,7 +83,7 @@ final class ForbiddenException extends AbstractRequestException
      *
      * @return int Always returns 403 (Forbidden) to indicate authorization failure
      */
-    #[Override]
+    #[Override()]
     public function getStatusCode(): int
     {
         return 403;

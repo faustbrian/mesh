@@ -22,6 +22,7 @@ use function sprintf;
  * is invalid or the replay was never created. The exception includes the
  * requested replay ID for client-side error correlation and debugging.
  *
+ * @author Brian Faust <brian@cline.sh>
  * @see https://docs.cline.sh/forrst/extensions/replay Replay extension specification
  * @see https://docs.cline.sh/forrst/errors Error handling specification
  */

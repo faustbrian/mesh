@@ -23,6 +23,4 @@ use RuntimeException;
  *
  * @author Brian Faust <brian@cline.sh>
  */
-final class InvalidOperationStateException extends RuntimeException
-{
-}
+final class InvalidOperationStateException extends RuntimeException {}

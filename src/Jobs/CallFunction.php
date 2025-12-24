@@ -23,12 +23,16 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
+use ReflectionParameter;
+use ReflectionType;
 use ReflectionUnionType;
 use Spatie\LaravelData\Data;
 use Throwable;
+
 use function call_user_func;
 use function count;
 use function implode;
@@ -180,14 +184,14 @@ final readonly class CallFunction
     /**
      * Resolve a single parameter from the request arguments.
      *
-     * @param \ReflectionParameter $parameter The parameter to resolve
+     * @param ReflectionParameter  $parameter The parameter to resolve
      * @param array<string, mixed> $arguments The raw request arguments
      *
      * @throws InvalidDataException When Data object validation fails
      *
      * @return mixed The resolved parameter value
      */
-    private function resolveParameter(\ReflectionParameter $parameter, array $arguments): mixed
+    private function resolveParameter(ReflectionParameter $parameter, array $arguments): mixed
     {
         $parameterName = $parameter->getName();
         $parameterType = $parameter->getType();
@@ -229,14 +233,14 @@ final readonly class CallFunction
      * Handles named types, union types, and intersection types.
      * For union types, prefers Data subclasses, then array, then first type.
      *
-     * @param \ReflectionParameter                                                                            $parameter The parameter being resolved
-     * @param \ReflectionNamedType|\ReflectionUnionType|\ReflectionIntersectionType|\ReflectionType|null $type      The reflection type
+     * @param ReflectionParameter                                                                    $parameter The parameter being resolved
+     * @param null|ReflectionIntersectionType|ReflectionNamedType|ReflectionType|ReflectionUnionType $type      The reflection type
      *
-     * @throws \InvalidArgumentException When intersection types are encountered
+     * @throws InvalidArgumentException When intersection types are encountered
      *
-     * @return string|null The extracted type name, or null if no type hint
+     * @return null|string The extracted type name, or null if no type hint
      */
-    private function extractTypeName(\ReflectionParameter $parameter, $type): ?string
+    private function extractTypeName(ReflectionParameter $parameter, $type): ?string
     {
         if ($type === null) {
             return null;
@@ -250,7 +254,7 @@ final readonly class CallFunction
             $preferredType = null;
 
             foreach ($type->getTypes() as $unionType) {
-                if (!($unionType instanceof ReflectionNamedType)) {
+                if (!$unionType instanceof ReflectionNamedType) {
                     continue;
                 }
 
@@ -264,13 +268,16 @@ final readonly class CallFunction
                 // Prefer array type
                 if ($typeName === 'array') {
                     $preferredType = 'array';
+
                     continue;
                 }
 
                 // Keep first type as fallback
-                if ($preferredType === null) {
-                    $preferredType = $typeName;
+                if ($preferredType !== null) {
+                    continue;
                 }
+
+                $preferredType = $typeName;
             }
 
             return $preferredType;

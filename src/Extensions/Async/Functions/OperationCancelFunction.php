@@ -21,9 +21,13 @@ use Cline\Forrst\Exceptions\OperationNotFoundException;
 use Cline\Forrst\Exceptions\OperationVersionConflictException;
 use Cline\Forrst\Extensions\Async\Descriptors\OperationCancelDescriptor;
 use Cline\Forrst\Functions\AbstractFunction;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Throwable;
+
 use function is_string;
+use function preg_match;
 
 /**
  * Async operation cancellation function.
@@ -38,6 +42,11 @@ use function is_string;
 final class OperationCancelFunction extends AbstractFunction
 {
     /**
+     * Maximum retry attempts for optimistic locking conflicts.
+     */
+    private const int MAX_RETRIES = 3;
+
+    /**
      * Create a new operation cancel function instance.
      *
      * @param OperationRepositoryInterface $repository Operation repository
@@ -47,11 +56,6 @@ final class OperationCancelFunction extends AbstractFunction
         private readonly OperationRepositoryInterface $repository,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {}
-
-    /**
-     * Maximum retry attempts for optimistic locking conflicts.
-     */
-    private const int MAX_RETRIES = 3;
 
     /**
      * Execute the operation cancel function.
@@ -175,7 +179,7 @@ final class OperationCancelFunction extends AbstractFunction
             $id = $user->getAuthIdentifier();
 
             return $id !== null ? (string) $id : null;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // No authenticated user - allow anonymous access for system operations
             return null;
         }
@@ -186,7 +190,7 @@ final class OperationCancelFunction extends AbstractFunction
      *
      * @param string $operationId Operation ID to validate
      *
-     * @throws \InvalidArgumentException If format is invalid
+     * @throws InvalidArgumentException If format is invalid
      */
     private function validateOperationId(string $operationId): void
     {

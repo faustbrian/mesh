@@ -10,6 +10,7 @@
 namespace Cline\Forrst\Functions;
 
 use function array_map;
+use function preg_match;
 
 /**
  * Standard Forrst function URNs.
@@ -30,77 +31,77 @@ enum FunctionUrn: string
      *
      * @see https://docs.cline.sh/forrst/system-functions#ping
      */
-    case Ping = 'urn:cline:forrst:ext:diagnostics:fn:ping';
+    case Ping = 'urn:cline:forrst:fn:diagnostics:ping';
 
     /**
      * Capabilities discovery function.
      *
      * @see https://docs.cline.sh/forrst/system-functions#capabilities
      */
-    case Capabilities = 'urn:cline:forrst:ext:discovery:fn:capabilities';
+    case Capabilities = 'urn:cline:forrst:fn:discovery:capabilities';
 
     /**
      * Function description/discovery function.
      *
      * @see https://docs.cline.sh/forrst/system-functions#describe
      */
-    case Describe = 'urn:cline:forrst:ext:discovery:fn:describe';
+    case Describe = 'urn:cline:forrst:fn:discovery:describe';
 
     /**
      * Health check function.
      *
      * @see https://docs.cline.sh/forrst/system-functions#health
      */
-    case Health = 'urn:cline:forrst:ext:diagnostics:fn:health';
+    case Health = 'urn:cline:forrst:fn:diagnostics:health';
 
     /**
      * Request cancellation function (cancellation extension).
      *
      * @see https://docs.cline.sh/forrst/extensions/cancellation
      */
-    case Cancel = 'urn:cline:forrst:ext:cancellation:fn:cancel';
+    case Cancel = 'urn:cline:forrst:fn:cancellation:cancel';
 
     /**
      * Operation status check function (async extension).
      *
      * @see https://docs.cline.sh/forrst/extensions/async
      */
-    case OperationStatus = 'urn:cline:forrst:ext:async:fn:status';
+    case OperationStatus = 'urn:cline:forrst:fn:async:status';
 
     /**
      * Operation cancellation function (async extension).
      *
      * @see https://docs.cline.sh/forrst/extensions/async
      */
-    case OperationCancel = 'urn:cline:forrst:ext:async:fn:cancel';
+    case OperationCancel = 'urn:cline:forrst:fn:async:cancel';
 
     /**
      * Operation listing function (async extension).
      *
      * @see https://docs.cline.sh/forrst/extensions/async
      */
-    case OperationList = 'urn:cline:forrst:ext:async:fn:list';
+    case OperationList = 'urn:cline:forrst:fn:async:list';
 
     /**
      * Lock status check function (atomic-lock extension).
      *
      * @see https://docs.cline.sh/forrst/extensions/atomic-lock
      */
-    case LocksStatus = 'urn:cline:forrst:ext:atomic-lock:fn:status';
+    case LocksStatus = 'urn:cline:forrst:fn:atomic-lock:status';
 
     /**
      * Lock release function (atomic-lock extension).
      *
      * @see https://docs.cline.sh/forrst/extensions/atomic-lock
      */
-    case LocksRelease = 'urn:cline:forrst:ext:atomic-lock:fn:release';
+    case LocksRelease = 'urn:cline:forrst:fn:atomic-lock:release';
 
     /**
      * Force lock release function (atomic-lock extension).
      *
      * @see https://docs.cline.sh/forrst/extensions/atomic-lock
      */
-    case LocksForceRelease = 'urn:cline:forrst:ext:atomic-lock:fn:force-release';
+    case LocksForceRelease = 'urn:cline:forrst:fn:atomic-lock:force-release';
 
     /**
      * Get all standard function URNs as strings.
@@ -135,8 +136,8 @@ enum FunctionUrn: string
     public static function isValidFormat(string $urn): bool
     {
         return (bool) preg_match(
-            '/^urn:[a-z][a-z0-9-]*:forrst:(fn|ext):[a-z0-9-]+:[a-z0-9-]+$/',
-            $urn
+            '/^urn:[a-z][a-z0-9-]*:forrst:fn:[a-z0-9-]+:[a-z0-9-]+$/',
+            $urn,
         );
     }
 }

@@ -14,6 +14,10 @@ use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
 use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 
+use function array_filter;
+use function in_array;
+use function is_int;
+
 /**
  * Health status value object.
  *
@@ -22,22 +26,23 @@ use Cline\Forrst\Exceptions\MissingRequiredFieldException;
  * status structure across all health checkers.
  *
  * @author Brian Faust <brian@cline.sh>
+ * @psalm-immutable
  */
 final readonly class HealthStatus
 {
     /**
      * Create a new health status instance.
      *
-     * @param 'healthy'|'degraded'|'unhealthy' $status Health status value
-     * @param array{value: int, unit: string}|null $latency Optional latency metrics
-     * @param string|null $message Optional diagnostic message
-     * @param string|null $lastCheck Optional last check timestamp
+     * @param 'degraded'|'healthy'|'unhealthy'     $status    Health status value
+     * @param null|array{value: int, unit: string} $latency   Optional latency metrics
+     * @param null|string                          $message   Optional diagnostic message
+     * @param null|string                          $lastCheck Optional last check timestamp
      *
-     * @throws InvalidEnumValueException If status value is invalid
+     * @throws InvalidEnumValueException     If latency unit is invalid
+     * @throws InvalidEnumValueException     If status value is invalid
+     * @throws InvalidFieldTypeException     If latency value is not an integer
+     * @throws InvalidFieldValueException    If latency value is negative
      * @throws MissingRequiredFieldException If required latency fields are missing
-     * @throws InvalidFieldTypeException If latency value is not an integer
-     * @throws InvalidFieldValueException If latency value is negative
-     * @throws InvalidEnumValueException If latency unit is invalid
      */
     public function __construct(
         public string $status,
@@ -49,22 +54,24 @@ final readonly class HealthStatus
             throw InvalidEnumValueException::forField('status', ['healthy', 'degraded', 'unhealthy']);
         }
 
-        if ($latency !== null) {
-            if (!isset($latency['value'], $latency['unit'])) {
-                throw MissingRequiredFieldException::forField('latency.value and latency.unit');
-            }
+        if ($latency === null) {
+            return;
+        }
 
-            if (!is_int($latency['value'])) {
-                throw InvalidFieldTypeException::forField('latency.value', 'integer', $latency['value']);
-            }
+        if (!isset($latency['value'], $latency['unit'])) {
+            throw MissingRequiredFieldException::forField('latency.value and latency.unit');
+        }
 
-            if ($latency['value'] < 0) {
-                throw InvalidFieldValueException::forField('latency.value', 'must be non-negative');
-            }
+        if (!is_int($latency['value'])) {
+            throw InvalidFieldTypeException::forField('latency.value', 'integer', $latency['value']);
+        }
 
-            if (!in_array($latency['unit'], ['ms', 'us', 's'], true)) {
-                throw InvalidEnumValueException::forField('latency.unit', ['ms', 'us', 's']);
-            }
+        if ($latency['value'] < 0) {
+            throw InvalidFieldValueException::forField('latency.value', 'must be non-negative');
+        }
+
+        if (!in_array($latency['unit'], ['ms', 'us', 's'], true)) {
+            throw InvalidEnumValueException::forField('latency.unit', ['ms', 'us', 's']);
         }
     }
 
@@ -80,7 +87,7 @@ final readonly class HealthStatus
             'latency' => $this->latency,
             'message' => $this->message,
             'last_check' => $this->lastCheck,
-        ], fn(string|array|null $value): bool => $value !== null);
+        ], fn (string|array|null $value): bool => $value !== null);
     }
 
     /**

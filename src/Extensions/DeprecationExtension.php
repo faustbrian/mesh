@@ -358,14 +358,18 @@ final class DeprecationExtension extends AbstractExtension
         CarbonImmutable::now();
 
         foreach ($this->warnings as $urn => $warning) {
-            if (isset($warning['sunset_date'])) {
-                $sunsetDate = CarbonImmutable::parse($warning['sunset_date']);
-
-                // Remove warnings for features already removed (past sunset)
-                if ($sunsetDate->isPast()) {
-                    unset($this->warnings[$urn]);
-                }
+            if (!isset($warning['sunset_date'])) {
+                continue;
             }
+
+            $sunsetDate = CarbonImmutable::parse($warning['sunset_date']);
+
+            // Remove warnings for features already removed (past sunset)
+            if (!$sunsetDate->isPast()) {
+                continue;
+            }
+
+            unset($this->warnings[$urn]);
         }
     }
 }
