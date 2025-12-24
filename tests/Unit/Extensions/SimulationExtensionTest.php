@@ -728,7 +728,7 @@ describe('SimulationExtension', function (): void {
                 id: 'custom-request-id-12345',
                 call: new CallData(function: 'test'),
             );
-            $scenario = SimulationScenarioData::success('test', [], ['result' => 'ok']);
+            $scenario = SimulationScenarioData::success('test', ['id' => 1], ['result' => 'ok']);
 
             // Act
             $response = $extension->buildSimulatedResponse($request, $scenario);
@@ -745,7 +745,7 @@ describe('SimulationExtension', function (): void {
                 id: 'error-request-id-999',
                 call: new CallData(function: 'test'),
             );
-            $scenario = SimulationScenarioData::error('error', [], 'ERROR', 'Error');
+            $scenario = SimulationScenarioData::error('error', ['id' => 1], 'ERROR', 'Error');
 
             // Act
             $response = $extension->buildSimulatedErrorResponse($request, $scenario);
