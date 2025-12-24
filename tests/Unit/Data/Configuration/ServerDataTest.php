@@ -14,7 +14,7 @@ describe('ServerData', function (): void {
         $data = ServerData::from([
             'name' => 'test',
             'path' => '/rpc',
-            'route' => 'rpc',
+            'route' => '/rpc',
             'version' => '1.0',
             'middleware' => [],
             'methods' => null,
