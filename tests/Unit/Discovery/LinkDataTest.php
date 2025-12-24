@@ -9,6 +9,7 @@
 
 use Cline\Forrst\Discovery\DiscoveryServerData;
 use Cline\Forrst\Discovery\LinkData;
+use Cline\Forrst\Discovery\ServerVariableData;
 
 describe('LinkData', function (): void {
     describe('Happy Paths', function (): void {
@@ -45,7 +46,7 @@ describe('LinkData', function (): void {
             expect($link->name)->toBe('GetEventVenue')
                 ->and($link->summary)->toBe('Retrieve the venue for this event')
                 ->and($link->description)->toBe('Navigates to the venue details using the venue_id from the event.')
-                ->and($link->function)->toBe('venues.get')
+                ->and($link->function)->toBe('urn:cline:forrst:fn:venues:get')
                 ->and($link->params)->toBe(['venue_id' => '$result.venue.id'])
                 ->and($link->server)->toBeInstanceOf(DiscoveryServerData::class);
         });
@@ -54,12 +55,12 @@ describe('LinkData', function (): void {
             // Arrange & Act
             $link = new LinkData(
                 name: 'ListOrderItems',
-                function: 'order_items.list',
+                function: 'urn:cline:forrst:fn:order_items:list',
                 params: ['order_id' => '$result.id'],
             );
 
             // Assert
-            expect($link->function)->toBe('order_items.list')
+            expect($link->function)->toBe('urn:cline:forrst:fn:order_items:list')
                 ->and($link->params)->toHaveKey('order_id');
         });
 
@@ -191,7 +192,10 @@ describe('LinkData', function (): void {
                     summary: 'Production API server',
                     description: 'Main production endpoint for the API.',
                     variables: [
-                        'version' => ['default' => 'v2', 'enum' => ['v1', 'v2']],
+                        'version' => new ServerVariableData(
+                            default: 'v2',
+                            enum: ['v1', 'v2'],
+                        ),
                     ],
                 ),
             );
