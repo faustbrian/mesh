@@ -35,6 +35,16 @@ use function is_string;
 final class RequestObjectData extends AbstractData
 {
     /**
+     * Runtime metadata storage for extensions.
+     *
+     * Non-readonly to allow extensions to store per-request state during
+     * processing. This is NOT serialized or transmitted - only for internal use.
+     *
+     * @var array<string, mixed>
+     */
+    public array $meta = [];
+
+    /**
      * Create a new Forrst request object instance.
      *
      * @param ProtocolData              $protocol   Forrst protocol identifier object containing the protocol

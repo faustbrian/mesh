@@ -87,11 +87,9 @@ final class IdempotencyExtension extends AbstractExtension
     private const int LOCK_TTL_SECONDS = 30;
 
     /**
-     * Context for current request (set in onExecutingFunction).
-     *
-     * @var null|array{key: string, cache_key: string, lock: Lock}
+     * Metadata key for storing idempotency context in request.
      */
-    private ?array $context = null;
+    private const string META_KEY = 'idempotency_context';
 
     /**
      * Create a new extension instance.
@@ -107,22 +105,6 @@ final class IdempotencyExtension extends AbstractExtension
         private readonly CacheRepository $cache,
         private readonly int $defaultTtl = self::DEFAULT_TTL_SECONDS,
     ) {}
-
-    /**
-     * Release lock on destruction if context exists.
-     *
-     * Safeguard to ensure locks are released even if the normal flow is interrupted.
-     * The lock has a TTL so it will expire anyway, but this prevents unnecessary waiting.
-     */
-    public function __destruct()
-    {
-        if ($this->context !== null && isset($this->context['lock'])) {
-            $lock = $this->context['lock'];
-            if ($lock instanceof Lock) {
-                $lock->release();
-            }
-        }
-    }
 
     /**
      * {@inheritDoc}
@@ -220,8 +202,8 @@ final class IdempotencyExtension extends AbstractExtension
                 return;
             }
 
-            // Store context for onFunctionExecuted
-            $this->context = [
+            // Store context in request metadata for thread safety
+            $event->request->meta[self::META_KEY] = [
                 'key' => $key,
                 'cache_key' => $cacheKey,
                 'lock' => $lock, // Store lock to release later
@@ -244,13 +226,19 @@ final class IdempotencyExtension extends AbstractExtension
      */
     public function onFunctionExecuted(FunctionExecuted $event): void
     {
-        if ($this->context === null) {
+        // Retrieve context from request metadata (thread-safe)
+        $context = $event->request->meta[self::META_KEY] ?? null;
+
+        if ($context === null) {
             return;
         }
 
-        $key = $this->context['key'];
-        $cacheKey = $this->context['cache_key'];
-        $lock = $this->context['lock'];
+        assert(is_array($context));
+
+        /** @var array{key: string, cache_key: string, lock: Lock} $context */
+        $key = $context['key'];
+        $cacheKey = $context['cache_key'];
+        $lock = $context['lock'];
         $ttl = $this->getTtl($event->extension->options);
         $expiresAt = now()->addSeconds($ttl);
 
@@ -289,8 +277,6 @@ final class IdempotencyExtension extends AbstractExtension
                 meta: $event->getResponse()->meta,
             ),
         );
-
-        $this->context = null;
     }
 
     /**
