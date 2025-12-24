@@ -8,6 +8,7 @@
  */
 
 use Cline\Forrst\Discovery\FunctionExtensionsData;
+use Cline\Forrst\Exceptions\EmptyFieldException;
 
 describe('FunctionExtensionsData', function (): void {
     describe('Happy Paths', function (): void {
