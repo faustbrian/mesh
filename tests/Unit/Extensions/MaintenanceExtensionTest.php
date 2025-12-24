@@ -125,7 +125,7 @@ describe('MaintenanceExtension', function (): void {
 
             // Assert
             expect($data)->toHaveKey('scope', MaintenanceExtension::SCOPE_FUNCTION)
-                ->and($data)->toHaveKey('function', 'reports.generate')
+                ->and($data)->toHaveKey('function', 'urn:cline:forrst:fn:reports:generate')
                 ->and($data)->toHaveKey('reason', 'Report engine upgrade')
                 ->and($data)->toHaveKey('started_at', '2024-01-15T10:00:00+00:00')
                 ->and($data)->toHaveKey('until', '2024-01-15T11:00:00+00:00')
@@ -167,7 +167,7 @@ describe('MaintenanceExtension', function (): void {
             );
 
             // Assert
-            expect($details)->toHaveKey('function', 'search.query')
+            expect($details)->toHaveKey('function', 'urn:cline:forrst:fn:search:query')
                 ->and($details)->toHaveKey('reason', 'Search index rebuild')
                 ->and($details)->toHaveKey('started_at')
                 ->and($details)->not->toHaveKey('until');
