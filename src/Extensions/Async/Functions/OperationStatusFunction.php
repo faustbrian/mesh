@@ -49,7 +49,11 @@ final class OperationStatusFunction extends AbstractFunction
     /**
      * Execute the operation status function.
      *
-     * @throws OperationNotFoundException If the operation ID does not exist
+     * Operations are scoped to the authenticated user. Users can only view
+     * operations they own. Returns "not found" for both missing and unauthorized
+     * operations to prevent enumeration attacks.
+     *
+     * @throws OperationNotFoundException If the operation does not exist or user is unauthorized
      *
      * @return array<string, mixed> Operation status details
      */
@@ -63,13 +67,19 @@ final class OperationStatusFunction extends AbstractFunction
 
         $this->validateOperationId($operationId);
 
-        $operation = $this->repository->find($operationId);
+        // Get authenticated user for access control
+        $userId = $this->getAuthenticatedUserId();
+
+        // Find operation with access control - returns null if not found OR unauthorized
+        $operation = $this->repository->find($operationId, $userId);
 
         if (!$operation instanceof OperationData) {
-            $this->logger->warning('Operation not found for status check', [
+            $this->logger->warning('Operation not found or unauthorized', [
                 'operation_id' => $operationId,
+                'user_id' => $userId,
             ]);
 
+            // Generic error to prevent enumeration attacks
             throw OperationNotFoundException::create($operationId);
         }
 
@@ -77,9 +87,28 @@ final class OperationStatusFunction extends AbstractFunction
             'operation_id' => $operationId,
             'status' => $operation->status->value,
             'function' => $operation->function,
+            'user_id' => $userId,
         ]);
 
         return $operation->toArray();
+    }
+
+    /**
+     * Get the authenticated user's ID for access control.
+     *
+     * @return null|string User ID or null for system/anonymous access
+     */
+    private function getAuthenticatedUserId(): ?string
+    {
+        try {
+            $user = $this->getCurrentUser();
+            $id = $user->getAuthIdentifier();
+
+            return $id !== null ? (string) $id : null;
+        } catch (\Throwable) {
+            // No authenticated user - allow anonymous access for system operations
+            return null;
+        }
     }
 
     /**

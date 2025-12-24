@@ -300,6 +300,7 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
      * @param null|array<string, mixed> $metadata     Optional metadata stored with operation
      * @param int                       $retrySeconds Suggested seconds between poll attempts
      * @param null|int                  $ttlSeconds   Time-to-live in seconds (clamped to min/max bounds)
+     * @param null|string               $ownerId      Owner ID for access control (required for multi-user systems)
      *
      * @return array{response: ResponseData, operation: OperationData} Tuple of response and operation
      *
@@ -311,6 +312,7 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
         ?array $metadata = null,
         int $retrySeconds = self::DEFAULT_RETRY_SECONDS,
         ?int $ttlSeconds = null,
+        ?string $ownerId = null,
     ): array {
         // Validate and clamp TTL to allowed bounds
         $ttl = $ttlSeconds ?? self::DEFAULT_OPERATION_TTL_SECONDS;
@@ -337,6 +339,7 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
             'created_at' => now()->toIso8601String(),
             'expires_at' => $expiresAt->toIso8601String(),
             'ttl_seconds' => $ttl,
+            'owner_id' => $ownerId,
         ];
 
         $finalMetadata = $metadata !== null
@@ -352,8 +355,8 @@ final class AsyncExtension extends AbstractExtension implements ProvidesFunction
             metadata: $finalMetadata,
         );
 
-        // Persist the operation
-        $this->operations->save($operation);
+        // Persist the operation with owner association
+        $this->operations->save($operation, $ownerId);
 
         // Build the async response
         $response = ResponseData::success(

@@ -51,6 +51,9 @@ final class OperationListFunction extends AbstractFunction
     /**
      * Execute the operation list function.
      *
+     * Operations are scoped to the authenticated user. Users can only list
+     * operations they own, preventing cross-user data exposure.
+     *
      * @throws \InvalidArgumentException If any argument is invalid
      *
      * @return array{operations: array<int, array<string, mixed>>, next_cursor?: string} Paginated operations
@@ -85,7 +88,10 @@ final class OperationListFunction extends AbstractFunction
             throw InvalidFieldTypeException::forField('cursor', 'string', $cursor);
         }
 
-        $result = $this->repository->list($status, $function, $limit, $cursor);
+        // Get authenticated user for access control - only list their operations
+        $userId = $this->getAuthenticatedUserId();
+
+        $result = $this->repository->list($status, $function, $limit, $cursor, $userId);
 
         $this->logger->debug('Operations listed', [
             'count' => count($result['operations']),
@@ -93,6 +99,7 @@ final class OperationListFunction extends AbstractFunction
             'function_filter' => $function,
             'limit' => $limit,
             'has_next_page' => $result['next_cursor'] !== null,
+            'user_id' => $userId,
         ]);
 
         $response = [
@@ -107,5 +114,23 @@ final class OperationListFunction extends AbstractFunction
         }
 
         return $response;
+    }
+
+    /**
+     * Get the authenticated user's ID for access control.
+     *
+     * @return null|string User ID or null for system/anonymous access
+     */
+    private function getAuthenticatedUserId(): ?string
+    {
+        try {
+            $user = $this->getCurrentUser();
+            $id = $user->getAuthIdentifier();
+
+            return $id !== null ? (string) $id : null;
+        } catch (\Throwable) {
+            // No authenticated user - allow anonymous access for system operations
+            return null;
+        }
     }
 }

@@ -52,8 +52,12 @@ final class OperationCancelFunction extends AbstractFunction
     /**
      * Execute the operation cancel function.
      *
+     * Operations are scoped to the authenticated user. Users can only cancel
+     * operations they own. Returns "not found" for both missing and unauthorized
+     * operations to prevent enumeration attacks.
+     *
      * @throws OperationCannotCancelException If the operation is in a terminal state
-     * @throws OperationNotFoundException     If the operation ID does not exist
+     * @throws OperationNotFoundException     If the operation does not exist or user is unauthorized
      *
      * @return array{operation_id: string, status: string, cancelled_at: string} Cancellation result
      */
@@ -67,13 +71,19 @@ final class OperationCancelFunction extends AbstractFunction
 
         $this->validateOperationId($operationId);
 
-        $operation = $this->repository->find($operationId);
+        // Get authenticated user for access control
+        $userId = $this->getAuthenticatedUserId();
+
+        // Find operation with access control - returns null if not found OR unauthorized
+        $operation = $this->repository->find($operationId, $userId);
 
         if (!$operation instanceof OperationData) {
-            $this->logger->warning('Operation not found for cancellation', [
+            $this->logger->warning('Operation not found or unauthorized for cancellation', [
                 'operation_id' => $operationId,
+                'user_id' => $userId,
             ]);
 
+            // Generic error to prevent enumeration attacks
             throw OperationNotFoundException::create($operationId);
         }
 
@@ -101,11 +111,13 @@ final class OperationCancelFunction extends AbstractFunction
             metadata: $operation->metadata,
         );
 
-        $this->repository->save($cancelledOperation);
+        // Save with user context for access control
+        $this->repository->save($cancelledOperation, $userId);
 
         $this->logger->info('Operation cancelled successfully', [
             'operation_id' => $operationId,
             'function' => $operation->function,
+            'user_id' => $userId,
         ]);
 
         return [
@@ -113,6 +125,24 @@ final class OperationCancelFunction extends AbstractFunction
             'status' => 'cancelled',
             'cancelled_at' => $now->toIso8601String(),
         ];
+    }
+
+    /**
+     * Get the authenticated user's ID for access control.
+     *
+     * @return null|string User ID or null for system/anonymous access
+     */
+    private function getAuthenticatedUserId(): ?string
+    {
+        try {
+            $user = $this->getCurrentUser();
+            $id = $user->getAuthIdentifier();
+
+            return $id !== null ? (string) $id : null;
+        } catch (\Throwable) {
+            // No authenticated user - allow anonymous access for system operations
+            return null;
+        }
     }
 
     /**
