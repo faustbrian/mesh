@@ -8,6 +8,7 @@
  */
 
 use Cline\Forrst\Discovery\ErrorDefinitionData;
+use Cline\Forrst\Exceptions\MissingRequiredFieldException;
 
 describe('ErrorDefinitionData', function (): void {
     describe('Happy Paths', function (): void {

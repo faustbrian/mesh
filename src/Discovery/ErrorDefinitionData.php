@@ -239,8 +239,14 @@ final class ErrorDefinitionData extends Data
             );
         }
 
-        if (!isset($details['type'])) {
+        // $ref is a valid alternative to type in JSON Schema
+        if (!isset($details['type']) && !isset($details['$ref'])) {
             throw MissingRequiredFieldException::forField('details.type');
+        }
+
+        // If using $ref, skip type and property validation (ref points to external schema)
+        if (isset($details['$ref'])) {
+            return;
         }
 
         $validTypes = ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'];
