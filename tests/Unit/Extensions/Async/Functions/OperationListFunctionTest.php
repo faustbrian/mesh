@@ -234,6 +234,7 @@ describe('OperationListFunction', function (): void {
                         'urn:app:forrst:fn:users:create',
                         status: OperationStatus::Completed,
                         startedAt: CarbonImmutable::now()->subMinutes(10),
+                        completedAt: CarbonImmutable::now()->subMinutes(8),
                     ),
                     new OperationData(
                         'op-2',
