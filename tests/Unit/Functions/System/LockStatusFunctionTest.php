@@ -11,6 +11,7 @@ use Cline\Forrst\Data\CallData;
 use Cline\Forrst\Data\ProtocolData;
 use Cline\Forrst\Data\RequestObjectData;
 use Cline\Forrst\Discovery\ArgumentData;
+use Cline\Forrst\Discovery\ErrorDefinitionData;
 use Cline\Forrst\Discovery\ResultDescriptorData;
 use Cline\Forrst\Exceptions\LockKeyRequiredException;
 use Cline\Forrst\Extensions\AtomicLock\AtomicLockExtension;
@@ -205,7 +206,7 @@ describe('LockStatusFunction', function (): void {
         });
 
         describe('getErrors()', function (): void {
-            test('returns empty array as status check does not fail', function (): void {
+            test('defines InvalidArguments error', function (): void {
                 // Arrange
                 $extension = new AtomicLockExtension();
                 $function = new LockStatusFunction($extension);
@@ -215,7 +216,8 @@ describe('LockStatusFunction', function (): void {
 
                 // Assert
                 expect($result)->toBeArray()
-                    ->and($result)->toBeEmpty();
+                    ->and($result)->toHaveCount(1)
+                    ->and($result[0])->toBeInstanceOf(ErrorDefinitionData::class);
             });
         });
     });
