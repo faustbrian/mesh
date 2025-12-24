@@ -96,7 +96,7 @@ describe('StreamExtension', function (): void {
                 protocol: ProtocolData::forrst(),
                 id: 'req_123',
                 call: new CallData(
-                    function: 'test.function',
+                    function: 'urn:cline:forrst:fn:test:function',
                     version: '1',
                     arguments: [],
                 ),
@@ -119,7 +119,7 @@ describe('StreamExtension', function (): void {
                 protocol: ProtocolData::forrst(),
                 id: 'req_123',
                 call: new CallData(
-                    function: 'test.function',
+                    function: 'urn:cline:forrst:fn:test:function',
                     version: '1',
                     arguments: [],
                 ),
@@ -194,7 +194,7 @@ describe('StreamExtension', function (): void {
                 protocol: ProtocolData::forrst(),
                 id: 'req_123',
                 call: new CallData(
-                    function: 'test.function',
+                    function: 'urn:cline:forrst:fn:test:function',
                     version: '1',
                     arguments: [],
                 ),
@@ -219,7 +219,7 @@ describe('StreamExtension', function (): void {
                 protocol: ProtocolData::forrst(),
                 id: 'req_123',
                 call: new CallData(
-                    function: 'test.function',
+                    function: 'urn:cline:forrst:fn:test:function',
                     version: '1',
                     arguments: [],
                 ),

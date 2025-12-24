@@ -23,7 +23,7 @@ describe('Operation Model', function (): void {
             // Arrange
             $operation = new Operation([
                 'id' => 'op-123',
-                'function' => 'test.function',
+                'function' => 'urn:cline:forrst:fn:test:function',
                 'version' => '1.0.0',
                 'status' => 'completed',
                 'progress' => 1.0,
@@ -46,7 +46,7 @@ describe('Operation Model', function (): void {
             // Assert
             expect($data)->toBeInstanceOf(OperationData::class);
             expect($data->id)->toBe('op-123');
-            expect($data->function)->toBe('test.function');
+            expect($data->function)->toBe('urn:cline:forrst:fn:test:function');
             expect($data->version)->toBe('1.0.0');
             expect($data->status)->toBe(OperationStatus::Completed);
             expect($data->progress)->toBe(1.0);
@@ -63,7 +63,7 @@ describe('Operation Model', function (): void {
             // Arrange
             $operation = new Operation([
                 'id' => 'op-456',
-                'function' => 'test.function',
+                'function' => 'urn:cline:forrst:fn:test:function',
                 'status' => 'pending',
                 'errors' => null,
             ]);
@@ -79,7 +79,7 @@ describe('Operation Model', function (): void {
             // Arrange
             $operationData = new OperationData(
                 id: 'op-789',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 version: '2.0.0',
                 status: OperationStatus::Processing,
                 progress: 0.5,
@@ -102,7 +102,7 @@ describe('Operation Model', function (): void {
             // Assert
             expect($operation)->toBeInstanceOf(Operation::class);
             expect($operation->id)->toBe('op-789');
-            expect($operation->function)->toBe('test.function');
+            expect($operation->function)->toBe('urn:cline:forrst:fn:test:function');
             expect($operation->version)->toBe('2.0.0');
             expect($operation->status)->toBe(OperationStatus::Processing->value);
             expect($operation->progress)->toBe(0.5);
@@ -118,7 +118,7 @@ describe('Operation Model', function (): void {
             // Arrange
             $operationData = new OperationData(
                 id: 'op-999',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Pending,
             );
 

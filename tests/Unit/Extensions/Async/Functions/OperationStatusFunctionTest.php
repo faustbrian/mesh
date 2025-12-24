@@ -350,7 +350,7 @@ describe('OperationStatusFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-min',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Pending,
                 );
 
@@ -381,7 +381,7 @@ describe('OperationStatusFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-full',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     version: '2.0',
                     status: OperationStatus::Completed,
                     progress: 1.0,

@@ -270,7 +270,7 @@ describe('OperationCancelFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-789',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Pending,
                 );
 
@@ -302,7 +302,7 @@ describe('OperationCancelFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-999',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Pending,
                 );
 
@@ -338,7 +338,7 @@ describe('OperationCancelFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-save',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Pending,
                 );
 
@@ -369,7 +369,7 @@ describe('OperationCancelFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-123',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Pending,
                 );
 
@@ -404,7 +404,7 @@ describe('OperationCancelFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-time',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Pending,
                 );
 
@@ -459,7 +459,7 @@ describe('OperationCancelFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-completed',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Completed,
                     result: ['data' => 'result'],
                     startedAt: CarbonImmutable::now()->subMinutes(5),
@@ -485,7 +485,7 @@ describe('OperationCancelFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-failed',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Failed,
                     errors: [],
                     startedAt: CarbonImmutable::now()->subMinutes(5),
@@ -511,7 +511,7 @@ describe('OperationCancelFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-cancelled',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Cancelled,
                     startedAt: CarbonImmutable::now()->subMinutes(5),
                     cancelledAt: CarbonImmutable::now()->subMinutes(2),
@@ -557,7 +557,7 @@ describe('OperationCancelFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-123',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     status: OperationStatus::Pending,
                 );
 

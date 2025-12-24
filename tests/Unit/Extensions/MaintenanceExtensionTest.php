@@ -115,7 +115,7 @@ describe('MaintenanceExtension', function (): void {
 
             // Act
             $data = $extension->buildFunctionMaintenance(
-                function: 'reports.generate',
+                function: 'urn:cline:forrst:fn:reports:generate',
                 reason: 'Report engine upgrade',
                 startedAt: $startedAt,
                 until: $until,
@@ -161,7 +161,7 @@ describe('MaintenanceExtension', function (): void {
 
             // Act
             $details = $extension->buildFunctionMaintenanceErrorDetails(
-                function: 'search.query',
+                function: 'urn:cline:forrst:fn:search:query',
                 reason: 'Search index rebuild',
                 startedAt: $startedAt,
             );
@@ -345,7 +345,7 @@ describe('MaintenanceExtension', function (): void {
 
             // Act
             $data = $extension->buildFunctionMaintenance(
-                function: 'reports.generate',
+                function: 'urn:cline:forrst:fn:reports:generate',
                 reason: 'Unknown duration',
                 startedAt: $startedAt,
             );

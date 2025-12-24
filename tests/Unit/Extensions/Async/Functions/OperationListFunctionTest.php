@@ -455,7 +455,7 @@ describe('OperationListFunction', function (): void {
                 // Arrange
                 $operation = new OperationData(
                     'op-full',
-                    'test.function',
+                    'urn:cline:forrst:fn:test:function',
                     version: '2.0',
                     status: OperationStatus::Completed,
                     progress: 1.0,
@@ -494,7 +494,7 @@ describe('OperationListFunction', function (): void {
                 $operations = array_map(
                     fn (int $i): OperationData => new OperationData(
                         'op-'.$i,
-                        'test.function',
+                        'urn:cline:forrst:fn:test:function',
                         status: OperationStatus::Pending,
                     ),
                     range(1, 100),

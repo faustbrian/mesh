@@ -351,7 +351,7 @@ describe('TracingExtension', function (): void {
         test('onExecutingFunction initializes context from extension options', function (): void {
             // Arrange
             $extension = new TracingExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $extensionData = ExtensionData::request(ExtensionUrn::Tracing->value, [
                 'trace_id' => 'trace-initialize',
                 'span_id' => 'client-span-123',
@@ -376,7 +376,7 @@ describe('TracingExtension', function (): void {
             $extensionData = ExtensionData::request(ExtensionUrn::Tracing->value, [
                 'trace_id' => 'trace-enriched',
             ]);
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $executingEvent = new ExecutingFunction($request, $extensionData);
             $extension->onExecutingFunction($executingEvent);
 
@@ -404,7 +404,7 @@ describe('TracingExtension', function (): void {
             $extensionData = ExtensionData::request(ExtensionUrn::Tracing->value, [
                 'trace_id' => 'trace-timing',
             ]);
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $executingEvent = new ExecutingFunction($request, $extensionData);
             $extension->onExecutingFunction($executingEvent);
 
@@ -430,7 +430,7 @@ describe('TracingExtension', function (): void {
             $extensionData = ExtensionData::request(ExtensionUrn::Tracing->value, [
                 'trace_id' => 'trace-reset',
             ]);
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $executingEvent = new ExecutingFunction($request, $extensionData);
             $extension->onExecutingFunction($executingEvent);
 
@@ -454,7 +454,7 @@ describe('TracingExtension', function (): void {
             $extensionData = ExtensionData::request(ExtensionUrn::Tracing->value, [
                 'trace_id' => 'trace-hrtime',
             ]);
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $event = new ExecutingFunction($request, $extensionData);
 
             // Act
@@ -477,7 +477,7 @@ describe('TracingExtension', function (): void {
                 'span_id' => 'client-span-baggage',
                 'baggage' => ['tenant' => 'acme', 'user_id' => '12345'],
             ]);
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $executingEvent = new ExecutingFunction($request, $extensionData);
 
             // Act
@@ -496,7 +496,7 @@ describe('TracingExtension', function (): void {
             // Arrange
             $extension = new TracingExtension();
             $extensionData = ExtensionData::request(ExtensionUrn::Tracing->value, []);
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $executingEvent = new ExecutingFunction($request, $extensionData);
 
             // Act
@@ -518,7 +518,7 @@ describe('TracingExtension', function (): void {
                 'trace_id' => 'trace-parent',
                 'span_id' => 'client-span-parent',
             ]);
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $executingEvent = new ExecutingFunction($request, $extensionData);
 
             // Act
@@ -727,7 +727,7 @@ describe('TracingExtension', function (): void {
         test('onFunctionExecuted does nothing when context is null', function (): void {
             // Arrange
             $extension = new TracingExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $extensionData = ExtensionData::request(ExtensionUrn::Tracing->value, []);
             $response = ResponseData::success(['data' => 'test'], 'req-no-context');
             $executedEvent = new FunctionExecuted($request, $extensionData, $response);
@@ -746,7 +746,7 @@ describe('TracingExtension', function (): void {
             $extensionData = ExtensionData::request(ExtensionUrn::Tracing->value, [
                 'trace_id' => 'trace-error',
             ]);
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $executingEvent = new ExecutingFunction($request, $extensionData);
             $extension->onExecutingFunction($executingEvent);
 

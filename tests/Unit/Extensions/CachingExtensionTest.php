@@ -104,7 +104,7 @@ describe('CachingExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
             );
             $etag = '"abc123"';
 
@@ -267,7 +267,7 @@ describe('CachingExtension', function (): void {
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
                 call: new CallData(
-                    function: 'test.function',
+                    function: 'urn:cline:forrst:fn:test:function',
                     version: '1',
                     arguments: ['key' => 'value'],
                 ),
@@ -278,15 +278,15 @@ describe('CachingExtension', function (): void {
 
             // Assert
             expect($cacheKey)->toContain('forrst_cache')
-                ->and($cacheKey)->toContain('test.function')
+                ->and($cacheKey)->toContain('urn:cline:forrst:fn:test:function')
                 ->and($cacheKey)->toContain('1');
         });
 
         test('buildCacheKey creates different keys for different arguments', function (): void {
             // Arrange
             $extension = new CachingExtension();
-            $request1 = RequestObjectData::asRequest('test.function', ['arg' => 'value1']);
-            $request2 = RequestObjectData::asRequest('test.function', ['arg' => 'value2']);
+            $request1 = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value1']);
+            $request2 = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value2']);
 
             // Act
             $key1 = $extension->buildCacheKey($request1);
@@ -497,7 +497,7 @@ describe('CachingExtension', function (): void {
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
                 call: new CallData(
-                    function: 'test.function',
+                    function: 'urn:cline:forrst:fn:test:function',
                     version: null,
                     arguments: ['key' => 'value'],
                 ),
@@ -517,7 +517,7 @@ describe('CachingExtension', function (): void {
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
                 call: new CallData(
-                    function: 'test.function',
+                    function: 'urn:cline:forrst:fn:test:function',
                     arguments: null,
                 ),
             );

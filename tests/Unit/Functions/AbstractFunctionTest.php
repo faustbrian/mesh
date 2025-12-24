@@ -445,7 +445,7 @@ describe('AbstractFunction', function (): void {
                     'protocol' => ProtocolData::forrst()->toArray(),
                     'id' => '123',
                     'call' => CallData::from([
-                        'function' => 'test.function',
+                        'function' => 'urn:cline:forrst:fn:test:function',
                         'arguments' => ['key' => 'value'],
                     ]),
                 ]);
@@ -460,7 +460,7 @@ describe('AbstractFunction', function (): void {
                 $storedRequest = $property->getValue($function);
 
                 expect($storedRequest)->toBe($requestObject)
-                    ->and($storedRequest->call->function)->toBe('test.function')
+                    ->and($storedRequest->call->function)->toBe('urn:cline:forrst:fn:test:function')
                     ->and($storedRequest->call->arguments)->toBe(['key' => 'value']);
             });
 
@@ -817,7 +817,7 @@ describe('AbstractFunction', function (): void {
                     'protocol' => ProtocolData::forrst()->toArray(),
                     'id' => 'string-id-123',
                     'call' => CallData::from([
-                        'function' => 'test.function',
+                        'function' => 'urn:cline:forrst:fn:test:function',
                     ]),
                 ]);
 
@@ -841,7 +841,7 @@ describe('AbstractFunction', function (): void {
                     'protocol' => ProtocolData::forrst()->toArray(),
                     'id' => '42',
                     'call' => CallData::from([
-                        'function' => 'test.function',
+                        'function' => 'urn:cline:forrst:fn:test:function',
                     ]),
                 ]);
 
@@ -905,7 +905,7 @@ describe('AbstractFunction', function (): void {
                     'protocol' => ProtocolData::forrst()->toArray(),
                     'id' => '1',
                     'call' => CallData::from([
-                        'function' => 'test.function',
+                        'function' => 'urn:cline:forrst:fn:test:function',
                     ]),
                 ]);
 

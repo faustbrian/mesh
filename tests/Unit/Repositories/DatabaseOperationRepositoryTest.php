@@ -26,7 +26,7 @@ describe('DatabaseOperationRepository', function (): void {
             $repository = new DatabaseOperationRepository();
             Operation::query()->create([
                 'id' => 'op-find-1',
-                'function' => 'test.function',
+                'function' => 'urn:cline:forrst:fn:test:function',
                 'status' => 'pending',
             ]);
 
@@ -36,7 +36,7 @@ describe('DatabaseOperationRepository', function (): void {
             // Assert
             expect($result)->toBeInstanceOf(OperationData::class);
             expect($result->id)->toBe('op-find-1');
-            expect($result->function)->toBe('test.function');
+            expect($result->function)->toBe('urn:cline:forrst:fn:test:function');
             expect($result->status)->toBe(OperationStatus::Pending);
         });
 
@@ -45,7 +45,7 @@ describe('DatabaseOperationRepository', function (): void {
             $repository = new DatabaseOperationRepository();
             $operationData = new OperationData(
                 id: 'op-new-1',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 version: '1.0.0',
                 status: OperationStatus::Pending,
             );
@@ -57,7 +57,7 @@ describe('DatabaseOperationRepository', function (): void {
             $operation = Operation::query()->find('op-new-1');
             expect($operation)->not->toBeNull();
             expect($operation->id)->toBe('op-new-1');
-            expect($operation->function)->toBe('test.function');
+            expect($operation->function)->toBe('urn:cline:forrst:fn:test:function');
             expect($operation->version)->toBe('1.0.0');
             expect($operation->status)->toBe(OperationStatus::Pending->value);
             expect($operation->expires_at)->not->toBeNull();
@@ -70,7 +70,7 @@ describe('DatabaseOperationRepository', function (): void {
             $repository = new DatabaseOperationRepository(retentionDays: 7);
             $operationData = new OperationData(
                 id: 'op-new-2',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Pending,
             );
 
@@ -89,7 +89,7 @@ describe('DatabaseOperationRepository', function (): void {
             $repository = new DatabaseOperationRepository();
             Operation::query()->create([
                 'id' => 'op-update-1',
-                'function' => 'test.function',
+                'function' => 'urn:cline:forrst:fn:test:function',
                 'status' => 'pending',
                 'progress' => null,
                 'expires_at' => now()->addDays(30),
@@ -97,7 +97,7 @@ describe('DatabaseOperationRepository', function (): void {
 
             $operationData = new OperationData(
                 id: 'op-update-1',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 progress: 0.5,
             );
@@ -116,14 +116,14 @@ describe('DatabaseOperationRepository', function (): void {
             $repository = new DatabaseOperationRepository();
             Operation::query()->create([
                 'id' => 'op-update-2',
-                'function' => 'test.function',
+                'function' => 'urn:cline:forrst:fn:test:function',
                 'status' => 'processing',
                 'expires_at' => now()->addDays(30),
             ]);
 
             $operationData = new OperationData(
                 id: 'op-update-2',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Completed,
                 result: ['data' => 'value', 'count' => 42],
                 completedAt: CarbonImmutable::now(),
@@ -144,14 +144,14 @@ describe('DatabaseOperationRepository', function (): void {
             $repository = new DatabaseOperationRepository();
             Operation::query()->create([
                 'id' => 'op-update-3',
-                'function' => 'test.function',
+                'function' => 'urn:cline:forrst:fn:test:function',
                 'status' => 'processing',
                 'expires_at' => now()->addDays(30),
             ]);
 
             $operationData = new OperationData(
                 id: 'op-update-3',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Failed,
                 errors: [
                     new ErrorData(
@@ -177,14 +177,14 @@ describe('DatabaseOperationRepository', function (): void {
             $repository = new DatabaseOperationRepository();
             Operation::query()->create([
                 'id' => 'op-update-4',
-                'function' => 'test.function',
+                'function' => 'urn:cline:forrst:fn:test:function',
                 'status' => 'pending',
                 'expires_at' => now()->addDays(30),
             ]);
 
             $operationData = new OperationData(
                 id: 'op-update-4',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 metadata: ['user_id' => '123', 'retry_count' => 2],
             );
@@ -202,7 +202,7 @@ describe('DatabaseOperationRepository', function (): void {
             $repository = new DatabaseOperationRepository();
             Operation::query()->create([
                 'id' => 'op-delete-1',
-                'function' => 'test.function',
+                'function' => 'urn:cline:forrst:fn:test:function',
                 'status' => 'completed',
             ]);
 
@@ -220,7 +220,7 @@ describe('DatabaseOperationRepository', function (): void {
             for ($i = 1; $i <= 10; ++$i) {
                 Operation::query()->create([
                     'id' => 'op-list-'.$i,
-                    'function' => 'test.function',
+                    'function' => 'urn:cline:forrst:fn:test:function',
                     'status' => 'pending',
                 ]);
             }
@@ -288,7 +288,7 @@ describe('DatabaseOperationRepository', function (): void {
             for ($i = 1; $i <= 10; ++$i) {
                 Operation::query()->create([
                     'id' => 'op-limit-'.$i,
-                    'function' => 'test.function',
+                    'function' => 'urn:cline:forrst:fn:test:function',
                     'status' => 'pending',
                 ]);
             }
@@ -310,7 +310,7 @@ describe('DatabaseOperationRepository', function (): void {
             for ($i = 10; $i >= 1; --$i) {
                 Operation::query()->create([
                     'id' => sprintf('op-page-%02d', $i),
-                    'function' => 'test.function',
+                    'function' => 'urn:cline:forrst:fn:test:function',
                     'status' => 'pending',
                 ]);
             }
@@ -386,7 +386,7 @@ describe('DatabaseOperationRepository', function (): void {
             for ($i = 1; $i <= 10; ++$i) {
                 Operation::query()->create([
                     'id' => 'op-caller-'.$i,
-                    'function' => 'test.function',
+                    'function' => 'urn:cline:forrst:fn:test:function',
                     'status' => 'pending',
                     'caller_id' => 'caller-1',
                 ]);
@@ -537,7 +537,7 @@ describe('DatabaseOperationRepository', function (): void {
             $repository = new DatabaseOperationRepository();
             $operationData = new OperationData(
                 id: 'op-full',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 version: '2.0.0',
                 status: OperationStatus::Completed,
                 progress: 1.0,
@@ -575,7 +575,7 @@ describe('DatabaseOperationRepository', function (): void {
 
             $operationData = new OperationData(
                 id: 'op-preserve',
-                function: 'test.func',
+                function: 'urn:cline:forrst:fn:test:func',
                 status: OperationStatus::Processing,
                 progress: 0.5,
             );
@@ -595,7 +595,7 @@ describe('DatabaseOperationRepository', function (): void {
             for ($i = 1; $i <= 5; ++$i) {
                 Operation::query()->create([
                     'id' => 'op-exact-'.$i,
-                    'function' => 'test.function',
+                    'function' => 'urn:cline:forrst:fn:test:function',
                     'status' => 'pending',
                 ]);
             }
@@ -617,7 +617,7 @@ describe('DatabaseOperationRepository', function (): void {
             for ($i = 1; $i <= 5; ++$i) {
                 Operation::query()->create([
                     'id' => 'op-'.$i,
-                    'function' => 'test.function',
+                    'function' => 'urn:cline:forrst:fn:test:function',
                     'status' => 'pending',
                 ]);
             }

@@ -37,7 +37,7 @@ describe('DeprecationExtension', function (): void {
             $result = $extension->registerWarning(
                 urn: 'deprecation:test.function',
                 type: DeprecationExtension::TYPE_FUNCTION,
-                target: 'test.function',
+                target: 'urn:cline:forrst:fn:test:function',
                 message: 'This function is deprecated',
             );
 
@@ -74,7 +74,7 @@ describe('DeprecationExtension', function (): void {
 
             // Act
             $result = $extension->deprecateFunction(
-                function: 'old.function',
+                function: 'urn:cline:forrst:fn:old:function',
                 message: 'Use new.function instead',
                 sunsetDate: '2025-12-31',
                 replacementFn: 'new.function',
@@ -91,7 +91,7 @@ describe('DeprecationExtension', function (): void {
 
             // Act
             $result = $extension->deprecateVersion(
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 version: '1',
                 message: 'Version 1 is deprecated',
                 sunsetDate: '2025-12-31',
@@ -106,7 +106,7 @@ describe('DeprecationExtension', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateFunction(
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 message: 'This function is deprecated',
             );
 
@@ -114,7 +114,7 @@ describe('DeprecationExtension', function (): void {
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
                 call: new CallData(
-                    function: 'test.function',
+                    function: 'urn:cline:forrst:fn:test:function',
                     version: '1',
                 ),
             );
@@ -130,21 +130,21 @@ describe('DeprecationExtension', function (): void {
             expect($result->extensions)->toHaveCount(1)
                 ->and($result->extensions[0]->urn)->toBe(ExtensionUrn::Deprecation->value)
                 ->and($result->extensions[0]->data['warnings'])->toHaveCount(1)
-                ->and($result->extensions[0]->data['warnings'][0]['target'])->toBe('test.function');
+                ->and($result->extensions[0]->data['warnings'][0]['target'])->toBe('urn:cline:forrst:fn:test:function');
         });
 
         test('afterExecute returns unmodified response when no warnings apply', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateFunction(
-                function: 'other.function',
+                function: 'urn:cline:forrst:fn:other:function',
                 message: 'Deprecated',
             );
 
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
             );
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value, []);
@@ -162,11 +162,11 @@ describe('DeprecationExtension', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateFunction(
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 message: 'Deprecated',
             );
 
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deprecation->value,
@@ -188,14 +188,14 @@ describe('DeprecationExtension', function (): void {
             $extension->registerWarning(
                 urn: 'deprecation:test.function',
                 type: DeprecationExtension::TYPE_FUNCTION,
-                target: 'test.function',
+                target: 'urn:cline:forrst:fn:test:function',
                 message: 'This function is deprecated',
                 sunsetDate: '2025-12-31',
                 replacement: ['function' => 'new.function', 'version' => '2.0.0'],
                 documentation: 'https://docs.example.com/migration',
             );
 
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value, []);
 
@@ -222,7 +222,7 @@ describe('DeprecationExtension', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateFunction(
-                function: 'old.function',
+                function: 'urn:cline:forrst:fn:old:function',
                 message: 'Use new.function instead',
                 replacementFn: 'new.function',
                 replacementVer: '2',
@@ -247,7 +247,7 @@ describe('DeprecationExtension', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateVersion(
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 version: '1',
                 message: 'Version 1 is deprecated',
                 replacementVer: '2',
@@ -257,7 +257,7 @@ describe('DeprecationExtension', function (): void {
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
                 call: new CallData(
-                    function: 'test.function',
+                    function: 'urn:cline:forrst:fn:test:function',
                     version: '1',
                 ),
             );
@@ -278,9 +278,9 @@ describe('DeprecationExtension', function (): void {
         test('afterExecute preserves response data', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
-            $extension->deprecateFunction('test.function', 'Deprecated');
+            $extension->deprecateFunction('urn:cline:forrst:fn:test:function', 'Deprecated');
 
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value, []);
 
@@ -327,11 +327,11 @@ describe('DeprecationExtension', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateFunction(
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 message: 'Deprecated without replacement',
             );
 
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value, []);
 
@@ -349,7 +349,7 @@ describe('DeprecationExtension', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateFunction(
-                function: 'old.function',
+                function: 'urn:cline:forrst:fn:old:function',
                 message: 'Deprecated',
                 replacementFn: 'new.function',
             );
@@ -373,7 +373,7 @@ describe('DeprecationExtension', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateVersion(
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 version: '1',
                 message: 'Version 1 is deprecated',
             );
@@ -381,7 +381,7 @@ describe('DeprecationExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
-                call: new CallData(function: 'test.function', version: '1'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function', version: '1'),
             );
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value, []);
@@ -399,9 +399,9 @@ describe('DeprecationExtension', function (): void {
         test('afterExecute with empty acknowledge array shows all warnings', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
-            $extension->deprecateFunction('test.function', 'Deprecated');
+            $extension->deprecateFunction('urn:cline:forrst:fn:test:function', 'Deprecated');
 
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deprecation->value,
@@ -421,9 +421,9 @@ describe('DeprecationExtension', function (): void {
         test('afterExecute handles null acknowledge option', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
-            $extension->deprecateFunction('test.function', 'Deprecated');
+            $extension->deprecateFunction('urn:cline:forrst:fn:test:function', 'Deprecated');
 
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value);
 
@@ -439,9 +439,9 @@ describe('DeprecationExtension', function (): void {
         test('afterExecute preserves existing extensions', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
-            $extension->deprecateFunction('test.function', 'Deprecated');
+            $extension->deprecateFunction('urn:cline:forrst:fn:test:function', 'Deprecated');
 
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $existingExtension = ExtensionData::response('urn:custom:ext', ['key' => 'value']);
             $response = ResponseData::success(
                 ['data' => 'test'],
@@ -465,7 +465,7 @@ describe('DeprecationExtension', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateVersion(
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 version: '1',
                 message: 'Version 1 is deprecated',
             );
@@ -473,7 +473,7 @@ describe('DeprecationExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
-                call: new CallData(function: 'test.function', version: '2'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function', version: '2'),
             );
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value, []);
@@ -490,13 +490,13 @@ describe('DeprecationExtension', function (): void {
         test('multiple warnings for same function', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
-            $extension->deprecateFunction('test.function', 'Function deprecated');
-            $extension->deprecateVersion('test.function', '1', 'Version deprecated');
+            $extension->deprecateFunction('urn:cline:forrst:fn:test:function', 'Function deprecated');
+            $extension->deprecateVersion('urn:cline:forrst:fn:test:function', '1', 'Version deprecated');
 
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
-                call: new CallData(function: 'test.function', version: '1'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function', version: '1'),
             );
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value, []);
@@ -517,17 +517,17 @@ describe('DeprecationExtension', function (): void {
             $extension->registerWarning(
                 urn: 'deprecation:test',
                 type: DeprecationExtension::TYPE_FUNCTION,
-                target: 'test.function',
+                target: 'urn:cline:forrst:fn:test:function',
                 message: 'Original message',
             );
             $extension->registerWarning(
                 urn: 'deprecation:test',
                 type: DeprecationExtension::TYPE_FUNCTION,
-                target: 'test.function',
+                target: 'urn:cline:forrst:fn:test:function',
                 message: 'Updated message',
             );
 
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value, []);
 
@@ -579,7 +579,7 @@ describe('DeprecationExtension', function (): void {
             // Arrange
             $extension = new DeprecationExtension();
             $extension->deprecateVersion(
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 version: '1',
                 message: 'Version 1 is deprecated',
             );
@@ -587,7 +587,7 @@ describe('DeprecationExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
             );
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deprecation->value, []);

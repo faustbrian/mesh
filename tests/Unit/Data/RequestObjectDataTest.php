@@ -18,7 +18,7 @@ describe('RequestObjectData', function (): void {
         test('creates request object with all parameters', function (): void {
             // Arrange
             $call = new CallData(
-                function: 'user.create',
+                function: 'urn:cline:forrst:fn:user:create',
                 version: '1',
                 arguments: ['name' => 'John Doe', 'email' => 'john@example.com'],
             );
@@ -148,7 +148,7 @@ describe('RequestObjectData', function (): void {
         test('toArray returns correct Forrst structure', function (): void {
             // Arrange
             $request = RequestObjectData::asRequest(
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 arguments: ['arg1' => 'value1'],
                 version: '1.0.0',
                 id: 'req-123',
@@ -161,7 +161,7 @@ describe('RequestObjectData', function (): void {
             // Assert
             expect($array['protocol'])->toBe(['name' => 'forrst', 'version' => '0.1.0'])
                 ->and($array['id'])->toBe('req-123')
-                ->and($array['call']['function'])->toBe('test.function')
+                ->and($array['call']['function'])->toBe('urn:cline:forrst:fn:test:function')
                 ->and($array['call']['version'])->toBe('1.0.0')
                 ->and($array['call']['arguments'])->toBe(['arg1' => 'value1'])
                 ->and($array['context'])->toBe(['tenant' => 'acme']);
@@ -385,7 +385,7 @@ describe('RequestObjectData', function (): void {
 
         test('toArray omits null context', function (): void {
             // Arrange
-            $request = RequestObjectData::asRequest('test.function', ['arg' => 'value'], null, 'req-1');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value'], null, 'req-1');
 
             // Act
             $array = $request->toArray();
@@ -396,7 +396,7 @@ describe('RequestObjectData', function (): void {
 
         test('toArray omits null arguments', function (): void {
             // Arrange
-            $request = RequestObjectData::asRequest('test.function', null, null, 'req-1');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', null, null, 'req-1');
 
             // Act
             $array = $request->toArray();
@@ -407,7 +407,7 @@ describe('RequestObjectData', function (): void {
 
         test('toArray omits null version', function (): void {
             // Arrange
-            $request = RequestObjectData::asRequest('test.function', ['arg' => 'value'], null, 'req-1');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value'], null, 'req-1');
 
             // Act
             $array = $request->toArray();

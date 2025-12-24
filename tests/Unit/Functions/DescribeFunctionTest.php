@@ -112,7 +112,7 @@ describe('DescribeFunction', function (): void {
             test('generates complete Forrst Discovery document', function (): void {
                 // Arrange
                 $mockFunction = mock(FunctionInterface::class, function (MockInterface $mock): void {
-                    $mock->shouldReceive('getUrn')->andReturn('test.function');
+                    $mock->shouldReceive('getUrn')->andReturn('urn:cline:forrst:fn:test:function');
                     $mock->shouldReceive('getVersion')->andReturn('1');
                     $mock->shouldReceive('getSummary')->andReturn('Test function summary');
                     $mock->shouldReceive('getArguments')->andReturn([]);
@@ -403,7 +403,7 @@ describe('DescribeFunction', function (): void {
             test('includes function version in descriptor', function (): void {
                 // Arrange
                 $mockFunction = mock(FunctionInterface::class, function (MockInterface $mock): void {
-                    $mock->shouldReceive('getUrn')->andReturn('test.function');
+                    $mock->shouldReceive('getUrn')->andReturn('urn:cline:forrst:fn:test:function');
                     $mock->shouldReceive('getVersion')->andReturn('2.0.0');
                     $mock->shouldReceive('getSummary')->andReturn('Test function');
                     $mock->shouldReceive('getArguments')->andReturn([]);
@@ -680,7 +680,7 @@ describe('DescribeFunction', function (): void {
             test('handles function with null result gracefully', function (): void {
                 // Arrange
                 $mockFunction = mock(FunctionInterface::class, function (MockInterface $mock): void {
-                    $mock->shouldReceive('getUrn')->andReturn('test.function');
+                    $mock->shouldReceive('getUrn')->andReturn('urn:cline:forrst:fn:test:function');
                     $mock->shouldReceive('getVersion')->andReturn('1');
                     $mock->shouldReceive('getSummary')->andReturn('Test');
                     $mock->shouldReceive('getArguments')->andReturn([]);
@@ -722,7 +722,7 @@ describe('DescribeFunction', function (): void {
             test('handles functions with empty error arrays', function (): void {
                 // Arrange
                 $mockFunction = mock(FunctionInterface::class, function (MockInterface $mock): void {
-                    $mock->shouldReceive('getUrn')->andReturn('test.function');
+                    $mock->shouldReceive('getUrn')->andReturn('urn:cline:forrst:fn:test:function');
                     $mock->shouldReceive('getVersion')->andReturn('1');
                     $mock->shouldReceive('getSummary')->andReturn('Test');
                     $mock->shouldReceive('getArguments')->andReturn([]);

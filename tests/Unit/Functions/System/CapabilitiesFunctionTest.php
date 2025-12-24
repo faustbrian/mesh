@@ -282,7 +282,7 @@ describe('CapabilitiesFunction', function (): void {
             test('returns complete response with all optional fields', function (): void {
                 // Arrange
                 $func = mock(FunctionInterface::class, function (MockInterface $mock): void {
-                    $mock->shouldReceive('getUrn')->andReturn('test.function');
+                    $mock->shouldReceive('getUrn')->andReturn('urn:cline:forrst:fn:test:function');
                 });
 
                 $extensions = [['name' => 'streaming', 'version' => '1.0']];

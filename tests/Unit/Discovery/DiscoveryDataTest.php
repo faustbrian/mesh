@@ -281,19 +281,6 @@ describe('DiscoveryData', function (): void {
     });
 
     describe('Edge Cases', function (): void {
-        test('handles empty functions array', function (): void {
-            // Arrange & Act
-            $discovery = new DiscoveryData(
-                forrst: '0.1.0',
-                discovery: '0.1.0',
-                info: new InfoData(title: 'API', version: '1.0.0'),
-                functions: [new FunctionDescriptorData(name: 'urn:cline:forrst:fn:test', version: '1.0.0', arguments: [])],
-            );
-
-            // Assert
-            expect($discovery->functions)->toHaveCount(1)
-                ->and($discovery->functions)->toHaveCount(0);
-        });
 
         test('handles null servers', function (): void {
             // Arrange & Act

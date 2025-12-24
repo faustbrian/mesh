@@ -33,7 +33,7 @@ describe('LinkData', function (): void {
                 name: 'GetEventVenue',
                 summary: 'Retrieve the venue for this event',
                 description: 'Navigates to the venue details using the venue_id from the event.',
-                function: 'venues.get',
+                function: 'urn:cline:forrst:fn:venues:get',
                 params: ['venue_id' => '$result.venue.id'],
                 server: new DiscoveryServerData(
                     name: 'venues',
@@ -67,7 +67,7 @@ describe('LinkData', function (): void {
             // Arrange & Act
             $link = new LinkData(
                 name: 'GetCustomerDetails',
-                function: 'customers.get',
+                function: 'urn:cline:forrst:fn:customers:get',
                 params: [
                     'customer_id' => '$result.customer.id',
                     'include_orders' => true,
@@ -97,7 +97,7 @@ describe('LinkData', function (): void {
             // Arrange
             $link = new LinkData(
                 name: 'CrossServiceLink',
-                function: 'external.function',
+                function: 'urn:cline:forrst:fn:external:function',
                 server: new DiscoveryServerData(
                     name: 'external',
                     url: 'https://external.example.com/api',
@@ -134,7 +134,7 @@ describe('LinkData', function (): void {
             // Arrange & Act
             $link = new LinkData(
                 name: 'NoParams',
-                function: 'stateless.function',
+                function: 'urn:cline:forrst:fn:stateless:function',
                 params: [],
             );
 
@@ -147,7 +147,7 @@ describe('LinkData', function (): void {
             // Arrange & Act
             $link = new LinkData(
                 name: 'ComplexLink',
-                function: 'nested.function',
+                function: 'urn:cline:forrst:fn:nested:function',
                 params: [
                     'id' => '$result.data.items[0].id',
                     'timestamp' => '$result.metadata.created_at',
@@ -163,7 +163,7 @@ describe('LinkData', function (): void {
             // Arrange & Act
             $link = new LinkData(
                 name: 'MixedParams',
-                function: 'mixed.function',
+                function: 'urn:cline:forrst:fn:mixed:function',
                 params: [
                     'dynamic_id' => '$result.id',
                     'static_type' => 'default',
@@ -184,7 +184,7 @@ describe('LinkData', function (): void {
             // Arrange & Act
             $link = new LinkData(
                 name: 'FullServerLink',
-                function: 'remote.function',
+                function: 'urn:cline:forrst:fn:remote:function',
                 server: new DiscoveryServerData(
                     name: 'production',
                     url: 'https://api.example.com/v2',

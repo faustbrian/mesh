@@ -78,11 +78,11 @@ describe('AsyncExtension', function (): void {
                 ->once()
                 ->withArgs(fn ($operation): bool => $operation instanceof OperationData
                     && $operation->status === OperationStatus::Pending
-                    && $operation->function === 'test.function'
+                    && $operation->function === 'urn:cline:forrst:fn:test:function'
                     && str_starts_with($operation->id, 'op_'));
 
             $extension = new AsyncExtension($repository);
-            $request = RequestObjectData::asRequest('test.function', ['arg' => 'value'], '1');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value'], '1');
             $extensionData = ExtensionData::request(ExtensionUrn::Async->value, ['preferred' => true]);
 
             // Act
@@ -108,7 +108,7 @@ describe('AsyncExtension', function (): void {
                 ->withArgs(fn ($operation): bool => $operation->metadata['callback_url'] === 'https://example.com/callback');
 
             $extension = new AsyncExtension($repository);
-            $request = RequestObjectData::asRequest('test.function', ['arg' => 'value']);
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value']);
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Async->value,
                 ['callback_url' => 'https://example.com/callback'],
@@ -128,7 +128,7 @@ describe('AsyncExtension', function (): void {
             $repository->shouldReceive('save')->once();
 
             $extension = new AsyncExtension($repository);
-            $request = RequestObjectData::asRequest('test.function', ['arg' => 'value']);
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value']);
             $extensionData = ExtensionData::request(ExtensionUrn::Async->value);
 
             // Act
@@ -145,7 +145,7 @@ describe('AsyncExtension', function (): void {
             $repository->shouldReceive('save')->once();
 
             $extension = new AsyncExtension($repository);
-            $request = RequestObjectData::asRequest('test.function', ['arg' => 'value']);
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value']);
             $extensionData = ExtensionData::request(ExtensionUrn::Async->value);
 
             // Act
@@ -162,7 +162,7 @@ describe('AsyncExtension', function (): void {
             $repository->shouldReceive('save')->once();
 
             $extension = new AsyncExtension($repository);
-            $request = RequestObjectData::asRequest('test.function', ['arg' => 'value']);
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value']);
             $extensionData = ExtensionData::request(ExtensionUrn::Async->value);
 
             // Act
@@ -182,7 +182,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $pendingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Pending,
             );
 
@@ -209,7 +209,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $pendingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Pending,
             );
 
@@ -235,7 +235,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 startedAt: CarbonImmutable::parse('2024-01-15 10:00:00'),
             );
@@ -265,7 +265,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 startedAt: CarbonImmutable::parse('2024-01-15 10:00:00'),
             );
@@ -298,7 +298,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 progress: 0.5,
                 startedAt: CarbonImmutable::parse('2024-01-15 10:00:00'),
@@ -327,7 +327,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 metadata: ['key' => 'value'],
             );
@@ -492,7 +492,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
             );
 
@@ -518,7 +518,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
             );
 
@@ -544,7 +544,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 metadata: null,
             );
@@ -576,7 +576,7 @@ describe('AsyncExtension', function (): void {
                     && $operation->metadata['original_request_id'] !== null);
 
             $extension = new AsyncExtension($repository);
-            $request = RequestObjectData::asRequest('test.function', ['arg' => 'value']);
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value']);
             $extensionData = ExtensionData::request(ExtensionUrn::Async->value);
 
             // Act
@@ -597,7 +597,7 @@ describe('AsyncExtension', function (): void {
             $repository->shouldReceive('save')->times(3);
 
             $extension = new AsyncExtension($repository);
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $extensionData = ExtensionData::request(ExtensionUrn::Async->value);
 
             // Act
@@ -620,7 +620,7 @@ describe('AsyncExtension', function (): void {
             $repository->shouldReceive('save')->once();
 
             $extension = new AsyncExtension($repository);
-            $request = RequestObjectData::asRequest('test.function', ['arg' => 'value'], '2');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function', ['arg' => 'value'], '2');
             $extensionData = ExtensionData::request(ExtensionUrn::Async->value);
 
             // Act
@@ -634,7 +634,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $pendingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Pending,
                 metadata: ['key' => 'value'],
             );
@@ -661,7 +661,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 metadata: ['key' => 'value'],
             );
@@ -688,7 +688,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 metadata: ['key' => 'value'],
             );
@@ -715,7 +715,7 @@ describe('AsyncExtension', function (): void {
             // Arrange
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 progress: 0.6,
             );
@@ -743,7 +743,7 @@ describe('AsyncExtension', function (): void {
             $startedAt = CarbonImmutable::parse('2024-01-15 10:00:00');
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 startedAt: $startedAt,
             );
@@ -771,7 +771,7 @@ describe('AsyncExtension', function (): void {
             $startedAt = CarbonImmutable::parse('2024-01-15 10:00:00');
             $processingOperation = new OperationData(
                 id: 'op_123',
-                function: 'test.function',
+                function: 'urn:cline:forrst:fn:test:function',
                 status: OperationStatus::Processing,
                 startedAt: $startedAt,
             );

@@ -74,7 +74,7 @@ describe('AtomicLockExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: '01JFEX0001',
-                call: new CallData(function: 'payments.charge', arguments: ['amount' => 100]),
+                call: new CallData(function: 'urn:cline:forrst:fn:payments:charge', arguments: ['amount' => 100]),
             );
             $extensionData = ExtensionData::request(ExtensionUrn::AtomicLock->value, [
                 'key' => 'user:123',
@@ -333,7 +333,7 @@ describe('AtomicLockExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: '01JFEX0006',
-                call: new CallData(function: 'billing.generate', arguments: []),
+                call: new CallData(function: 'urn:cline:forrst:fn:billing:generate', arguments: []),
             );
             $extensionData = ExtensionData::request(ExtensionUrn::AtomicLock->value, [
                 'key' => 'billing:global-key',

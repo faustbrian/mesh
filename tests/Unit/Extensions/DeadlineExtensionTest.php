@@ -54,7 +54,7 @@ describe('DeadlineExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
             );
 
             $futureDeadline = CarbonImmutable::now()->addHours(1)->toIso8601String();
@@ -75,7 +75,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction does not short-circuit when timeout is in future', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deadline->value,
                 ['timeout' => ['value' => 300, 'unit' => 'second']],
@@ -93,7 +93,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction does not short-circuit when no deadline specified', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $extensionData = ExtensionData::request(ExtensionUrn::Deadline->value, []);
             $event = new ExecutingFunction($request, $extensionData);
 
@@ -108,7 +108,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted adds deadline info to response', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
 
             $futureDeadline = CarbonImmutable::now()->addMinutes(5)->toIso8601String();
@@ -139,7 +139,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted preserves response data', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
 
             $futureDeadline = CarbonImmutable::now()->addMinutes(5)->toIso8601String();
@@ -166,7 +166,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted returns unmodified response when no deadline', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deadline->value, []);
 
@@ -181,7 +181,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted handles timeout option', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deadline->value,
@@ -211,7 +211,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted extracts timeout from options when context not set', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deadline->value,
@@ -236,7 +236,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction handles null options', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $extensionData = ExtensionData::request(ExtensionUrn::Deadline->value);
             $event = new ExecutingFunction($request, $extensionData);
 
@@ -251,7 +251,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted with null options returns unmodified response', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(ExtensionUrn::Deadline->value);
 
@@ -266,7 +266,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted includes remaining in response even for past deadline', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
 
             // Set deadline well in the past
@@ -295,7 +295,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction parses ISO 8601 deadline timestamp', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
 
             $deadline = '2025-12-31T23:59:59Z';
             $extensionData = ExtensionData::request(
@@ -315,7 +315,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction handles timeout with different units', function (string $unit): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deadline->value,
                 ['timeout' => ['value' => 1, 'unit' => $unit]],
@@ -339,7 +339,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted preserves existing response extensions', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
 
             $existingExtension = ExtensionData::response('urn:custom:ext', ['key' => 'value']);
             $response = ResponseData::success(
@@ -372,7 +372,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted handles timeout value of 0', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deadline->value,
@@ -400,7 +400,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction prioritizes absolute deadline over timeout', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
 
             $futureDeadline = CarbonImmutable::now()->addHours(1)->toIso8601String();
             $extensionData = ExtensionData::request(
@@ -423,7 +423,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted calculates utilization for millisecond timeout', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deadline->value,
@@ -448,7 +448,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted calculates utilization for minute timeout', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deadline->value,
@@ -473,7 +473,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted calculates utilization for hour timeout', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
             $extensionData = ExtensionData::request(
                 ExtensionUrn::Deadline->value,
@@ -498,7 +498,7 @@ describe('DeadlineExtension', function (): void {
         test('onFunctionExecuted handles timeout with invalid unit gracefully', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
             $response = ResponseData::success(['data' => 'test'], $request->id);
 
             // Use absolute deadline instead of invalid timeout unit to avoid Carbon error
@@ -532,7 +532,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction returns error when absolute deadline has passed', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
 
             $pastDeadline = CarbonImmutable::now()->subMinutes(5)->toIso8601String();
             $extensionData = ExtensionData::request(
@@ -557,7 +557,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction error response includes extension data', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
 
             $pastDeadline = CarbonImmutable::now()->subMinutes(5)->toIso8601String();
             $extensionData = ExtensionData::request(
@@ -580,7 +580,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction returns error when timeout has already expired', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
 
             // Negative timeout means deadline is in the past
             $extensionData = ExtensionData::request(
@@ -603,7 +603,7 @@ describe('DeadlineExtension', function (): void {
         test('onExecutingFunction error response has null result', function (): void {
             // Arrange
             $extension = new DeadlineExtension();
-            $request = RequestObjectData::asRequest('test.function');
+            $request = RequestObjectData::asRequest('urn:cline:forrst:fn:test:function');
 
             $pastDeadline = CarbonImmutable::now()->subMinutes(5)->toIso8601String();
             $extensionData = ExtensionData::request(

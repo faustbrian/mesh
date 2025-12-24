@@ -411,7 +411,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-123',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [$extensionData],
             );
             $response = ResponseData::success([
@@ -445,7 +445,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-456',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [$extensionData],
             );
             $response = ResponseData::success([
@@ -483,7 +483,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-789',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [$extensionData],
             );
             $response = ResponseData::success([
@@ -517,7 +517,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-list',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [$extensionData],
             );
             $response = ResponseData::success([
@@ -558,7 +558,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-none',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [$extensionData],
             );
             $response = ResponseData::success([
@@ -585,7 +585,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-null',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [$extensionData],
             );
             $response = ResponseData::success(null, 'req-null');
@@ -613,7 +613,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-no-ext',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
             );
             $response = ResponseData::success(['password' => 'secret'], 'req-no-ext');
             $event = new FunctionExecuted($request, $dummyExtension, $response);
@@ -635,7 +635,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-deny',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [ExtensionData::request(ExtensionUrn::Redact->value, ['mode' => 'none'])],
             );
             $event = new RequestValidated($request);
@@ -656,7 +656,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-allowed',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [ExtensionData::request(ExtensionUrn::Redact->value, [
                     'mode' => 'none',
                     'purpose' => 'audit investigation',
@@ -679,7 +679,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-custom',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [ExtensionData::request(ExtensionUrn::Redact->value, [
                     'mode' => 'full',
                     'fields' => ['custom_secret', 'custom_token'],
@@ -702,7 +702,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-invalid',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
                 extensions: [ExtensionData::request(ExtensionUrn::Redact->value, ['mode' => 'invalid_mode'])],
             );
             $event = new RequestValidated($request);
@@ -720,7 +720,7 @@ describe('RedactExtension', function (): void {
             $request = new RequestObjectData(
                 protocol: ProtocolData::forrst(),
                 id: 'req-no-ext',
-                call: new CallData(function: 'test.function'),
+                call: new CallData(function: 'urn:cline:forrst:fn:test:function'),
             );
             $event = new RequestValidated($request);
             $originalMode = $extension->getMode();

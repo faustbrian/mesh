@@ -35,7 +35,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -61,7 +61,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -88,7 +88,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: null,
                 );
@@ -108,7 +108,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -133,7 +133,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -158,7 +158,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -185,7 +185,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -211,7 +211,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -244,7 +244,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -274,7 +274,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -303,7 +303,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -333,7 +333,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: null,
                 );
@@ -354,7 +354,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -382,7 +382,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -410,7 +410,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -436,7 +436,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -475,7 +475,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -501,7 +501,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: null,
                 );
@@ -522,7 +522,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -551,7 +551,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -575,7 +575,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -606,7 +606,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
@@ -637,7 +637,7 @@ describe('InteractsWithCancellation', function (): void {
                     protocol: ProtocolData::forrst(),
                     id: 'test-request-id',
                     call: new CallData(
-                        function: 'test.function',
+                        function: 'urn:cline:forrst:fn:test:function',
                     ),
                     extensions: [
                         new ExtensionData(
