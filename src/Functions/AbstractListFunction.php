@@ -14,6 +14,7 @@ use Cline\Forrst\Data\DocumentData;
 use Cline\Forrst\Discovery\ArgumentData;
 use Cline\Forrst\Exceptions\InvalidFieldTypeException;
 use Cline\Forrst\Exceptions\InvalidFieldValueException;
+use Cline\Forrst\QueryBuilders\QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
 use Override;
@@ -161,11 +162,11 @@ abstract class AbstractListFunction extends AbstractFunction
      * - Add time-based filters (e.g., published_at <= now())
      * - Optimize with additional eager loading
      *
-     * @param Builder $query The query builder to modify
+     * @param QueryBuilder $query The query builder to modify
      *
-     * @return Builder The modified query builder
+     * @return QueryBuilder The modified query builder
      */
-    protected function beforePagination(Builder $query): Builder
+    protected function beforePagination(QueryBuilder $query): QueryBuilder
     {
         return $query;
     }
