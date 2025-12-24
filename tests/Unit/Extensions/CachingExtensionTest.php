@@ -268,7 +268,7 @@ describe('CachingExtension', function (): void {
                 id: 'req-123',
                 call: new CallData(
                     function: 'urn:cline:forrst:fn:test:function',
-                    version: '1',
+                    version: '1.0.0',
                     arguments: ['key' => 'value'],
                 ),
             );

@@ -53,11 +53,13 @@
         {
             "name": "cursor",
             "schema": {
-                "type": "string"
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9+\/=_-]+$",
+                "description": "Opaque pagination cursor from previous response"
             },
             "required": false,
             "summary": null,
-            "description": "Pagination cursor",
+            "description": "Pagination cursor for retrieving next page",
             "default": null,
             "deprecated": null,
             "examples": null
@@ -74,39 +76,66 @@
                         "type": "object",
                         "properties": {
                             "id": {
-                                "type": "string"
+                                "type": "string",
+                                "pattern": "^op_[a-f0-9]{24}$",
+                                "description": "Unique operation identifier"
                             },
                             "function": {
-                                "type": "string"
+                                "type": "string",
+                                "description": "Function URN that was called"
                             },
                             "version": {
-                                "type": "string"
+                                "type": "string",
+                                "pattern": "^\\d+$",
+                                "description": "Function version"
                             },
                             "status": {
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "pending",
+                                    "processing",
+                                    "completed",
+                                    "failed",
+                                    "cancelled"
+                                ],
+                                "description": "Current operation status"
                             },
                             "progress": {
-                                "type": "number"
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1,
+                                "description": "Progress percentage (0-1)"
                             },
                             "started_at": {
-                                "type": "string",
-                                "format": "date-time"
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "format": "date-time",
+                                "description": "When operation started processing"
                             }
-                        }
+                        },
+                        "required": [
+                            "id",
+                            "function",
+                            "version",
+                            "status"
+                        ]
                     },
-                    "description": "List of operations"
+                    "description": "List of operations matching filter criteria"
                 },
                 "next_cursor": {
                     "type": "string",
-                    "description": "Pagination cursor for next page"
+                    "description": "Opaque cursor for fetching next page"
                 }
             },
             "required": [
                 "operations"
-            ]
+            ],
+            "additionalProperties": false
         },
         "collection": false,
-        "description": "Operation list response"
+        "description": "Paginated operation list response"
     },
     "errors": [
         {

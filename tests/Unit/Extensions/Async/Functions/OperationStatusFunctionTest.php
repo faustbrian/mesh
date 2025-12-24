@@ -180,7 +180,7 @@ describe('OperationStatusFunction', function (): void {
                 $operation = new OperationData(
                     'op-123',
                     'urn:app:forrst:fn:users:create',
-                    version: '1',
+                    version: '1.0.0',
                     status: OperationStatus::Pending,
                     startedAt: CarbonImmutable::now(),
                 );
@@ -192,7 +192,7 @@ describe('OperationStatusFunction', function (): void {
                 $function = new OperationStatusFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:status',
-                    ['operation_id' => 'op-123'],
+                    ['operation_id' => 'op_123456789012345678901'],
                 );
                 $function->setRequest($request);
 
@@ -213,7 +213,7 @@ describe('OperationStatusFunction', function (): void {
                 $operation = new OperationData(
                     'op-456',
                     'data.export',
-                    version: '1',
+                    version: '1.0.0',
                     status: OperationStatus::Processing,
                     progress: 0.65,
                     startedAt: CarbonImmutable::now(),
@@ -226,7 +226,7 @@ describe('OperationStatusFunction', function (): void {
                 $function = new OperationStatusFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:status',
-                    ['operation_id' => 'op-456'],
+                    ['operation_id' => 'op_456789012345678901234'],
                 );
                 $function->setRequest($request);
 
@@ -244,7 +244,7 @@ describe('OperationStatusFunction', function (): void {
                 $operation = new OperationData(
                     'op-789',
                     'orders.process',
-                    version: '1',
+                    version: '1.0.0',
                     status: OperationStatus::Completed,
                     result: ['order_id' => 'ord-123', 'total' => 99.99],
                     startedAt: CarbonImmutable::now()->subMinutes(5),
@@ -258,7 +258,7 @@ describe('OperationStatusFunction', function (): void {
                 $function = new OperationStatusFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:status',
-                    ['operation_id' => 'op-789'],
+                    ['operation_id' => 'op_789012345678901234567'],
                 );
                 $function->setRequest($request);
 
@@ -278,7 +278,7 @@ describe('OperationStatusFunction', function (): void {
                 $operation = new OperationData(
                     'op-999',
                     'payment.process',
-                    version: '1',
+                    version: '1.0.0',
                     status: OperationStatus::Failed,
                     errors: [
                         ErrorData::from([
@@ -297,7 +297,7 @@ describe('OperationStatusFunction', function (): void {
                 $function = new OperationStatusFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:status',
-                    ['operation_id' => 'op-999'],
+                    ['operation_id' => 'op_999012345678901234567'],
                 );
                 $function->setRequest($request);
 
@@ -317,7 +317,7 @@ describe('OperationStatusFunction', function (): void {
                 $operation = new OperationData(
                     'op-111',
                     'backup.create',
-                    version: '1',
+                    version: '1.0.0',
                     status: OperationStatus::Cancelled,
                     startedAt: CarbonImmutable::now()->subMinutes(10),
                     cancelledAt: CarbonImmutable::now()->subMinutes(5),
@@ -330,7 +330,7 @@ describe('OperationStatusFunction', function (): void {
                 $function = new OperationStatusFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:status',
-                    ['operation_id' => 'op-111'],
+                    ['operation_id' => 'op_111234567890123456789'],
                 );
                 $function->setRequest($request);
 
@@ -361,7 +361,7 @@ describe('OperationStatusFunction', function (): void {
                 $function = new OperationStatusFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:status',
-                    ['operation_id' => 'op-min'],
+                    ['operation_id' => 'op_min0123456789012345'],
                 );
                 $function->setRequest($request);
 
@@ -398,7 +398,7 @@ describe('OperationStatusFunction', function (): void {
                 $function = new OperationStatusFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:status',
-                    ['operation_id' => 'op-full'],
+                    ['operation_id' => 'op_full012345678901234'],
                 );
                 $function->setRequest($request);
 
@@ -427,7 +427,7 @@ describe('OperationStatusFunction', function (): void {
                 $function = new OperationStatusFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:status',
-                    ['operation_id' => 'nonexistent'],
+                    ['operation_id' => 'op_nonexistent01234567890'],
                 );
                 $function->setRequest($request);
 
@@ -470,7 +470,7 @@ describe('OperationStatusFunction', function (): void {
                 $function = new OperationStatusFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:status',
-                    ['operation_id' => 'op-123'],
+                    ['operation_id' => 'op_123456789012345678901'],
                 );
                 $function->setRequest($request);
 

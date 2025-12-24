@@ -97,7 +97,7 @@ describe('StreamExtension', function (): void {
                 id: 'req_123',
                 call: new CallData(
                     function: 'urn:cline:forrst:fn:test:function',
-                    version: '1',
+                    version: '1.0.0',
                     arguments: [],
                 ),
                 extensions: [],
@@ -120,7 +120,7 @@ describe('StreamExtension', function (): void {
                 id: 'req_123',
                 call: new CallData(
                     function: 'urn:cline:forrst:fn:test:function',
-                    version: '1',
+                    version: '1.0.0',
                     arguments: [],
                 ),
                 extensions: [
@@ -195,7 +195,7 @@ describe('StreamExtension', function (): void {
                 id: 'req_123',
                 call: new CallData(
                     function: 'urn:cline:forrst:fn:test:function',
-                    version: '1',
+                    version: '1.0.0',
                     arguments: [],
                 ),
                 extensions: [
@@ -220,7 +220,7 @@ describe('StreamExtension', function (): void {
                 id: 'req_123',
                 call: new CallData(
                     function: 'urn:cline:forrst:fn:test:function',
-                    version: '1',
+                    version: '1.0.0',
                     arguments: [],
                 ),
                 extensions: [

@@ -208,7 +208,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-123'],
+                    ['operation_id' => 'op_123456789012345678901'],
                 );
                 $function->setRequest($request);
                 $before = CarbonImmutable::now()->subSecond();
@@ -252,7 +252,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-456'],
+                    ['operation_id' => 'op_456789012345678901234'],
                 );
                 $function->setRequest($request);
 
@@ -287,7 +287,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-789'],
+                    ['operation_id' => 'op_789012345678901234567'],
                 );
                 $function->setRequest($request);
 
@@ -319,7 +319,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-999'],
+                    ['operation_id' => 'op_999012345678901234567'],
                 );
                 $function->setRequest($request);
                 $before = CarbonImmutable::now();
@@ -350,7 +350,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-save'],
+                    ['operation_id' => 'op_save01234567890123456'],
                 );
                 $function->setRequest($request);
 
@@ -386,7 +386,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-123'],
+                    ['operation_id' => 'op_123456789012345678901'],
                 );
                 $function->setRequest($request);
 
@@ -421,7 +421,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-time'],
+                    ['operation_id' => 'op_time01234567890123456'],
                 );
                 $function->setRequest($request);
 
@@ -445,7 +445,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'nonexistent'],
+                    ['operation_id' => 'op_nonexistent01234567890'],
                 );
                 $function->setRequest($request);
 
@@ -473,7 +473,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-completed'],
+                    ['operation_id' => 'op_completed012345678901'],
                 );
                 $function->setRequest($request);
 
@@ -499,7 +499,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-failed'],
+                    ['operation_id' => 'op_failed0123456789012'],
                 );
                 $function->setRequest($request);
 
@@ -524,7 +524,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-cancelled'],
+                    ['operation_id' => 'op_cancelled01234567890'],
                 );
                 $function->setRequest($request);
 
@@ -545,7 +545,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-123'],
+                    ['operation_id' => 'op_123456789012345678901'],
                 );
                 $function->setRequest($request);
 
@@ -571,7 +571,7 @@ describe('OperationCancelFunction', function (): void {
                 $function = new OperationCancelFunction($repository);
                 $request = RequestObjectData::asRequest(
                     'urn:cline:forrst:ext:async:fn:cancel',
-                    ['operation_id' => 'op-123'],
+                    ['operation_id' => 'op_123456789012345678901'],
                 );
                 $function->setRequest($request);
 

@@ -7,11 +7,14 @@
         {
             "name": "key",
             "schema": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[a-zA-Z0-9\\-_:.]+$"
             },
             "required": true,
             "summary": null,
-            "description": "Lock key (with scope prefix if applicable)",
+            "description": "Lock key (with scope prefix if applicable). Must contain only alphanumeric characters, dash, underscore, colon, and dot.",
             "default": null,
             "deprecated": null,
             "examples": null
@@ -19,11 +22,13 @@
         {
             "name": "owner",
             "schema": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "format": "uuid"
             },
             "required": true,
             "summary": null,
-            "description": "Owner token from lock acquisition",
+            "description": "Owner token from lock acquisition (UUID format)",
             "default": null,
             "deprecated": null,
             "examples": null

@@ -7,11 +7,15 @@
         {
             "name": "operation_id",
             "schema": {
-                "type": "string"
+                "type": "string",
+                "pattern": "^op_[a-f0-9]{24}$",
+                "minLength": 27,
+                "maxLength": 27,
+                "description": "Operation identifier (format: op_ followed by 24 hex characters)"
             },
             "required": true,
             "summary": null,
-            "description": "Operation ID to check",
+            "description": "Unique operation identifier",
             "default": null,
             "deprecated": null,
             "examples": null
@@ -47,6 +51,8 @@
                 },
                 "progress": {
                     "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
                     "description": "Progress percentage (0-1)"
                 },
                 "result": {

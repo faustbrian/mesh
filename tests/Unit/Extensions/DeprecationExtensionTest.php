@@ -92,7 +92,7 @@ describe('DeprecationExtension', function (): void {
             // Act
             $result = $extension->deprecateVersion(
                 function: 'urn:cline:forrst:fn:test:function',
-                version: '1',
+                version: '1.0.0',
                 message: 'Version 1 is deprecated',
                 sunsetDate: '2025-12-31',
                 replacementVer: '2',
@@ -115,7 +115,7 @@ describe('DeprecationExtension', function (): void {
                 id: 'req-123',
                 call: new CallData(
                     function: 'urn:cline:forrst:fn:test:function',
-                    version: '1',
+                    version: '1.0.0',
                 ),
             );
             $response = ResponseData::success(['data' => 'test'], $request->id);
@@ -248,7 +248,7 @@ describe('DeprecationExtension', function (): void {
             $extension = new DeprecationExtension();
             $extension->deprecateVersion(
                 function: 'urn:cline:forrst:fn:test:function',
-                version: '1',
+                version: '1.0.0',
                 message: 'Version 1 is deprecated',
                 replacementVer: '2',
             );
@@ -258,7 +258,7 @@ describe('DeprecationExtension', function (): void {
                 id: 'req-123',
                 call: new CallData(
                     function: 'urn:cline:forrst:fn:test:function',
-                    version: '1',
+                    version: '1.0.0',
                 ),
             );
             $response = ResponseData::success(['data' => 'test'], $request->id);
@@ -374,7 +374,7 @@ describe('DeprecationExtension', function (): void {
             $extension = new DeprecationExtension();
             $extension->deprecateVersion(
                 function: 'urn:cline:forrst:fn:test:function',
-                version: '1',
+                version: '1.0.0',
                 message: 'Version 1 is deprecated',
             );
 
@@ -466,7 +466,7 @@ describe('DeprecationExtension', function (): void {
             $extension = new DeprecationExtension();
             $extension->deprecateVersion(
                 function: 'urn:cline:forrst:fn:test:function',
-                version: '1',
+                version: '1.0.0',
                 message: 'Version 1 is deprecated',
             );
 
@@ -580,7 +580,7 @@ describe('DeprecationExtension', function (): void {
             $extension = new DeprecationExtension();
             $extension->deprecateVersion(
                 function: 'urn:cline:forrst:fn:test:function',
-                version: '1',
+                version: '1.0.0',
                 message: 'Version 1 is deprecated',
             );
 

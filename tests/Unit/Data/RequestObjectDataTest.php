@@ -19,7 +19,7 @@ describe('RequestObjectData', function (): void {
             // Arrange
             $call = new CallData(
                 function: 'urn:cline:forrst:fn:user:create',
-                version: '1',
+                version: '1.0.0',
                 arguments: ['name' => 'John Doe', 'email' => 'john@example.com'],
             );
 
