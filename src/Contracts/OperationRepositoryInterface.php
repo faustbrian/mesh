@@ -100,6 +100,22 @@ interface OperationRepositoryInterface
     public function delete(string $id, ?string $userId = null): void;
 
     /**
+     * Delete operations that expired before the given timestamp.
+     *
+     * Used for periodic cleanup of expired operations to prevent unbounded storage
+     * growth. Only deletes operations where expires_at (from metadata) is before
+     * the specified cutoff timestamp. System-level operation - no access control.
+     *
+     * RECOMMENDED: Run this as a scheduled job (e.g., hourly via cron).
+     *
+     * @param \DateTimeInterface $before Delete operations with expires_at before this time
+     * @param int                $limit  Maximum number of operations to delete per call (default: 1000)
+     *
+     * @return int Number of operations deleted
+     */
+    public function deleteExpiredBefore(\DateTimeInterface $before, int $limit = 1000): int;
+
+    /**
      * List operations with optional filters and access control.
      *
      * Retrieves a paginated list of operations matching the specified criteria.

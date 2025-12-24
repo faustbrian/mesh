@@ -9,6 +9,7 @@
 
 namespace Cline\Forrst;
 
+use Cline\Forrst\Console\Commands\CleanupExpiredOperationsCommand;
 use Cline\Forrst\Contracts\ProtocolInterface;
 use Cline\Forrst\Contracts\ResourceInterface;
 use Cline\Forrst\Data\Configuration\ConfigurationData;
@@ -59,6 +60,7 @@ final class ServiceProvider extends PackageServiceProvider
         $package
             ->name('forrst')
             ->hasConfigFile('rpc')
+            ->hasCommand(CleanupExpiredOperationsCommand::class)
             ->hasInstallCommand(function (InstallCommand $command): void {
                 $command->publishConfigFile();
                 $command->publishMigrations();
