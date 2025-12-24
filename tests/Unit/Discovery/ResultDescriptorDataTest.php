@@ -97,20 +97,16 @@ describe('ResultDescriptorData', function (): void {
         });
 
         test('creates instance with all fields populated', function (): void {
-            // Arrange
-            $schema = ['type' => 'string'];
-
-            // Act
+            // Arrange & Act
             $result = new ResultDescriptorData(
                 resource: 'order',
-                schema: $schema,
                 collection: true,
                 description: 'Order collection with pagination',
             );
 
             // Assert
             expect($result->resource)->toBe('order')
-                ->and($result->schema)->toBe($schema)
+                ->and($result->schema)->toBeNull()
                 ->and($result->collection)->toBeTrue()
                 ->and($result->description)->toBe('Order collection with pagination');
         });
@@ -159,22 +155,20 @@ describe('ResultDescriptorData', function (): void {
         });
 
         test('toArray handles null fields', function (): void {
-            // Arrange
-            $result = new ResultDescriptorData();
+            // Arrange - Must provide at least resource or schema
+            $result = new ResultDescriptorData(
+                resource: 'order',
+            );
 
             // Act
             $array = $result->toArray();
 
-            // Assert - Spatie Data may include null fields, verify they are null
-            if (array_key_exists('resource', $array)) {
-                expect($array['resource'])->toBeNull();
-            }
-
-            if (array_key_exists('schema', $array)) {
-                expect($array['schema'])->toBeNull();
-            }
-
-            expect($array)->toHaveKey('collection');
+            // Assert - schema should be null, description should not be in array
+            expect($array)->toHaveKey('resource')
+                ->and($array['resource'])->toBe('order')
+                ->and($array)->not->toHaveKey('schema')
+                ->and($array)->not->toHaveKey('description')
+                ->and($array)->toHaveKey('collection');
         });
 
         test('toArray includes description when set', function (): void {
