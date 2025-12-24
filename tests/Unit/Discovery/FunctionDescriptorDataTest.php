@@ -92,7 +92,7 @@ describe('FunctionDescriptorData', function (): void {
                 result: new ResultDescriptorData(resource: 'order'),
                 errors: $errors,
                 query: new QueryCapabilitiesData(),
-                deprecated: new DeprecatedData(reason: 'Use v3'),
+                deprecated: new DeprecatedData(reason: 'Use version 3 instead'),
                 sideEffects: ['create'],
                 discoverable: true,
                 examples: $examples,
