@@ -118,7 +118,7 @@ describe('LockForceReleaseFunction', function (): void {
                 $result = $function->getSummary();
 
                 // Assert
-                expect($result)->toBe('Force release a lock without ownership check (admin)');
+                expect($result)->toBe('Force release a lock without ownership check (admin only)');
             });
         });
 
@@ -202,7 +202,7 @@ describe('LockForceReleaseFunction', function (): void {
         });
 
         describe('getErrors()', function (): void {
-            test('returns array of ErrorDefinitionData with one error type', function (): void {
+            test('returns array of ErrorDefinitionData with two error types', function (): void {
                 // Arrange
                 $extension = new AtomicLockExtension();
                 $function = new LockForceReleaseFunction($extension);
@@ -212,8 +212,9 @@ describe('LockForceReleaseFunction', function (): void {
 
                 // Assert
                 expect($result)->toBeArray()
-                    ->and($result)->toHaveCount(1)
-                    ->and($result[0])->toBeInstanceOf(ErrorDefinitionData::class);
+                    ->and($result)->toHaveCount(2)
+                    ->and($result[0])->toBeInstanceOf(ErrorDefinitionData::class)
+                    ->and($result[1])->toBeInstanceOf(ErrorDefinitionData::class);
             });
 
             test('defines LockNotFound error', function (): void {
